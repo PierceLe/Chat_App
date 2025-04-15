@@ -1,0 +1,318 @@
+// Font import
+@import url("https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap");
+
+// Base Font
+$font-size-base: 14px;
+$font-size-sm: $font-size-base * 0.875;
+$font-size-lg: $font-size-base * 1.25;
+$font-weight-lighter: lighter;
+$font-weight-light: 300;
+$font-weight-normal: 400;
+$font-weight-medium: 500;
+$font-weight-semibold: 600;
+$font-weight-bold: 700;
+$font-weight-bolder: bolder;
+
+// Font Family
+$font-family-primary: "Archivo", sans-serif;
+$font-awesome: "Fontawesome";
+
+// Theme Colors Variables
+$primary: #6338f6;
+$primary-hover: darken($primary, 10%);
+$secondary: #60cbff;
+$secondary-hover: darken($secondary, 10%);
+$success: #0cc68c;
+$success-hover: darken($success, 10%);
+$info: #1b84ff;
+$info-hover: darken($info, 10%);
+$warning: #ffc107;
+$warning-hover: darken($warning, 10%);
+$danger: #fd3a55;
+$danger-hover: darken($danger, 10%);
+$dark: #0d1119;
+$light: #f7f8fa;
+$white: #fff;
+$black: #000;
+$purple: #ab47bc;
+$pink: #fd3995;
+$skyblue: #0dcaf0;
+$green: #4cdeb1;
+$teal: #02a8b5;
+//Dark mode
+$dark-color: #0d0d0d;
+$dark-light: #131313;
+
+// Primary
+$primary-100: #e3dbfd;
+$primary-200: #d5c9fd;
+$primary-300: #c7b7fc;
+$primary-400: #b9a6fb;
+$primary-500: #ab94fa;
+$primary-600: #9d82f9;
+$primary-700: #8f70f9;
+$primary-800: #815ef8;
+$primary-900: #734cf7;
+
+// Secondary
+$secondary-100: #e2f6ff;
+$secondary-200: #d4f1ff;
+$secondary-300: #c6ecff;
+$secondary-400: #b8e8ff;
+$secondary-500: #a9e3ff;
+$secondary-600: #9bdeff;
+$secondary-700: #8dd9ff;
+$secondary-800: #7ed5ff;
+$secondary-900: #70d0ff;
+
+// Pink
+$pink-100: #ffdbec;
+$pink-200: #fecae3;
+$pink-300: #feb8d9;
+$pink-400: #fea6d0;
+$pink-500: #fe94c6;
+$pink-600: #fe82bd;
+$pink-700: #fd71b3;
+$pink-800: #fd5faa;
+$pink-900: #fd4da0;
+
+// Light
+$light-100: #fefefe;
+$light-200: #fdfdfe;
+$light-300: #fcfdfd;
+$light-400: #fcfcfd;
+$light-500: #fbfbfd;
+$light-600: #fafbfc;
+$light-700: #f9fafc;
+$light-800: #f9fafb;
+$light-900: #f8f9fb;
+//Dark Mode
+$dark-light-900: #181818;
+$dark-transparent-dark: #222224;
+$dark-primary-transparent: #161616;
+
+// Gray
+$gray-100: #d0d1d4;
+$gray-200: #e5e7eb;
+$gray-300: #a1a4a9;
+$gray-400: #8a8d93;
+$gray-500: #72767d;
+$gray-600: #5b5f68;
+$gray-700: #434952;
+$gray-800: #2c323d;
+$gray-900: #141b27;
+//Dark Mode
+$dark-gray-900: #d8dfeb;
+
+// Info
+$info-100: #d6e9ff;
+$info-200: #c2deff;
+$info-300: #add3ff;
+$info-400: #99c8ff;
+$info-500: #84bcff;
+$info-600: #70b1ff;
+$info-700: #5ba6ff;
+$info-800: #479bff;
+$info-900: #3290ff;
+
+// Success
+$success-100: #effced;
+$success-200: #d1f2d1;
+$success-300: #baecb9;
+$success-400: #a3e5a2;
+$success-500: #8ddf8b;
+$success-600: #76d874;
+$success-700: #5fd25d;
+$success-800: #48cb45;
+$success-900: #1abe17;
+
+// Danger
+$danger-100: #ffdce0;
+$danger-200: #fecad1;
+$danger-300: #ffedf0;
+$danger-400: #b1f0a7;
+$danger-500: #a1ec95;
+$danger-600: #92e984;
+$danger-700: #82e672;
+$danger-800: #73e361;
+$danger-900: #4cdeb1;
+
+// Warning
+$warning-100: #faefcd;
+$warning-200: #f8e7b4;
+$warning-300: #feb8c2;
+$warning-400: #fea7b3;
+$warning-500: #fe95a3;
+$warning-600: #fe8394;
+$warning-700: #fd7185;
+$warning-800: #fd6075;
+$warning-900: #fd4e66;
+
+// Purple
+$purple-100: #f0def3;
+$purple-200: #e8cded;
+$purple-300: #e1bde7;
+$purple-400: #d9ace1;
+$purple-500: #d19bdb;
+$purple-600: #ca8bd5;
+$purple-700: #c27acf;
+$purple-800: #bb6ac9;
+$purple-900: #b359c3;
+
+// Skyblue
+$skyblue-100: #d3f5fc;
+$skyblue-200: #bef1fb;
+$skyblue-300: #a8ecfa;
+$skyblue-400: #92e7f9;
+$skyblue-500: #7ce2f7;
+$skyblue-600: #66ddf6;
+$skyblue-700: #51d9f5;
+$skyblue-800: #3bd4f3;
+$skyblue-900: #25cff2;
+
+$dark-100: #efeff2;
+$dark-200: #b9b7c080;
+$dark-300: #b9b7c0;
+$dark-400: #5b576bb2;
+$dark-500: #5b576b;
+$dark-600: #322d46;
+$dark-700: #1b1632;
+$dark-800: #131022;
+$dark-900: #0f0c1c;
+
+[data-theme="dark"] {
+  $white: #05c3fb;
+  $title-color: #fff;
+  $gray-900: #fff;
+  $dark-100: #fff;
+}
+
+$colors: (
+  "purple": $purple,
+  "pink": $pink,
+  "white": $white,
+  "gray": $gray-600,
+  "gray-dark": $gray-800,
+  "teal": $teal,
+);
+
+$theme-colors: (
+  "primary": $primary,
+  "secondary": $secondary,
+  "success": $success,
+  "info": $info,
+  "warning": $warning,
+  "danger": $danger,
+  "dark": $dark,
+  "light": $light,
+  "black": $black,
+  "purple": $purple,
+  "teal": $teal,
+);
+
+$text-color: #72767d;
+$title-color: #141b27;
+$sub-title: #6a7287;
+$body-bg: #fff;
+$text-muted: #677788;
+$default-background: #f7f8f9;
+$black-bg: #141432;
+$input-bg: #2c2c50;
+$form-control-bg: #ffffff;
+
+// Gradient Variables
+$primary-transparent: #f1edfe;
+$secondary-transparent: #f1faff;
+$success-transparent: #effced;
+$warning-transparent: #fdf7e6;
+$danger-transparent: #ffedf0;
+$info-transparent: #ebf4ff;
+$pink-transparent: #ffedf6;
+$light-transparent: #fefeff;
+$dark-transparent: #e8e8e9;
+$purple-transparent: #f7eef9;
+$skyblue-transparent: #e9fafe;
+$teal-transparent: #e6f9ff;
+//Dark Mode
+$dark-transparent-100: #222224;
+$purple-gradient: linear-gradient(to right, $purple 0%, #9b25b7 100%);
+$primary-gradient: linear-gradient(180deg, #f3f6ff 0%, #ffffff 100%);
+$secondary-gradient: linear-gradient(180deg, #e8fcff 0%, #ffffff 100%);
+$success-gradient: linear-gradient(180deg, #e8f9e8 0%, #ffffff 100%);
+$warning-gradient: linear-gradient(180deg, #fef8ea 0%, #ffffff 100%);
+$danger-gradient: linear-gradient(180deg, #fde9ed 0%, #ffffff 100%);
+$info-gradient: linear-gradient(180deg, #e7f1fc 0%, #ffffff 100%);
+$pink-gradient: linear-gradient(180deg, #ffa795 0%, #ffffff 100%);
+$teal-gradient: linear-gradient(180deg, #e6f9ff 0%, #ffffff 100%);
+$light-gradient: linear-gradient(180deg, #d1d6de 0%, #ffffff 100%);
+$dark-gradient: linear-gradient(180deg, #f3f6ff 0%, #ffffff 100%);
+$teal-gradient: linear-gradient(180deg, #e6f9ff 0%, #ffffff 100%);
+
+// Style Anchor Elements
+$link-color: $primary;
+$link-decoration: none;
+$link-shade-percentage: 20%;
+$link-hover-color: darken($link-color, 10%);
+$link-hover-decoration: null;
+$spacer: 1rem;
+
+// Border
+$border-width: 1px;
+$border-style: solid;
+$border-color: $dark-transparent;
+$default-border: $gray-400;
+$input-border: $dark-transparent;
+
+// Border Radius
+$border-radius: 4px;
+$border-radius-sm: 3px;
+$border-radius-lg: 5px;
+$border-radius-xl: 8px;
+$border-radius-xxl: 12px;
+$rounded: 50%;
+$rounded-pill: 1.5rem;
+
+// Box Shadow
+$box-shadow: 0px 1px 5px 1px rgba(243, 243, 243, 1);
+$box-shadow-xs: 0px 1px 5px 1px #f3f3f3;
+$box-shadow-sm: 0px 4.4px 12px -1px rgba(222, 222, 222, 0.36);
+$box-shadow-md:
+  0px 4px 9px -1px rgba(19, 16, 34, 0.03),
+  0px 4.4px 20px -1px rgba(19, 16, 34, 0.05);
+$box-shadow-lg: 0px 4px 10px 0px rgba(0, 0, 0, 0.1);
+$box-shadow-primary: 0px 0px 0px 2px rgba(99, 56, 246, 1) inset;
+
+// Font Size
+$font-size-8: 8px;
+$font-size-9: 9px;
+$font-size-10: 10px;
+$font-size-11: 11px;
+$font-size-12: 12px;
+$font-size-13: 13px;
+$font-size-14: 14px;
+$font-size-15: 15px;
+$font-size-16: 16px;
+$font-size-17: 17px;
+$font-size-18: 18px;
+$font-size-20: 20px;
+$font-size-22: 22px;
+$font-size-24: 24px;
+$font-size-26: 26px;
+$font-size-28: 28px;
+$font-size-30: 30px;
+$font-size-32: 32px;
+$font-size-34: 34px;
+$font-size-36: 36px;
+$font-size-38: 38px;
+$font-size-40: 40px;
+$font-size-42: 42px;
+$font-size-50: 50px;
+$font-size-54: 54px;
+$font-size-60: 60px;
+
+$h1-font-size: 28px;
+$h2-font-size: 24px;
+$h3-font-size: 20px;
+$h4-font-size: 18px;
+$h5-font-size: 16px;
+$h6-font-size: 14px;

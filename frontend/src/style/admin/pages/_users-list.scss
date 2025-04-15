@@ -1,0 +1,51 @@
+//Users-list
+.card {
+  .card-header {
+    h6 {
+      display: flex;
+      align-items: center;
+
+      span {
+        padding: 6px;
+        background-color: $pink;
+        color: $white;
+        font-size: 10px;
+        border-radius: 5px;
+        margin-left: 10px;
+      }
+    }
+  }
+
+  .card-body {
+    .table-responsive {
+      table {
+        tbody {
+          tr {
+            td {
+              .profile-name {
+                p {
+                  a {
+                    font-size: 14px;
+                    font-weight: 500;
+                  }
+                }
+              }
+
+              .file-icon {
+                background-color: $light-900;
+                border: 1px solid $dark-transparent;
+                padding: 5px;
+                border-radius: 5px;
+                color: $gray-500;
+                &:hover {
+                  background: $dark-transparent;
+                  color: $primary;
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

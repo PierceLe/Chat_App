@@ -1,0 +1,57 @@
+/*---------------------------------------------------------------------------------
+
+    Template Name: Dreamschat - Html Template
+    Version      : 2.7.6
+    Template URI: https://dreamschat.dreamstechnologies.com/
+    Author: Dreams Technologies
+    Author URI: https://themeforest.net/user/dreamstechnologies
+
+-----------------------------------------------------------------------------------
+
+/****** Utils ******/
+@import "utils/variables";
+@import "utils/mixins";
+
+/******* Base *******/
+@import "base/base";
+@import "base/background";
+
+/****** Layout ******/
+@import "layout/common";
+@import "layout/content";
+@import "layout/header";
+@import "layout/sidebar";
+@import "layout/dark-mode";
+
+/******* Components ******/
+@import "components/avatar";
+@import "components/boostrap";
+@import "components/button";
+@import "components/badge";
+@import "components/border";
+@import "components/chat";
+@import "components/dropdown";
+@import "components/icons";
+@import "components/progress";
+@import "components/pagination";
+@import "components/font";
+@import "components/typography";
+@import "components/alerts";
+@import "components/popovers";
+@import "components/forms";
+@import "components/accordion";
+@import "components/breadcrumb";
+@import "components/cards";
+@import "components/tooltips";
+@import "components/navs-tabs";
+@import "components/popup";
+
+/******* Pages ******/
+@import "pages/chat";
+@import "pages/login";
+@import "pages/status";
+@import "pages/profile";
+@import "pages/calls";
+
+/******* Vendors ******/
+@import "vendors/select2";

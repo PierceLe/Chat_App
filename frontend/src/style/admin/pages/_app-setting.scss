@@ -1,0 +1,173 @@
+.basic-info {
+  padding-bottom: 15px;
+  border-bottom: 1px solid $dark-transparent;
+}
+
+.company-img {
+  padding-top: 15px;
+  border-bottom: 1px solid $dark-transparent;
+
+  .company-img-title {
+    margin-bottom: 16px;
+
+    h6 {
+      font-size: 14px;
+    }
+
+    p {
+      font-size: 14px;
+      color: $gray-500;
+    }
+  }
+
+  .company-img-content {
+    padding: 29px 23px 27px 27px;
+    border: 2px dashed $dark-transparent;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 5px;
+    position: relative;
+
+    img {
+      width: 129px;
+    }
+
+    span {
+      background-color: $light-900;
+      padding: 5px;
+      border-radius: 5px;
+      border: 1px solid $dark-transparent;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: absolute;
+      top: -13px;
+      right: -10px;
+      color: $gray-500;
+      &:hover {
+        background: $danger;
+        border-color: $danger;
+        color: $white;
+      }
+    }
+
+    &.img-dark {
+      background-color: $dark;
+
+      img {
+        color: $white;
+      }
+    }
+
+    &.mini-icon {
+      width: 80px;
+      height: 80px;
+    }
+
+    &.dark-mini-icon {
+      width: 80px;
+      height: 80px;
+      background-color: $dark;
+    }
+
+    &.favicon-logo {
+      width: 80px;
+      height: 80px;
+    }
+  }
+
+  .social-auth {
+    .card-body {
+      .header-section {
+        padding-bottom: 16px;
+        border-bottom: 1px solid $dark-transparent;
+
+        .company-img-title {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          margin-bottom: 8px;
+
+          .social-icons {
+            display: flex;
+            align-items: center;
+
+            h6 {
+              font-weight: 500;
+            }
+
+            span {
+              width: 48px;
+              height: 48px;
+              border-radius: 5px;
+              background-color: $light;
+              padding: 8px;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              margin-right: 8px;
+            }
+          }
+
+          .badge {
+            padding: 6px;
+            border-radius: 5px;
+          }
+
+          p {
+            font-size: 14px;
+            font-weight: 400;
+            color: $gray-500;
+          }
+        }
+      }
+
+      .body-footer {
+        padding-top: 16px;
+        .footer-content {
+          .btn-white {
+            border: 1px solid $dark;
+            &:hover {
+              background-color: $dark;
+              color: $white;
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+.address-info {
+  padding-top: 15px;
+}
+
+.chat-settings-lists {
+  .chat-setting-icons {
+    width: 24px;
+    height: 24px;
+    background-color: $light-900;
+    border: 1px solid $dark-transparent;
+    padding: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 5px;
+    color: $gray-500;
+  }
+}
+
+.setting-content {
+  .card {
+    .card-body {
+      .body-header {
+        padding-bottom: 10px;
+        border-bottom: 1px solid $dark-transparent;
+      }
+      .body-content {
+        margin-top: 10px;
+      }
+    }
+  }
+}
