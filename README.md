@@ -131,6 +131,9 @@ WEB:
     DOMAIN: "http://localhost:3000"
   BACKEND:
     DOMAIN: "http://localhost:9990"
+    
+APP_GENERAL:
+  APP_NAME: "Dream Chat"
 ```
 
 ### Running the Server
