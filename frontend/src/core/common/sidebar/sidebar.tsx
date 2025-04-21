@@ -1,14 +1,17 @@
 import React, { useEffect, useState } from "react";
 import ImageWithBasePath from "../imageWithBasePath";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { all_routes } from "../../../feature-module/router/all_routes";
 import OverlayTrigger from "react-bootstrap/OverlayTrigger";
-import { Tooltip } from "antd";
+import { Avatar, Tooltip } from "antd";
 import { setDark } from "../../data/redux/commonSlice";
 import { logout } from "../../services/authService";
+import { UserData } from "@/core/services/contactService";
+import { getMeSelector } from "@/core/redux/selectors";
 
 const Sidebar = () => {
+  const userMe: UserData = useSelector(getMeSelector); 
   const routes = all_routes;
   const location = useLocation();
   const dispatch = useDispatch();
@@ -210,10 +213,13 @@ const Sidebar = () => {
                     className="avatar avatar-md"
                     data-bs-toggle="dropdown"
                   >
-                    <ImageWithBasePath
-                      src="assets/img/profiles/avatar-16.jpg"
-                      alt="img"
-                      className="rounded-circle"
+                    <Avatar
+                      size={30}
+                      src={
+                        userMe.avatar_url === 'default1'
+                          ? 'assets/img/profiles/avatar-16.jpg'
+                          : `http://localhost:9990/${userMe.avatar_url}`
+                      }
                     />
                   </Link>
                   <div className="dropdown-menu dropdown-menu-end p-3">
