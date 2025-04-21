@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import ImageWithBasePath from "../imageWithBasePath";
-import type { DatePickerProps } from "antd";
-import { Button, DatePicker, Modal, Spin } from "antd";
+import { DatePickerProps, Avatar } from "antd";
+import { UploadOutlined } from '@ant-design/icons';
+import { Button, DatePicker, Modal, Spin, Upload } from "antd";
 import LogoutModal from "../../modals/logout-modal";
 import Scrollbars from "react-custom-scrollbars-2";
 import { getMe } from "../../services/authService";
@@ -42,6 +43,11 @@ const SettingsTab = () => {
   const [confirmNewPassword, setConfirmNewPassword] = useState("")
   const [loadingChangePassword, setLoadingChangePassword] = useState(false)
   const [changePasswordErrorMessage, setChangePasswordErrorMessage] = useState("")
+  const [firstName, setFirstName] = useState("")
+  const [lastName, setLastName] = useState("")
+  const [avatarUrl, setAvatarUrl] = useState("")
+  const [updateUserInfoError, setUpdateUserInfoError] = useState("")
+  const [loadingUpdateUserInfo, setLoadingUpdateUserInfo] = useState(false)
 
   const handleChangeOldPassword = (e: any) => {
     setOldPassword(e.target.value);
@@ -54,6 +60,22 @@ const SettingsTab = () => {
   const handleChangeConfirmNewPassword = (e: any) => {
     setConfirmNewPassword(e.target.value);
   };
+
+  const handleChangeFirstName = (e: any) => {
+    setFirstName(e.target.value)
+  };
+
+  const handleChangeLastName = (e: any) => {
+    setLastName(e.target.value)
+  };
+
+  useEffect(() => {
+    if (userMe?.user_id) {
+      setFirstName(userMe.first_name)
+      setLastName(userMe.last_name)
+      setAvatarUrl(userMe.avatar_url)
+    }
+  }, [userMe]);
 
 
   const onChange: DatePickerProps["onChange"] = (date, dateString) => {
@@ -130,6 +152,78 @@ const SettingsTab = () => {
 
   }
 
+  const handleUpdateInfo =  async () => {
+    setUpdateUserInfoError("")
+
+    if (!firstName) {
+      setUpdateUserInfoError("First Name not be empty !")
+      return
+    }
+
+    if (!lastName) {
+      setUpdateUserInfoError("Last Name not be empty !")
+      return
+    }
+
+    try {
+      setLoadingUpdateUserInfo(true)
+      const res = await httpRequest.put("/user/update-me", {
+        first_name: firstName,
+        last_name: lastName,
+        avatar_url: avatarUrl
+      });
+      notify.success("Update Info successfully !")
+
+      // update state userMe
+      const responseMe: ApiResponse<UserData> = await httpRequest.post(`/user/me?ts=${Date.now()}`, {
+        headers: {
+          "Cache-Control": "no-cache",
+          "Pragma": "no-cache",
+          "Expires": "0"
+        }
+      });
+      dispatch(setMe(responseMe.result));
+      
+
+    } catch {
+      notify.error("Error", "Update Info failed !")
+
+    } finally {
+      setLoadingUpdateUserInfo(false)
+    }
+
+
+  }
+
+  const handleAvatarUpload = async (options) => {
+    const { file, onSuccess, onError } = options;
+  
+    const formData = new FormData();
+    formData.append('file', file);
+  
+    try {
+      const response = await httpRequest.post("/file/upload", formData, {
+        params: { type: 'public' },
+        headers: {
+          Accept: 'application/json'
+        },
+      });
+  
+      if (response.code !== 0) {
+        notify.error("Upload Avatar Failed", "Upload Avatar image failed !")
+        onError(new Error('Upload Avatar Failed'));
+        return
+      }
+  
+      const uploadedUrl = response.result;
+      onSuccess(uploadedUrl);
+      setAvatarUrl(uploadedUrl)
+    } catch (error) {
+      onError(error);
+      notify.error("Upload Avatar Failed", "Upload Avatar image failed !")
+    }
+  };
+
   return (
     <>
       {/* Profile sidebar */}
@@ -199,15 +293,29 @@ const SettingsTab = () => {
                           <div className="accordion-body">
                             <div>
                               <div className="d-flex justify-content-center align-items-center">
-                                <span className="set-pro avatar avatar-xxl rounded-circle mb-3 p-1">
-                                  <ImageWithBasePath
-                                    src="assets/img/profiles/avatar-16.jpg"
-                                    className="rounded-circle"
-                                    alt="user"
-                                  />
-                                  <span className="add avatar avatar-sm d-flex justify-content-center align-items-center">
-                                    <i className="ti ti-plus rounded-circle d-flex justify-content-center align-items-center" />
-                                  </span>
+                                <span className="set-pro avatar avatar-xxl rounded-circle mb-3 p-1" style={{ position: 'relative' }}>
+                                  <Upload
+                                    name="file"
+                                    customRequest={handleAvatarUpload}  
+                                    listType="picture-card"
+                                    showUploadList={false}
+                                    accept="image/*"
+                                    onChange={({ file, fileList }) => {
+                                      if (file.status === 'done') {
+                                        setAvatarUrl(file.response);
+                                      }
+                                    }}
+                                  >
+                                    <Avatar
+                                      size={100}
+                                      src={
+                                        avatarUrl === 'default1'
+                                          ? 'assets/img/profiles/avatar-16.jpg'
+                                          : `http://localhost:9990/${avatarUrl}`
+                                      }
+                                      icon={<UploadOutlined />}
+                                    />
+                                  </Upload>
                                 </span>
                               </div>
                               <div className="row">
@@ -219,7 +327,8 @@ const SettingsTab = () => {
                                       defaultValue=""
                                       className="form-control"
                                       placeholder="First Name"
-                                      value={userMe?.first_name}
+                                      value={firstName}
+                                      onChange={handleChangeFirstName}
                                     />
                                   </div>
                                 </div>
@@ -231,7 +340,8 @@ const SettingsTab = () => {
                                       defaultValue=""
                                       className="form-control"
                                       placeholder="Last Name"
-                                      value={userMe?.last_name}
+                                      value={lastName}
+                                      onChange={handleChangeLastName}
                                     />
                                   </div>
                                 </div>
@@ -257,6 +367,18 @@ const SettingsTab = () => {
                                     Save Changes
                                   </Link>
                                 </div> */}
+                              </div>
+                              <Button
+                                className="w-100 btn-primary"
+                                icon={<SaveOutlined />}
+                                size="large"
+                                loading={loadingUpdateUserInfo}
+                                onClick={() => handleUpdateInfo()}
+                              >
+                                Update Info
+                              </Button>
+                              <div className="text-danger text-center mt-2">
+                                {updateUserInfoError }
                               </div>
                             </div>
                           </div>

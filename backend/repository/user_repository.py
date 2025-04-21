@@ -1,6 +1,7 @@
 from sqlalchemy.orm import Session
 from database import get_db
 from model.user import User
+from dto.request.auth.user_update_request import UserUpdateRequest
 
 
 class UserRepository():
@@ -93,6 +94,21 @@ class UserRepository():
         if db_user:
             db_user.use_2fa_login = True
             db_user.two_factor_secret = two_factor_secret
+            self.db.flush()
+            self.db.commit()
+            self.db.refresh(db_user)
+            return True
+        return False
+    
+    def update_user_info(self, user_id: str, user_update: UserUpdateRequest) -> bool:
+        db_user = self.db.query(User).filter(User.user_id == user_id).first()
+
+        if db_user:
+            update_data = user_update.dict(exclude_unset=True) 
+
+            for key, value in update_data.items():
+                setattr(db_user, key, value)
+
             self.db.flush()
             self.db.commit()
             self.db.refresh(db_user)
