@@ -1,5 +1,6 @@
 from fastapi.staticfiles import StaticFiles
 import uvicorn
+import os
 from fastapi import FastAPI, HTTPException, Depends, Request
 from controller.auth_controller import auth_router
 from controller.user_controller import user_router
@@ -13,7 +14,8 @@ from middleware.token_middleware import TokenMiddleware
 from utils.token import verify_token
 from fastapi.middleware.cors import CORSMiddleware
 
-
+if not os.path.exists("bucket"):
+    os.makedirs("bucket")
 
 app = FastAPI()
 
