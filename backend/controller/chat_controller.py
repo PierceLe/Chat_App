@@ -36,7 +36,10 @@ async def websocket_endpoint(websocket: WebSocket, access_token=Cookie(...)):
     # Connecting via WebSocket and add to the list of connected
     await websocket.accept()
 
-    map_user_connection[current_user.user_id] = websocket
+    if current_user.user_id not in map_user_connection:
+        map_user_connection[current_user.user_id] = websocket
+        await update_status(is_online = True, user_id = current_user.user_id)
+
 
     list_room_of_current_user = user_room_service.get_all_room_of_user(current_user.user_id)
 
@@ -62,6 +65,7 @@ async def websocket_endpoint(websocket: WebSocket, access_token=Cookie(...)):
         print(f"Error: {e}")
     finally:
         map_user_connection.pop(current_user.user_id, None)
+        await update_status(is_online = False, user_id = current_user.user_id)
 
 
 async def broadcast_message(room_id: str, message: str):
@@ -75,6 +79,12 @@ async def broadcast_message(room_id: str, message: str):
         except Exception as e:
             print(f"Error sending message: {e}")
 
+async def boardcast(message: str):
+    for user_id in map_user_connection:
+        try:
+            await map_user_connection[user_id].send_text(message)
+        except Exception as e:
+            print(f"Error sending message: {e}")
 
 @chat_router.get("")
 async def get_all_mess_in_room(room_id: str):
@@ -89,6 +99,9 @@ async def get_more_mess_in_room(request: MoreMessageRequest):
         limit=request.limit
     ))
 
+@chat_router.get("/online-user")
+async def get_online_user_ids():
+    return SuccessResponse(result= list(map_user_connection.keys()))
 
 async def chat(data_json, current_user):
     data = data_json["data"]
@@ -197,3 +210,19 @@ async def make_request_friend(data_json, current_user):
             await map_user_connection[to_user.user_id].send_text(res.json())
     except Exception as e:
         print(f"Error sending message: {e}")
+
+async def update_status(is_online: bool, user_id: str):
+    online_user_ids = []
+    offline_user_ids = []
+    if is_online:
+        online_user_ids.append(user_id)
+    else:
+        offline_user_ids.append(user_id)
+    res = WebSocketResponse(
+        action="update-status",
+        data = {
+            "online_user_ids": online_user_ids,
+            "offline_user_ids": offline_user_ids
+        }
+    )
+    boardcast(res.json())
