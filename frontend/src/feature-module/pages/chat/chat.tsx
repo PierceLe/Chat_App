@@ -672,7 +672,7 @@ const Chat = () => {
                   </Link>
                   <ul className="dropdown-menu dropdown-menu-end p-3">
                     <li>
-                      <Link to={all_routes.dashboard} className="dropdown-item">
+                      <Link to={all_routes.index} className="dropdown-item">
                         <i className="ti ti-x me-2" />
                         Close Chat
                       </Link>
