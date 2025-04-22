@@ -12,6 +12,7 @@ import {
 import useDebounce from "../../hooks/useDebounce";
 import ContactDetailsCustom from "../../modals/contact-details-custom";
 import { wsClient } from "@/core/services/websocket";
+import { Avatar } from "antd";
 
 const ContactTab = () => {
   const [friends, setFriends] = useState(Array<UserData>);
@@ -114,10 +115,13 @@ const ContactTab = () => {
               }}
             >
               <div className="avatar avatar-lg online me-2">
-                <ImageWithBasePath
-                  src={avatar_url}
-                  className="rounded-circle"
-                  alt="image"
+                <Avatar
+                  size={32}
+                  src={
+                    avatar_url === 'default'
+                      ? 'assets/img/profiles/avatar-16.jpg'
+                      : `http://localhost:9990/${avatar_url}`
+                  }
                 />
               </div>
               <div className="chat-user-info">
@@ -164,10 +168,13 @@ const ContactTab = () => {
               }}
             >
               <div className="avatar avatar-lg online me-2">
-                <ImageWithBasePath
-                  src={avatar_url}
-                  className="rounded-circle"
-                  alt="image"
+                <Avatar
+                  size={32}
+                  src={
+                    avatar_url === 'default'
+                      ? 'assets/img/profiles/avatar-16.jpg'
+                      : `http://localhost:9990/${avatar_url}`
+                  }
                 />
               </div>
               <div className="chat-user-info">

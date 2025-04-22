@@ -216,7 +216,7 @@ const Sidebar = () => {
                     <Avatar
                       size={32}
                       src={
-                        userMe.avatar_url === 'default1'
+                        userMe.avatar_url === 'default'
                           ? 'assets/img/profiles/avatar-16.jpg'
                           : `http://localhost:9990/${userMe.avatar_url}`
                       }
