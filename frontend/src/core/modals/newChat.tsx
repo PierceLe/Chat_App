@@ -4,6 +4,7 @@ import ImageWithBasePath from "../common/imageWithBasePath";
 import { getAllFriends, UserData } from "../services/contactService";
 import { createRoom } from "../services/roomService";
 import { wsClient } from "../services/websocket";
+import { Avatar } from "antd";
 
 const NewChat = () => {
   const [friends, setFriends] = useState(Array<UserData>);
@@ -58,10 +59,13 @@ const NewChat = () => {
         <div className="contact-user d-flex align-items-center justify-content-between">
           <div className="d-flex align-items-center">
             <div className="avatar avatar-lg">
-              <ImageWithBasePath
-                src="assets/img/profiles/avatar-01.jpg"
-                className="rounded-circle"
-                alt="image"
+              <Avatar
+                size={32}
+                src={
+                  avatar_url === 'default'
+                    ? 'assets/img/profiles/avatar-16.jpg'
+                    : `http://localhost:9990/${avatar_url}`
+                }
               />
             </div>
             <div className="ms-2">
