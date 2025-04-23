@@ -112,6 +112,7 @@ const ChatTab = () => {
     friend_email: string;
     friend_frist_name: string;
     friend_last_name: string;
+    friend_avatar_url: string;
   };
 
   const OneChatOneGroup = ({
@@ -135,6 +136,7 @@ const ChatTab = () => {
       friend_email,
       friend_frist_name,
       friend_last_name,
+      friend_avatar_url
     };
     return (
       <>
@@ -148,9 +150,9 @@ const ChatTab = () => {
               <Avatar
                 size={32}
                 src={
-                  avatar_url === 'default'
+                  friend_avatar_url === 'default'
                     ? 'assets/img/profiles/avatar-16.jpg'
-                    : `http://localhost:9990/${avatar_url}`
+                    : `http://localhost:9990/${friend_avatar_url}`
                 }
               />
             </div>

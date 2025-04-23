@@ -179,9 +179,9 @@ const Chat = () => {
             <Avatar
               size={32}
               src={
-                me.avatar_url === 'default'
+                sender.avatar_url === 'default'
                   ? 'assets/img/profiles/avatar-16.jpg'
-                  : `http://localhost:9990/${me.avatar_url}`
+                  : `http://localhost:9990/${sender.avatar_url}`
               }
             />
           </div>
@@ -601,231 +601,247 @@ const Chat = () => {
 
   return (
     <>
+    
       {/* Chat */}
       <div className={`chat chat-messages show`} id="middle">
-        <div>
-          <div className="chat-header">
-            <div className="user-details">
-              <div className="d-xl-none">
-                <Link className="text-muted chat-close me-2" to="#">
-                  <i className="fas fa-arrow-left" />
-                </Link>
-              </div>
-              <div className="avatar avatar-lg online flex-shrink-0">
-                <Avatar
-                  size={32}
-                  src={
-                    me.avatar_url === 'default'
-                      ? 'assets/img/profiles/avatar-16.jpg'
-                      : `http://localhost:9990/${me.avatar_url}`
-                  }
-                />
-              </div>
-              <div className="ms-2 overflow-hidden">
-                <h6>{`${state.friend_frist_name} ${state.friend_last_name}`}</h6>
-                <span className="last-seen">Online</span>
-              </div>
-            </div>
-            <div className="chat-options">
-              <ul>
-                <li>
-                  <Tooltip title="Search" placement="bottom">
-                    <Link
-                      to="#"
-                      className="btn chat-search-btn"
-                      onClick={() => toggleSearch()}
-                    >
-                      <i className="ti ti-search" />
-                    </Link>
-                  </Tooltip>
-                </li>
-                <li>
-                  <Tooltip title="Video Call" placement="bottom">
-                    <Link
-                      to="#"
-                      className="btn"
-                      data-bs-toggle="modal"
-                      data-bs-target="#video-call"
-                    >
-                      <i className="ti ti-video" />
-                    </Link>
-                  </Tooltip>
-                </li>
-                <li>
-                  <Tooltip title="Voice Call" placement="bottom">
-                    <Link
-                      to="#"
-                      className="btn"
-                      data-bs-toggle="modal"
-                      data-bs-target="#voice_call"
-                    >
-                      <i className="ti ti-phone" />
-                    </Link>
-                  </Tooltip>
-                </li>
-                <li>
-                  <Tooltip title="Contact Info" placement="bottom">
-                    <Link
-                      to="#"
-                      className="btn"
-                      data-bs-toggle="offcanvas"
-                      data-bs-target="#contact-profile"
-                    >
-                      <i className="ti ti-info-circle" />
-                    </Link>
-                  </Tooltip>
-                </li>
-                <li>
-                  <Link className="btn no-bg" to="#" data-bs-toggle="dropdown">
-                    <i className="ti ti-dots-vertical" />
-                  </Link>
-                  <ul className="dropdown-menu dropdown-menu-end p-3">
-                    <li>
-                      <Link to={all_routes.dashboard} className="dropdown-item">
-                        <i className="ti ti-x me-2" />
-                        Close Chat
-                      </Link>
-                    </li>
-                    <li>
-                      <Link
-                        to="#"
-                        className="dropdown-item"
-                        data-bs-toggle="modal"
-                        data-bs-target="#mute-notification"
-                      >
-                        <i className="ti ti-volume-off me-2" />
-                        Mute Notification
-                      </Link>
-                    </li>
-                    <li>
-                      <Link
-                        to="#"
-                        className="dropdown-item"
-                        data-bs-toggle="modal"
-                        data-bs-target="#disappearing-messages"
-                      >
-                        <i className="ti ti-clock-hour-4 me-2" />
-                        Disappearing Message
-                      </Link>
-                    </li>
-                    <li>
-                      <Link
-                        to="#"
-                        className="dropdown-item"
-                        data-bs-toggle="modal"
-                        data-bs-target="#clear-chat"
-                      >
-                        <i className="ti ti-clear-all me-2" />
-                        Clear Message
-                      </Link>
-                    </li>
-                    <li>
-                      <Link
-                        to="#"
-                        className="dropdown-item"
-                        data-bs-toggle="modal"
-                        data-bs-target="#delete-chat"
-                      >
-                        <i className="ti ti-trash me-2" />
-                        Delete Chat
-                      </Link>
-                    </li>
-                    <li>
-                      <Link
-                        to="#"
-                        className="dropdown-item"
-                        data-bs-toggle="modal"
-                        data-bs-target="#report-user"
-                      >
-                        <i className="ti ti-thumb-down me-2" />
-                        Report
-                      </Link>
-                    </li>
-                    <li>
-                      <Link
-                        to="#"
-                        className="dropdown-item"
-                        data-bs-toggle="modal"
-                        data-bs-target="#block-user"
-                      >
-                        <i className="ti ti-ban me-2" />
-                        Block
-                      </Link>
-                    </li>
-                  </ul>
-                </li>
-              </ul>
-            </div>
-            {/* Chat Search */}
-            <div
-              className={`chat-search search-wrap contact-search ${showSearch ? "visible-chat" : ""}`}
-            >
-              <form>
-                <div className="input-group">
-                  <input
-                    type="text"
-                    className="form-control"
-                    placeholder="Search Contacts"
-                  />
-                  <span className="input-group-text">
-                    <i className="ti ti-search" />
-                  </span>
-                </div>
-              </form>
-            </div>
-            {/* /Chat Search */}
-          </div>
-          <Scrollbars
-            ref={scrollbarsRef}
-            autoHide
-            autoHideTimeout={1000}
-            autoHideDuration={200}
-            autoHeight
-            autoHeightMin={0}
-            autoHeightMax="88vh"
-            thumbMinSize={30}
-            universal={false}
-            hideTracksWhenNotNeeded={true}
-            onScrollFrame={handleScroll}
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            height: "100vh",
+          }}
+          
           >
-            <div className="chat-body chat-page-group ">
-              <div className="messages">
-                {messages.map((item) => {
-                  if (item.sender.user_id === me.user_id) {
-                    return (
-                      <OneMessageInRight
-                        key={item.id}
-                        id={item.id}
-                        room_id={item.room_id}
-                        message_type={item.message_type}
-                        content={item.content}
-                        file_url={item.file_url}
-                        created_at={item.created_at}
-                        updated_at={item.updated_at}
-                        sender={item.sender}
-                      ></OneMessageInRight>
-                    );
-                  } else {
-                    return (
-                      <OneMessageInLeft
-                        key={item.id}
-                        id={item.id}
-                        room_id={item.room_id}
-                        message_type={item.message_type}
-                        content={item.content}
-                        file_url={item.file_url}
-                        created_at={item.created_at}
-                        updated_at={item.updated_at}
-                        sender={item.sender}
-                      ></OneMessageInLeft>
-                    );
-                  }
-                })}
+          <div style={{ flex: 1, overflowY: "auto" }}>
+            <div className="chat-header">
+              <div className="user-details">
+                <div className="d-xl-none">
+                  <Link className="text-muted chat-close me-2" to="#">
+                    <i className="fas fa-arrow-left" />
+                  </Link>
+                </div>
+                <div className="avatar avatar-lg online flex-shrink-0">
+                  <Avatar
+                    size={32}
+                    src={
+                      state.friend_avatar_url === 'default'
+                        ? 'assets/img/profiles/avatar-16.jpg'
+                        : `http://localhost:9990/${state.friend_avatar_url}`
+                    }
+                  />
+                </div>
+                <div className="ms-2 overflow-hidden">
+                  <h6>{`${state.friend_frist_name} ${state.friend_last_name}`}</h6>
+                  <span className="last-seen">Online</span>
+                </div>
               </div>
+              <div className="chat-options">
+                <ul>
+                  <li>
+                    <Tooltip title="Search" placement="bottom">
+                      <Link
+                        to="#"
+                        className="btn chat-search-btn"
+                        onClick={() => toggleSearch()}
+                      >
+                        <i className="ti ti-search" />
+                      </Link>
+                    </Tooltip>
+                  </li>
+                  <li>
+                    <Tooltip title="Video Call" placement="bottom">
+                      <Link
+                        to="#"
+                        className="btn"
+                        data-bs-toggle="modal"
+                        data-bs-target="#video-call"
+                      >
+                        <i className="ti ti-video" />
+                      </Link>
+                    </Tooltip>
+                  </li>
+                  <li>
+                    <Tooltip title="Voice Call" placement="bottom">
+                      <Link
+                        to="#"
+                        className="btn"
+                        data-bs-toggle="modal"
+                        data-bs-target="#voice_call"
+                      >
+                        <i className="ti ti-phone" />
+                      </Link>
+                    </Tooltip>
+                  </li>
+                  <li>
+                    <Tooltip title="Contact Info" placement="bottom">
+                      <Link
+                        to="#"
+                        className="btn"
+                        data-bs-toggle="offcanvas"
+                        data-bs-target="#contact-profile"
+                      >
+                        <i className="ti ti-info-circle" />
+                      </Link>
+                    </Tooltip>
+                  </li>
+                  <li>
+                    <Link className="btn no-bg" to="#" data-bs-toggle="dropdown">
+                      <i className="ti ti-dots-vertical" />
+                    </Link>
+                    <ul className="dropdown-menu dropdown-menu-end p-3">
+                      <li>
+                        <Link to={all_routes.dashboard} className="dropdown-item">
+                          <i className="ti ti-x me-2" />
+                          Close Chat
+                        </Link>
+                      </li>
+                      <li>
+                        <Link
+                          to="#"
+                          className="dropdown-item"
+                          data-bs-toggle="modal"
+                          data-bs-target="#mute-notification"
+                        >
+                          <i className="ti ti-volume-off me-2" />
+                          Mute Notification
+                        </Link>
+                      </li>
+                      <li>
+                        <Link
+                          to="#"
+                          className="dropdown-item"
+                          data-bs-toggle="modal"
+                          data-bs-target="#disappearing-messages"
+                        >
+                          <i className="ti ti-clock-hour-4 me-2" />
+                          Disappearing Message
+                        </Link>
+                      </li>
+                      <li>
+                        <Link
+                          to="#"
+                          className="dropdown-item"
+                          data-bs-toggle="modal"
+                          data-bs-target="#clear-chat"
+                        >
+                          <i className="ti ti-clear-all me-2" />
+                          Clear Message
+                        </Link>
+                      </li>
+                      <li>
+                        <Link
+                          to="#"
+                          className="dropdown-item"
+                          data-bs-toggle="modal"
+                          data-bs-target="#delete-chat"
+                        >
+                          <i className="ti ti-trash me-2" />
+                          Delete Chat
+                        </Link>
+                      </li>
+                      <li>
+                        <Link
+                          to="#"
+                          className="dropdown-item"
+                          data-bs-toggle="modal"
+                          data-bs-target="#report-user"
+                        >
+                          <i className="ti ti-thumb-down me-2" />
+                          Report
+                        </Link>
+                      </li>
+                      <li>
+                        <Link
+                          to="#"
+                          className="dropdown-item"
+                          data-bs-toggle="modal"
+                          data-bs-target="#block-user"
+                        >
+                          <i className="ti ti-ban me-2" />
+                          Block
+                        </Link>
+                      </li>
+                    </ul>
+                  </li>
+                </ul>
+              </div>
+              {/* Chat Search */}
+              <div
+                className={`chat-search search-wrap contact-search ${showSearch ? "visible-chat" : ""}`}
+              >
+                <form>
+                  <div className="input-group">
+                    <input
+                      type="text"
+                      className="form-control"
+                      placeholder="Search Contacts"
+                    />
+                    <span className="input-group-text">
+                      <i className="ti ti-search" />
+                    </span>
+                  </div>
+                </form>
+              </div>
+              {/* /Chat Search */}
             </div>
-          </Scrollbars>
+            <Scrollbars
+              ref={scrollbarsRef}
+              autoHide
+              autoHideTimeout={1000}
+              autoHideDuration={200}
+              autoHeight
+              autoHeightMin={0}
+              autoHeightMax="88vh"
+              thumbMinSize={30}
+              universal={false}
+              hideTracksWhenNotNeeded={true}
+              onScrollFrame={handleScroll}
+            >
+              <div className="chat-body chat-page-group ">
+                <div className="messages">
+                  {messages.map((item) => {
+                    if (item.sender.user_id === me.user_id) {
+                      return (
+                        <OneMessageInRight
+                          key={item.id}
+                          id={item.id}
+                          room_id={item.room_id}
+                          message_type={item.message_type}
+                          content={item.content}
+                          file_url={item.file_url}
+                          created_at={item.created_at}
+                          updated_at={item.updated_at}
+                          sender={item.sender}
+                        ></OneMessageInRight>
+                      );
+                    } else {
+                      return (
+                        <OneMessageInLeft
+                          key={item.id}
+                          id={item.id}
+                          room_id={item.room_id}
+                          message_type={item.message_type}
+                          content={item.content}
+                          file_url={item.file_url}
+                          created_at={item.created_at}
+                          updated_at={item.updated_at}
+                          sender={item.sender}
+                        ></OneMessageInLeft>
+                      );
+                    }
+                  })}
+                </div>
+              </div>
+            </Scrollbars>
+          </div>
         </div>
-        <div className="chat-footer">
+        <div 
+          className="chat-footer" 
+          style={{
+          borderTop: "1px solid #eee",
+          background: "#fff",
+          padding: "10px",
+        }}>
           <form className="footer-form" onSubmit={handleSendMessage}>
             <div className="chat-footer-wrap">
               <div className="form-item">
@@ -840,10 +856,13 @@ const Chat = () => {
                   }`}
                 >
                   <div className="chat-avatar">
-                    <ImageWithBasePath
-                      src="assets/img/profiles/avatar-06.jpg"
-                      className="rounded-circle"
-                      alt="image"
+                    <Avatar
+                      size={32}
+                      src={
+                        state.friend_avatar_url === 'default'
+                          ? 'assets/img/profiles/avatar-16.jpg'
+                          : `http://localhost:9990/${state.friend_avatar_url}`
+                      }
                     />
                   </div>
                   <div className="chat-content">
