@@ -1,18 +1,18 @@
 import React, { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
-import ImageWithBasePath from "../common/imageWithBasePath";
+import { Modal, Avatar, Button } from "antd";
 import { getAllFriends, UserData } from "../services/contactService";
 import { createRoom } from "../services/roomService";
 import { wsClient } from "../services/websocket";
-import { Avatar } from "antd";
 
-const NewChat = () => {
-  const [friends, setFriends] = useState(Array<UserData>);
-  const [selectedUserId, setSelectedUserId] = useState("");
+const NewChat = ({ isModalVisible, onClose }: { isModalVisible: boolean; onClose: () => void }) => {
+  const [friends, setFriends] = useState<Array<UserData>>([]);
+  const [selectedUserId, setSelectedUserId] = useState<string>("");
 
   useEffect(() => {
-    fetchApiGetFriend();
-  }, []);
+    if (isModalVisible) {
+      fetchApiGetFriend();
+    }
+  }, [isModalVisible]);
 
   const fetchApiGetFriend = async () => {
     const result = await getAllFriends();
@@ -29,21 +29,24 @@ const NewChat = () => {
 
   const handleCreateRoom = async () => {
     if (selectedUserId) {
-      const room_id: any = await createRoom("Chat 1-1", 1, "", "chat 1-1", Array.from([selectedUserId]));
-      console.log("room_id: ", room_id)
-      if (room_id){
+      const room_id: any = await createRoom("Chat 1-1", 1, "", "chat 1-1", [selectedUserId]);
+      console.log("room_id: ", room_id);
+      if (room_id) {
         wsClient.send({
           action: "join",
-          data : {
-            user_ids: Array.from([selectedUserId]),
-            room_id: room_id
-          }
-          });
+          data: {
+            user_ids: [selectedUserId],
+            room_id: room_id,
+          },
+        });
       }
-      
+
       // Dispatch custom event to notify ChatTab
       const event = new Event("chatCreated");
       window.dispatchEvent(event);
+
+      // Close the modal after creating the chat room
+      onClose();
     }
   };
 
@@ -55,112 +58,90 @@ const NewChat = () => {
     avatar_url,
   }: UserData) => {
     return (
-      <>
-        <div className="contact-user d-flex align-items-center justify-content-between">
-          <div className="d-flex align-items-center">
-            <div className="avatar avatar-lg">
-              <Avatar
-                size={32}
-                src={
-                  avatar_url === 'default'
-                    ? 'assets/img/profiles/avatar-16.jpg'
-                    : `http://localhost:9990/${avatar_url}`
-                }
-              />
-            </div>
-            <div className="ms-2">
-              <h6>{first_name + " " + last_name}</h6>
-              <p>{email}</p>
-            </div>
-          </div>
-          <div className="form-check">
-            <input
-              className="form-check-input"
-              type="checkbox"
-              name="contact"
-              checked={user_id === selectedUserId}
-              onChange={(e) => handleCheckboxChange(user_id, e.target.checked)}
+      <div className="contact-user d-flex align-items-center justify-content-between">
+        <div className="d-flex align-items-center">
+          <div className="avatar avatar-lg">
+            <Avatar
+              size={32}
+              src={
+                avatar_url === "default"
+                  ? "assets/img/profiles/avatar-16.jpg"
+                  : `http://localhost:9990/${avatar_url}`
+              }
             />
           </div>
+          <div className="ms-2">
+            <h6>{first_name + " " + last_name}</h6>
+            <p>{email}</p>
+          </div>
         </div>
-      </>
+        <div className="form-check">
+          <input
+            className="form-check-input"
+            type="checkbox"
+            name="contact"
+            checked={user_id === selectedUserId}
+            onChange={(e) => handleCheckboxChange(user_id, e.target.checked)}
+          />
+        </div>
+      </div>
     );
   };
 
   return (
-    <>
-      {/* New Chat */}
-      <div className="modal fade" id="new-chat">
-        <div className="modal-dialog modal-dialog-centered">
-          <div className="modal-content">
-            <div className="modal-header">
-              <h4 className="modal-title">New Chat</h4>
-              <button
-                type="button"
-                className="btn-close"
-                data-bs-dismiss="modal"
-                aria-label="Close"
-              >
-                <i className="ti ti-x" />
-              </button>
-            </div>
-            <div className="modal-body">
-              <form>
-                <div className="search-wrap contact-search mb-3">
-                  <div className="input-group">
-                    <input
-                      type="text"
-                      className="form-control"
-                      placeholder="Search"
-                    />
-                    <Link to="#" className="input-group-text">
-                      <i className="ti ti-search" />
-                    </Link>
-                  </div>
-                </div>
-                <h6 className="mb-3 fw-medium fs-16">Contacts</h6>
-                <div className="contact-scroll contact-select mb-3">
-                  {friends.map((item) => (
-                    <OneUserNeedAdd
-                      key={item.user_id}
-                      user_id={item.user_id}
-                      email={item.email}
-                      first_name={item.first_name}
-                      last_name={item.last_name}
-                      avatar_url={item.avatar_url}
-                      is_verified={true}
-                    ></OneUserNeedAdd>
-                  ))}
-                </div>
-                <div className="row g-3">
-                  <div className="col-6">
-                    <Link
-                      to="#"
-                      className="btn btn-outline-primary w-100"
-                      data-bs-dismiss="modal"
-                      aria-label="Close"
-                    >
-                      Cancel
-                    </Link>
-                  </div>
-                  <div className="col-6">
-                    <button
-                      type="button"
-                      data-bs-dismiss="modal"
-                      className="btn btn-primary w-100"
-                      onClick={handleCreateRoom}
-                    >
-                      Start Chat
-                    </button>
-                  </div>
-                </div>
-              </form>
-            </div>
+    <Modal
+      title="New Chat"
+      visible={isModalVisible}
+      onCancel={onClose}  // Handle modal close event
+      footer={null}
+      width={600}
+    >
+      <form>
+        <div className="search-wrap contact-search mb-3">
+          <div className="input-group">
+            <input
+              type="text"
+              className="form-control"
+              placeholder="Search"
+            />
           </div>
         </div>
-      </div>
-      {/* /New Chat */}
-    </>
+        <h6 className="mb-3 fw-medium fs-16">Contacts</h6>
+        <div className="contact-scroll contact-select mb-3">
+          {friends.map((item) => (
+            <OneUserNeedAdd
+              key={item.user_id}
+              user_id={item.user_id}
+              email={item.email}
+              first_name={item.first_name}
+              last_name={item.last_name}
+              avatar_url={item.avatar_url}
+              is_verified={true}
+            />
+          ))}
+        </div>
+        <div className="row g-3">
+          <div className="col-6">
+            <Button
+              type="default"
+              className="w-100"
+              onClick={onClose}  // Close the modal when cancel is clicked
+            >
+              Cancel
+            </Button>
+          </div>
+          <div className="col-6">
+            <Button
+              type="primary"
+              className="w-100"
+              onClick={handleCreateRoom}
+            >
+              Start Chat
+            </Button>
+          </div>
+        </div>
+      </form>
+    </Modal>
   );
 };
 
