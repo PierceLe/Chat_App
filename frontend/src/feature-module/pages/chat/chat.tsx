@@ -176,10 +176,13 @@ const Chat = () => {
       <>
         <div className="chats" id={id}>
           <div className="chat-avatar">
-            <ImageWithBasePath
-              src="assets/img/profiles/avatar-06.jpg"
-              className="rounded-circle"
-              alt="image"
+            <Avatar
+              size={32}
+              src={
+                me.avatar_url === 'default'
+                  ? 'assets/img/profiles/avatar-16.jpg'
+                  : `http://localhost:9990/${me.avatar_url}`
+              }
             />
           </div>
           <div className="chat-content">
@@ -582,10 +585,13 @@ const Chat = () => {
             </div>
           </div>
           <div className="chat-avatar">
-            <ImageWithBasePath
-              src="assets/img/profiles/avatar-17.jpg"
-              className="rounded-circle dreams_chat"
-              alt="image"
+            <Avatar
+              size={32}
+              src={
+                me.avatar_url === 'default'
+                  ? 'assets/img/profiles/avatar-16.jpg'
+                  : `http://localhost:9990/${me.avatar_url}`
+              }
             />
           </div>
         </div>
