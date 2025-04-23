@@ -190,6 +190,11 @@ const ContactTab = () => {
                 className="btn-yes"
                 // data-bs-dismiss="modal"
                 aria-label="Close"
+                style={{
+                  background: 'transparent',
+                  color: 'oklch(72.3% 0.219 149.579)',
+                  marginRight: '2px'
+                }}
                 onClick={(e) => {
                   e.stopPropagation();
                   e.preventDefault();
@@ -203,6 +208,10 @@ const ContactTab = () => {
                 className="btn-yes"
                 // data-bs-dismiss="modal"
                 aria-label="Close"
+                style={{
+                  background: 'transparent',
+                  color: '#ff4d4f'
+                }}
                 onClick={(e) => {
                   e.stopPropagation();
                   e.preventDefault();
