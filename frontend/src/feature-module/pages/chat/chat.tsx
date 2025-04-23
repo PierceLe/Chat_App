@@ -5,7 +5,7 @@ import Lightbox from "yet-another-react-lightbox";
 import "yet-another-react-lightbox/styles.css";
 import ContactInfo from "../../../core/modals/contact-info-off-canva";
 import ContactFavourite from "../../../core/modals/contact-favourite-canva";
-import { Tooltip } from "antd";
+import { Avatar, Tooltip } from "antd";
 import ForwardMessage from "../../../core/modals/forward-message";
 import MessageDelete from "../../../core/modals/message-delete";
 import Scrollbars from "react-custom-scrollbars-2";
@@ -606,10 +606,13 @@ const Chat = () => {
                 </Link>
               </div>
               <div className="avatar avatar-lg online flex-shrink-0">
-                <ImageWithBasePath
-                  src="assets/img/profiles/avatar-06.jpg"
-                  className="rounded-circle"
-                  alt="image"
+                <Avatar
+                  size={32}
+                  src={
+                    me.avatar_url === 'default'
+                      ? 'assets/img/profiles/avatar-16.jpg'
+                      : `http://localhost:9990/${me.avatar_url}`
+                  }
                 />
               </div>
               <div className="ms-2 overflow-hidden">

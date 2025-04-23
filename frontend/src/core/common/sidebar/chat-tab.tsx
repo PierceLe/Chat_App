@@ -20,6 +20,7 @@ import {
 import useDebounce from "../../hooks/useDebounce";
 import { wsClient } from "@/core/services/websocket";
 import NewChat from "@/core/modals/newChat";
+import { Avatar } from "antd";
 
 const ChatTab = () => {
   const routes = all_routes;
@@ -144,10 +145,13 @@ const ChatTab = () => {
             className="chat-user-list"
           >
             <div className="avatar avatar-lg online me-2">
-              <ImageWithBasePath
-                src="assets/img/profiles/avatar-02.jpg"
-                className="rounded-circle"
-                alt="image"
+              <Avatar
+                size={32}
+                src={
+                  avatar_url === 'default'
+                    ? 'assets/img/profiles/avatar-16.jpg'
+                    : `http://localhost:9990/${avatar_url}`
+                }
               />
             </div>
             <div className="chat-user-info">
