@@ -1,5 +1,4 @@
 import React from "react";
-import NewChat from "./newChat";
 import DeleteAccount from "./delete-account";
 import DeleteChat from "./delete-chat";
 import VideoCall from "./video-call";
@@ -19,7 +18,6 @@ import InviteModal from "./invite-modal";
 const CommonModals = () => {
   return (
     <>
-      <NewChat />
       <NewGroup />
       <DeleteChat />
       <DeleteAccount />

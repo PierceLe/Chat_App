@@ -19,6 +19,8 @@ import {
 } from "../../services/roomService";
 import useDebounce from "../../hooks/useDebounce";
 import { wsClient } from "@/core/services/websocket";
+import NewChat from "@/core/modals/newChat";
+
 const ChatTab = () => {
   const routes = all_routes;
   const [activeTab, setActiveTab] = useState("All Chats");
@@ -30,6 +32,10 @@ const ChatTab = () => {
   const debouncedValue = useDebounce(nameInput, 500);
 
   const [refreshKey, setRefreshKey] = useState(0);
+
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const openNewChat = () => setIsModalVisible(true);
+  const closeNewChat = () => setIsModalVisible(false);
 
 
 
@@ -225,14 +231,14 @@ const ChatTab = () => {
               <div className="header-title d-flex align-items-center justify-content-between">
                 <h4 className="mb-3">Chats</h4>
                 <div className="d-flex align-items-center mb-3">
-                  <Link
-                    to="#"
-                    data-bs-toggle="modal"
-                    data-bs-target="#new-chat"
+                  <button
+                    onClick={openNewChat}
                     className="add-icon btn btn-primary p-0 d-flex align-items-center justify-content-center fs-16 me-2"
                   >
                     <i className="ti ti-plus" />
-                  </Link>
+                  </button>
+                  <NewChat isModalVisible={isModalVisible} onClose={closeNewChat} />
+                  
                   <div className="dropdown">
                     <Link
                       to="#"
