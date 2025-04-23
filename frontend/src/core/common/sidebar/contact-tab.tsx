@@ -48,6 +48,8 @@ const ContactTab = () => {
     const handleMessage = (data: any) => {
       if (data.action === "make-request-friend") {
         fetchApiGetFriendDraft()
+      } else if (data.action === "update-status") {
+        fetchApiGetOnlineUsers()
       }
     }
     wsClient.onMessage(handleMessage);
@@ -101,7 +103,8 @@ const ContactTab = () => {
     first_name,
     last_name,
     avatar_url,
-  }: UserData) => {
+    is_online
+  }: any) => {
     return (
       <>
         <div className="mb-4">
@@ -123,7 +126,7 @@ const ContactTab = () => {
                 });
               }}
             >
-              <div className="avatar avatar-lg online me-2">
+              <div className={`avatar avatar-lg ${is_online ? 'online' : 'offline'} me-2`}>
                 <Avatar
                   size={32}
                   src={
@@ -154,7 +157,8 @@ const ContactTab = () => {
     first_name,
     last_name,
     avatar_url,
-  }: UserData) => {
+    is_online
+  }:any) => {
     return (
       <>
         <div className="mb-4">
@@ -176,7 +180,7 @@ const ContactTab = () => {
                 });
               }}
             >
-              <div className="avatar avatar-lg online me-2">
+              <div className={`avatar avatar-lg ${is_online ? 'online' : 'offline'} me-2`}>
                 <Avatar
                   size={32}
                   src={
@@ -301,6 +305,7 @@ const ContactTab = () => {
                     last_name={item.last_name}
                     avatar_url={item.avatar_url}
                     is_verified={item.is_verified}
+                    is_online = {onlineUserIds.has(item.user_id)}
                   ></OneContactRequestTab>
                 ))}
               </div>
@@ -319,6 +324,7 @@ const ContactTab = () => {
                     last_name={item.last_name}
                     avatar_url={item.avatar_url}
                     is_verified={item.is_verified}
+                    is_online = {onlineUserIds.has(item.user_id)}
                   ></OneContactTab>
                 ))}
               </div>
