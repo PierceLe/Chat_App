@@ -1,5 +1,5 @@
 from collections import defaultdict
-from fastapi import APIRouter, Depends, WebSocket, Cookie, WebSocketException
+from fastapi import APIRouter, Depends, WebSocket, Cookie, WebSocketDisconnect, WebSocketException
 from fastapi.responses import HTMLResponse
 import json
 from dto.request.message.more_message_request import MoreMessageRequest
@@ -36,10 +36,10 @@ async def websocket_endpoint(websocket: WebSocket, access_token=Cookie(...)):
     # Connecting via WebSocket and add to the list of connected
     await websocket.accept()
 
-    if current_user.user_id not in map_user_connection:
-        map_user_connection[current_user.user_id] = websocket
-        await update_status(is_online = True, user_id = current_user.user_id)
+    map_user_connection[current_user.user_id] = websocket
+    await update_status(is_online = True, user_id = current_user.user_id)
 
+    print("[INFO] map_user_connection: ", list(map_user_connection.keys()))
 
     list_room_of_current_user = user_room_service.get_all_room_of_user(current_user.user_id)
 
@@ -80,7 +80,8 @@ async def broadcast_message(room_id: str, message: str):
             print(f"Error sending message: {e}")
 
 async def boardcast(message: str):
-    for user_id in map_user_connection:
+    list_user_id = list(map_user_connection.keys()) # fix: RuntimeError: dictionary changed size during iteration
+    for user_id in list_user_id:
         try:
             await map_user_connection[user_id].send_text(message)
         except Exception as e:
@@ -225,4 +226,4 @@ async def update_status(is_online: bool, user_id: str):
             "offline_user_ids": offline_user_ids
         }
     )
-    boardcast(res.json())
+    await boardcast(res.json())
