@@ -179,9 +179,9 @@ const Chat = () => {
             <Avatar
               size={32}
               src={
-                me.avatar_url === 'default'
+                sender.avatar_url === 'default'
                   ? 'assets/img/profiles/avatar-16.jpg'
-                  : `http://localhost:9990/${me.avatar_url}`
+                  : `http://localhost:9990/${sender.avatar_url}`
               }
             />
           </div>
@@ -601,6 +601,7 @@ const Chat = () => {
 
   return (
     <>
+    
       {/* Chat */}
       <div className={`chat chat-messages show`} id="middle">
         <div>
@@ -615,9 +616,9 @@ const Chat = () => {
                 <Avatar
                   size={32}
                   src={
-                    me.avatar_url === 'default'
+                    state.friend_avatar_url === 'default'
                       ? 'assets/img/profiles/avatar-16.jpg'
-                      : `http://localhost:9990/${me.avatar_url}`
+                      : `http://localhost:9990/${state.friend_avatar_url}`
                   }
                 />
               </div>
@@ -840,10 +841,13 @@ const Chat = () => {
                   }`}
                 >
                   <div className="chat-avatar">
-                    <ImageWithBasePath
-                      src="assets/img/profiles/avatar-06.jpg"
-                      className="rounded-circle"
-                      alt="image"
+                    <Avatar
+                      size={32}
+                      src={
+                        state.friend_avatar_url === 'default'
+                          ? 'assets/img/profiles/avatar-16.jpg'
+                          : `http://localhost:9990/${state.friend_avatar_url}`
+                      }
                     />
                   </div>
                   <div className="chat-content">
