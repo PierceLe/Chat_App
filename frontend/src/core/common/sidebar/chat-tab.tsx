@@ -37,6 +37,7 @@ const ChatTab = () => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const openNewChat = () => setIsModalVisible(true);
   const closeNewChat = () => setIsModalVisible(false);
+  const [currentChatRoom, setCurrentChatRoom] = useState("")
 
 
 
@@ -48,6 +49,10 @@ const ChatTab = () => {
 
   const getRoom = async(room_id: string) => {
     return await getRoomById(room_id);
+  }
+
+  const selectCurrentChatRoom = async(room_id: string) => {
+    setCurrentChatRoom(room_id)
   }
 
 
@@ -145,6 +150,10 @@ const ChatTab = () => {
             to={`${routes.chat}/${room_id}`}
             state={data}
             className="chat-user-list"
+            onClick={() => selectCurrentChatRoom(room_id)}
+            style={{
+              backgroundColor: currentChatRoom === room_id ? 'oklch(90.1% 0.058 230.902)' : 'transparent',
+            }}
           >
             <div className="avatar avatar-lg online me-2">
               <Avatar
