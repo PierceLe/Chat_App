@@ -21,6 +21,7 @@ import useDebounce from "../../hooks/useDebounce";
 import { wsClient } from "@/core/services/websocket";
 import NewChat from "@/core/modals/newChat";
 import { Avatar } from "antd";
+import { useParams } from "react-router-dom";
 
 const ChatTab = () => {
   const routes = all_routes;
@@ -38,7 +39,7 @@ const ChatTab = () => {
   const openNewChat = () => setIsModalVisible(true);
   const closeNewChat = () => setIsModalVisible(false);
   const [currentChatRoom, setCurrentChatRoom] = useState("")
-
+  const { room_id: roomIDFromUrl } = useParams();
 
 
   const fetchApiGetRoomChatOne = async (friendName: string) => {
@@ -55,6 +56,9 @@ const ChatTab = () => {
     setCurrentChatRoom(room_id)
   }
 
+  useEffect(() => {
+    setCurrentChatRoom(roomIDFromUrl)
+  }, [roomIDFromUrl]);
 
   useEffect(() => {
     fetchApiGetRoomChatOne("");
