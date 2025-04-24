@@ -336,110 +336,34 @@ const ChatTab = () => {
               </div>
               <div className="swiper-container">
                 <div className="swiper-wrapper">
-                  <Swiper spaceBetween={15} slidesPerView={4}>
-                    <SwiperSlide>
-                      <Link
-                        to={routes.chat}
-                        className="chat-status text-center"
-                      >
-                        <div className="avatar avatar-lg online d-block">
-                          <ImageWithBasePath
-                            src="assets/img/profiles/avatar-11.jpg"
-                            alt="Image"
-                            className="rounded-circle"
-                          />
-                        </div>
-                        <p>Nichol</p>
-                      </Link>
-                    </SwiperSlide>
-                    <SwiperSlide>
-                      <Link
-                        to={routes.chat}
-                        className="chat-status text-center"
-                      >
-                        <div className="avatar avatar-lg online d-block">
-                          <ImageWithBasePath
-                            src="assets/img/profiles/avatar-12.jpg"
-                            alt="Image"
-                            className="rounded-circle"
-                          />
-                        </div>
-                        <p>Titus</p>
-                      </Link>
-                    </SwiperSlide>
-                    <SwiperSlide>
-                      <Link
-                        to={routes.chat}
-                        className="chat-status text-center"
-                      >
-                        <div className="avatar avatar-lg online d-block">
-                          <ImageWithBasePath
-                            src="assets/img/profiles/avatar-14.jpg"
-                            alt="Image"
-                            className="rounded-circle"
-                          />
-                        </div>
-                        <p>Geoffrey</p>
-                      </Link>
-                    </SwiperSlide>
-                    <SwiperSlide>
-                      <Link
-                        to={routes.chat}
-                        className="chat-status text-center"
-                      >
-                        <div className="avatar avatar-lg online d-block">
-                          <ImageWithBasePath
-                            src="assets/img/profiles/avatar-15.jpg"
-                            alt="Image"
-                            className="rounded-circle"
-                          />
-                        </div>
-                        <p>Laverty</p>
-                      </Link>
-                    </SwiperSlide>
-                    <SwiperSlide>
-                      <Link
-                        to={routes.chat}
-                        className="chat-status text-center"
-                      >
-                        <div className="avatar avatar-lg online bg-primary avatar-rounded">
-                          <span className="avatar-title fs-14 fw-medium">
-                            KG
-                          </span>
-                        </div>
-                        <p>Kitamura</p>
-                      </Link>
-                    </SwiperSlide>
-                    <SwiperSlide>
-                      <Link
-                        to={routes.chat}
-                        className="chat-status text-center"
-                      >
-                        <div className="avatar avatar-lg online d-block">
-                          <ImageWithBasePath
-                            src="assets/img/profiles/avatar-01.jpg"
-                            alt="Image"
-                            className="rounded-circle"
-                          />
-                        </div>
-                        <p>Mark</p>
-                      </Link>
-                    </SwiperSlide>
-                    <SwiperSlide>
-                      <Link
-                        to={routes.chat}
-                        className="chat-status text-center"
-                      >
-                        <div className="avatar avatar-lg online d-block">
-                          <ImageWithBasePath
-                            src="assets/img/profiles/avatar-05.jpg"
-                            alt="Image"
-                            className="rounded-circle"
-                          />
-                        </div>
-                        <p>Smith</p>
-                      </Link>
-                    </SwiperSlide>
+                <Swiper
+                    spaceBetween={15}
+                    slidesPerView={4}
+                    loop={false}
+                    centeredSlides={false}
+                  >
+                    {rooms.map((room, index) => (
+                      <SwiperSlide key={index}>
+                        <Link to="/chat" className="chat-status text-center">
+                          <div className="avatar avatar-lg online d-block">
+                            <Avatar
+                              size={32}
+                              src={
+                                room.friend_avatar_url === 'default'
+                                  ? 'assets/img/profiles/avatar-16.jpg'
+                                  : `http://localhost:9990/${room.friend_avatar_url}`
+                              }
+                            />
+                          </div>
+                          <p>{room.friend_frist_name + " " + room.friend_last_name}</p>
+                        </Link>
+                      </SwiperSlide>
+                    ))}
+
+                    {rooms.length < 4 &&
+                      Array.from({ length: 4 - rooms.length }).map((_, i) => (
+                        <SwiperSlide key={`empty-${i}`} />
+                      ))}
                   </Swiper>
                 </div>
               </div>
