@@ -82,7 +82,9 @@ const ChatTab = () => {
             // }
             fetchApiGetRoomChatOne(nameInput)
           }
-          newRooms.sort((a, b) => {return b.updated_at.valueOf() - a.updated_at.valueOf()})
+          newRooms.sort((a, b) => {
+            return new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime();
+          });
           return newRooms;
         })
       }
