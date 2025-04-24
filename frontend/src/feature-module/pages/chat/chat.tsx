@@ -621,17 +621,21 @@ const Chat = () => {
                   </Link>
                 </div>
                 <div className="avatar avatar-lg online flex-shrink-0">
-                  <Avatar
-                    size={32}
-                    src={
-                      state.friend_avatar_url === 'default'
-                        ? 'assets/img/profiles/avatar-16.jpg'
-                        : `http://localhost:9990/${state.friend_avatar_url}`
-                    }
-                  />
+                  {state && (
+                    <Avatar
+                      size={32}
+                      src={
+                        state.friend_avatar_url === 'default'
+                          ? 'assets/img/profiles/avatar-16.jpg'
+                          : `http://localhost:9990/${state.friend_avatar_url}`
+                      }
+                    />
+                  )}
                 </div>
                 <div className="ms-2 overflow-hidden">
-                  <h6>{`${state.friend_frist_name} ${state.friend_last_name}`}</h6>
+                  {state && (
+                    <h6>{`${state.friend_frist_name} ${state.friend_last_name}`}</h6>
+                  )}
                   <span className="last-seen">Online</span>
                 </div>
               </div>
@@ -856,25 +860,29 @@ const Chat = () => {
                   }`}
                 >
                   <div className="chat-avatar">
-                    <Avatar
-                      size={32}
-                      src={
-                        state.friend_avatar_url === 'default'
-                          ? 'assets/img/profiles/avatar-16.jpg'
-                          : `http://localhost:9990/${state.friend_avatar_url}`
-                      }
-                    />
+                    {state && (
+                      <Avatar
+                        size={32}
+                        src={
+                          state.friend_avatar_url === 'default'
+                            ? 'assets/img/profiles/avatar-16.jpg'
+                            : `http://localhost:9990/${state.friend_avatar_url}`
+                        }
+                      />
+                    )}
                   </div>
                   <div className="chat-content">
                     <div className="chat-profile-name">
-                      <h6>
-                        {`${state.friend_frist_name} ${state.friend_last_name}`}
-                        <i className="ti ti-circle-filled fs-7 mx-2" />
-                        <span className="chat-time">02:39 PM</span>
-                        <span className="msg-read success">
-                          <i className="ti ti-checks" />
-                        </span>
-                      </h6>
+                      {state && (
+                        <h6>
+                          {`${state.friend_frist_name} ${state.friend_last_name}`}
+                          <i className="ti ti-circle-filled fs-7 mx-2" />
+                          <span className="chat-time">02:39 PM</span>
+                          <span className="msg-read success">
+                            <i className="ti ti-checks" />
+                          </span>
+                        </h6>
+                      )}
                     </div>
                     <div className="chat-info">
                       <div className="message-content">
