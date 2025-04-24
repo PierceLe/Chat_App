@@ -493,14 +493,17 @@
           }
         }
         .chat-content {
-          width: 80%;
+          // width: 80%;
           .message-content {
             background-color: $light;
             border-radius: 16px 16px 16px 0;
             padding: 16px;
             font-size: $font-size-16;
-            margin-bottom: 15px;
+            margin-bottom: 0px;
             width: 100%;
+            overflow-wrap: break-word;
+            max-width: 500px;
+            white-space: normal; 
             @include respond-below(lg) {
               font-size: $font-size-14;
             }
