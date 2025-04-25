@@ -6,6 +6,8 @@ import createRoomSlice from "../redux/reducers/createRoomSlice";
 import { UploadOutlined } from '@ant-design/icons';
 import { notify } from "@/core/utils/notification";
 import httpRequest from "@/core/api/baseAxios";
+import { useEffect } from "react";
+
 
 interface Props {
   open: boolean;
@@ -66,6 +68,20 @@ const NewGroupModal: React.FC<Props> = ({ open, onClose, onNext }) => {
       notify.error("Upload Avatar Failed", "Upload Avatar image failed !")
     }
   };
+
+  useEffect(() => {
+    if (open) {
+      // Reset local state
+      setRoomName("");
+      setRoomDescription("");
+      setAvatarUrl("");
+  
+      // Reset redux state
+      dispatch(createRoomSlice.actions.setRoomName(""));
+      dispatch(createRoomSlice.actions.setDescription(""));
+      dispatch(createRoomSlice.actions.setAvatarUrl(""));
+    }
+  }, [open]);
 
   return (
     <Modal
