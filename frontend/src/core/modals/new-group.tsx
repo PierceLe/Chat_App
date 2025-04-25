@@ -142,7 +142,12 @@ const NewGroupModal: React.FC<Props> = ({ open, onClose, onNext }) => {
         <Button onClick={onClose} style={{ flex: 1 }}>
           Cancel
         </Button>
-        <Button type="primary" onClick={handleNextClick} style={{ flex: 1 }}>
+        <Button
+          type="primary"
+          onClick={handleNextClick}
+          style={{ flex: 1 }}
+          disabled={!roomName.trim() || !roomDescription.trim()}
+        >
           Next
         </Button>
       </div>

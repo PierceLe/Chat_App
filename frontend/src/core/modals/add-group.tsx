@@ -8,6 +8,7 @@ import {
 } from "../redux/selectors";
 import { createRoom } from "../services/roomService";
 import { wsClient } from "../services/websocket";
+import { UploadOutlined } from '@ant-design/icons';
 
 interface Props {
   open: boolean;
@@ -39,6 +40,12 @@ const AddGroupModal: React.FC<Props> = ({ open, onClose, onBack }) => {
       return newSelected;
     });
   };
+
+  useEffect(() => {
+    if (open) {
+      setUsersSelected(new Set());
+    }
+  }, [open]);
 
   const handleCreateRoom = async () => {
     const room_id = await createRoom(
@@ -86,7 +93,16 @@ const AddGroupModal: React.FC<Props> = ({ open, onClose, onBack }) => {
           renderItem={(user) => (
             <List.Item>
               <List.Item.Meta
-                avatar={<Avatar src={user.avatar_url} />}
+                className="d-flex align-items-center"
+                avatar={<Avatar
+                  size={30}
+                  src={
+                    user.avatar_url === 'default1'
+                      ? 'assets/img/profiles/avatar-16.jpg'
+                      : `http://localhost:9990/${user.avatar_url}`
+                  }
+                  icon={<UploadOutlined />}
+                />}
                 title={`${user.first_name} ${user.last_name}`}
                 description={user.email}
               />
@@ -105,7 +121,12 @@ const AddGroupModal: React.FC<Props> = ({ open, onClose, onBack }) => {
         <Button onClick={onBack} style={{ flex: 1 }}>
           Previous
         </Button>
-        <Button type="primary" onClick={handleCreateRoom} style={{ flex: 1 }}>
+        <Button
+          type="primary"
+          onClick={handleCreateRoom}
+          style={{ flex: 1 }}
+          disabled={usersSelected.size < 2}
+        >
           Start Group
         </Button>
       </div>
