@@ -1,13 +1,22 @@
 import React, { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
-import ImageWithBasePath from "../common/imageWithBasePath";
+import { Modal, Input, Checkbox, Button, Avatar, List } from "antd";
 import { getAllFriends, UserData } from "../services/contactService";
 import { useSelector } from "react-redux";
-import { roomDescriptionSelector, roomNameSelector } from "../redux/selectors";
+import {
+  roomDescriptionSelector,
+  roomNameSelector,
+} from "../redux/selectors";
 import { createRoom } from "../services/roomService";
 import { wsClient } from "../services/websocket";
-const AddGroup = () => {
-  const [friends, setFriends] = useState(Array<UserData>);
+
+interface Props {
+  open: boolean;
+  onClose: () => void;
+  onBack?: () => void;
+}
+
+const AddGroupModal: React.FC<Props> = ({ open, onClose, onBack }) => {
+  const [friends, setFriends] = useState<UserData[]>([]);
   const [usersSelected, setUsersSelected] = useState<Set<string>>(new Set());
 
   const roomName = useSelector(roomNameSelector);
@@ -23,147 +32,85 @@ const AddGroup = () => {
   };
 
   const handleCheckboxChange = (user_id: string, checked: boolean) => {
-    setUsersSelected((pre) => {
-      const newSelected = new Set(pre);
-      if (checked) {
-        newSelected.add(user_id);
-      } else {
-        newSelected.delete(user_id);
-      }
+    setUsersSelected((prev) => {
+      const newSelected = new Set(prev);
+      if (checked) newSelected.add(user_id);
+      else newSelected.delete(user_id);
       return newSelected;
     });
   };
 
   const handleCreateRoom = async () => {
-    console.log("CREATE ROOM: ", roomName);
-    const room_id: any = await createRoom(roomName, 2, "", roomDescription, Array.from(usersSelected));
+    const room_id = await createRoom(
+      roomName,
+      2,
+      "",
+      roomDescription,
+      Array.from(usersSelected)
+    );
+
     if (room_id) {
       wsClient.send({
         action: "join",
         data: {
           user_ids: Array.from(usersSelected),
-          room_id: room_id
-        }
+          room_id,
+        },
       });
+
+      // Dispatch custom event to notify ChatTab
+      const event = new Event("chatGroupCreated");
+      window.dispatchEvent(event);
+
+      onClose();
     }
-
-    // Dispatch custom event to notify ChatTab
-    const event = new Event("chatGroupCreated");
-    window.dispatchEvent(event);
-  };
-
-  const OneUserNeedAdd = ({
-    user_id,
-    email,
-    first_name,
-    last_name,
-    avatar_url,
-  }: UserData) => {
-    return (
-      <>
-        <div className="contact-user d-flex align-items-center justify-content-between">
-          <div className="d-flex align-items-center">
-            <div className="avatar avatar-lg">
-              <ImageWithBasePath
-                src={avatar_url}
-                className="rounded-circle"
-                alt="image"
-              />
-            </div>
-            <div className="ms-2">
-              <h6>{first_name + " " + last_name}</h6>
-              <p>{email}</p>
-            </div>
-          </div>
-          <div className="form-check">
-            <input
-              className="form-check-input"
-              type="checkbox"
-              name="contact"
-              checked={usersSelected.has(user_id)}
-              onChange={(e) => handleCheckboxChange(user_id, e.target.checked)}
-            />
-          </div>
-        </div>
-      </>
-    );
   };
 
   return (
-    <>
-      {/* Add Group */}
-      <div className="modal fade" id="add-group">
-        <div className="modal-dialog modal-dialog-centered">
-          <div className="modal-content">
-            <div className="modal-header">
-              <h4 className="modal-title">Add Members</h4>
-              <button
-                type="button"
-                className="btn-close"
-                data-bs-dismiss="modal"
-                aria-label="Close"
-              >
-                <i className="ti ti-x" />
-              </button>
-            </div>
-            <div className="modal-body">
-              <form>
-                <div className="search-wrap contact-search mb-3">
-                  <div className="input-group">
-                    <input
-                      type="text"
-                      className="form-control"
-                      placeholder="Search"
-                    />
-                    <Link to="#" className="input-group-text">
-                      <i className="ti ti-search" />
-                    </Link>
-                  </div>
-                </div>
-                <h6 className="mb-3 fw-medium fs-16">Contacts</h6>
-                <div className="contact-scroll contact-select mb-3">
-                  {friends.map((item) => (
-                    <OneUserNeedAdd
-                      key={item.user_id}
-                      user_id={item.user_id}
-                      email={item.email}
-                      first_name={item.first_name}
-                      last_name={item.last_name}
-                      avatar_url={item.avatar_url}
-                      is_verified={item.is_verified}
-                    ></OneUserNeedAdd>
-                  ))}
-                </div>
-                <div className="row g-3">
-                  <div className="col-6">
-                    <Link
-                      to="#"
-                      className="btn btn-outline-primary w-100"
-                      data-bs-toggle="modal"
-                      data-bs-target="#new-group"
-                    >
-                      Previous
-                    </Link>
-                  </div>
-                  <div className="col-6">
-                    <button
-                      type="button"
-                      data-bs-dismiss="modal"
-                      className="btn btn-primary w-100"
-                      onClick={handleCreateRoom}
-                    >
-                      Start Group
-                    </button>
-                  </div>
-                </div>
-              </form>
-            </div>
-          </div>
-        </div>
+    <Modal
+      title="Add Members"
+      open={open}
+      onCancel={onClose}
+      footer={null}
+      centered
+    >
+      <Input.Search placeholder="Search" style={{ marginBottom: 16 }} />
+
+      <h6 style={{ fontWeight: 600, fontSize: 16, marginBottom: 12 }}>
+        Contacts
+      </h6>
+
+      <div style={{ maxHeight: 300, overflowY: "auto", marginBottom: 24 }}>
+        <List
+          dataSource={friends}
+          renderItem={(user) => (
+            <List.Item>
+              <List.Item.Meta
+                avatar={<Avatar src={user.avatar_url} />}
+                title={`${user.first_name} ${user.last_name}`}
+                description={user.email}
+              />
+              <Checkbox
+                checked={usersSelected.has(user.user_id)}
+                onChange={(e) =>
+                  handleCheckboxChange(user.user_id, e.target.checked)
+                }
+              />
+            </List.Item>
+          )}
+        />
       </div>
-      {/* /Add group */}
-    </>
+
+      <div style={{ display: "flex", gap: 8 }}>
+        <Button onClick={onBack} style={{ flex: 1 }}>
+          Previous
+        </Button>
+        <Button type="primary" onClick={handleCreateRoom} style={{ flex: 1 }}>
+          Start Group
+        </Button>
+      </div>
+    </Modal>
   );
 };
 
-export default AddGroup;
+export default AddGroupModal;

@@ -10,6 +10,9 @@ import { useSelector } from "react-redux";
 import { UserData } from "../../services/contactService";
 import useDebounce from "../../hooks/useDebounce";
 import { wsClient } from "@/core/services/websocket";
+import { Button } from "antd";
+import NewGroupModal from "@/core/modals/new-group";
+import AddGroupModal from "@/core/modals/add-group";
 
 const GroupTab = () => {
   const routes = all_routes;
@@ -26,6 +29,20 @@ const GroupTab = () => {
     const result: any = await getAllGroupChatMany(roomName, me.user_id);
     setRooms(result);
     console.log("ROOMS: ", result);
+  };
+
+  const [isModalNewGroupOpen, setIsModalNewGroupOpen] = useState(false);
+  const [isModalAddGroupOpen, setIsModalAddGroupOpen] = useState(false);
+
+  const handleOpenNewGroup = () => setIsModalNewGroupOpen(true);
+  const handleCloseNewGroup = () => setIsModalNewGroupOpen(false);
+
+  const handleOpenAddGroup = () => setIsModalAddGroupOpen(true);
+  const handleCloseAddGroup = () => setIsModalAddGroupOpen(false);
+
+  const handleNext = () => {
+    handleCloseNewGroup(); // đóng modal hiện tại
+    handleOpenAddGroup();  // mở modal tiếp theo
   };
 
   useEffect(() => {
@@ -182,14 +199,24 @@ const GroupTab = () => {
               <div className="header-title d-flex align-items-center justify-content-between">
                 <h4 className="mb-3">Group</h4>
                 <div className="d-flex align-items-center mb-3">
-                  <Link
-                    to="#"
-                    data-bs-toggle="modal"
-                    data-bs-target="#new-group"
-                    className="add-icon btn btn-primary p-0 d-flex align-items-center justify-content-center fs-16 me-2"
-                  >
-                    <i className="ti ti-plus" />
-                  </Link>
+                  <Button className="btn-primary" size="small" shape="circle" onClick={handleOpenNewGroup}>
+                    +
+                  </Button>
+
+                  <NewGroupModal
+                    open={isModalNewGroupOpen}
+                    onClose={handleCloseNewGroup}
+                    onNext={handleNext}
+                  />
+
+                  <AddGroupModal
+                    open={isModalAddGroupOpen}
+                    onClose={handleCloseAddGroup}
+                    onBack={() => {
+                      handleCloseAddGroup();
+                      handleOpenNewGroup();
+                    }}
+                  />
                   <div className="dropdown">
                     <Link
                       to="#"
@@ -221,7 +248,7 @@ const GroupTab = () => {
                     <input
                       type="text"
                       className="form-control"
-                      placeholder="Seach group"
+                      placeholder="Search group"
                       value={roomNameInput}
                       onChange={(e) => {
                         handleChangeNameInput(e);

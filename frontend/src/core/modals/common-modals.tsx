@@ -7,7 +7,6 @@ import StartVideoCall from "./start-video-call";
 import VoiceAttend from "./voice-attend";
 import VoiceCall from "./voice-call";
 import VoiceGroup from "./voice-group";
-import NewGroup from "./new-group";
 import AddContact from "./add-contact";
 import MuteUser from "./mute-user";
 import BlockUser from "./block-user";
@@ -18,7 +17,6 @@ import InviteModal from "./invite-modal";
 const CommonModals = () => {
   return (
     <>
-      <NewGroup />
       <DeleteChat />
       <DeleteAccount />
       <VideoCall />
