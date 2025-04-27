@@ -18,6 +18,7 @@ class UserResponse(BaseModel):
                    first_name = user_model.first_name,
                    last_name = user_model.last_name,
                    avatar_url = user_model.avatar_url,
+                   is_verified = user_model.is_verified
                    )
 
     class Config:
