@@ -10,7 +10,7 @@ import { useSelector } from "react-redux";
 import { UserData } from "../../services/contactService";
 import useDebounce from "../../hooks/useDebounce";
 import { wsClient } from "@/core/services/websocket";
-import { Button } from "antd";
+import { Avatar, Button } from "antd";
 import NewGroupModal from "@/core/modals/new-group";
 import AddGroupModal from "@/core/modals/add-group";
 
@@ -67,7 +67,9 @@ const GroupTab = () => {
             // }
             fetchApiGetRoom(roomNameInput)
           }
-          newRooms.sort((a, b) => { return b.updated_at.valueOf() - a.updated_at.valueOf() })
+          newRooms.sort((a, b) => {
+            return new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime();
+          });
           return newRooms;
         })
       }
@@ -116,10 +118,13 @@ const GroupTab = () => {
         <div className="chat-list">
           <Link to={`${routes.groupChat}/${room_id}`} className="chat-user-list">
             <div className="avatar avatar-lg online me-2">
-              <ImageWithBasePath
-                src="assets/img/groups/group-08.jpg"
-                className="rounded-circle"
-                alt="image"
+              <Avatar
+                size={32}
+                src={
+                  avatar_url === 'default'
+                    ? 'assets/img/profiles/avatar-16.jpg'
+                    : `http://localhost:9990/${avatar_url}`
+                }
               />
             </div>
             <div className="chat-user-info">

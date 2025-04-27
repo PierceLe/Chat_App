@@ -335,8 +335,8 @@ const ChatTab = () => {
                 </div>
               </div>
               <div className="swiper-container">
-                <div className="swiper-wrapper">
-                <Swiper
+                <div className="swiper-wrapper" style={{marginLeft: '15px'}}>
+                  <Swiper
                     spaceBetween={15}
                     slidesPerView={4}
                     loop={false}
@@ -344,19 +344,17 @@ const ChatTab = () => {
                   >
                     {rooms.map((room, index) => (
                       <SwiperSlide key={index}>
-                        <Link to="/chat" className="chat-status text-center">
-                          <div className="avatar avatar-lg online d-block">
-                            <Avatar
-                              size={32}
-                              src={
-                                room.friend_avatar_url === 'default'
-                                  ? 'assets/img/profiles/avatar-16.jpg'
-                                  : `http://localhost:9990/${room.friend_avatar_url}`
-                              }
-                            />
-                          </div>
-                          <p>{room.friend_frist_name + " " + room.friend_last_name}</p>
-                        </Link>
+                        <div className="avatar avatar-lg online d-block">
+                          <Avatar
+                            size={32}
+                            src={
+                              room.friend_avatar_url === 'default'
+                                ? 'assets/img/profiles/avatar-16.jpg'
+                                : `http://localhost:9990/${room.friend_avatar_url}`
+                            }
+                          />
+                        </div>
+                        <p>{room.friend_frist_name + " " + room.friend_last_name}</p>
                       </SwiperSlide>
                     ))}
 

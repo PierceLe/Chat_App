@@ -5,6 +5,7 @@ import { useSelector } from "react-redux";
 import {
   roomDescriptionSelector,
   roomNameSelector,
+  roomAvatarUrlSelector
 } from "../redux/selectors";
 import { createRoom } from "../services/roomService";
 import { wsClient } from "../services/websocket";
@@ -22,6 +23,7 @@ const AddGroupModal: React.FC<Props> = ({ open, onClose, onBack }) => {
 
   const roomName = useSelector(roomNameSelector);
   const roomDescription = useSelector(roomDescriptionSelector);
+  const roomAvatarUrl = useSelector(roomAvatarUrlSelector)
 
   useEffect(() => {
     fetchApiGetFriend();
@@ -51,7 +53,7 @@ const AddGroupModal: React.FC<Props> = ({ open, onClose, onBack }) => {
     const room_id = await createRoom(
       roomName,
       2,
-      "",
+      roomAvatarUrl,
       roomDescription,
       Array.from(usersSelected)
     );
