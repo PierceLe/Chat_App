@@ -168,13 +168,7 @@ class RoomService():
         if not self.room_repository.check_exist_room_by_room_id(room_id):
             raise AppException(ErrorCode.ROOM_NOT_FOUND)
         users = self.user_room_repository.get_user_in_room(room_id)
-        return [UserResponse(
-            user_id=user.user_id,
-            email=user.email,
-            first_name=user.first_name,
-            last_name=user.last_name,
-            avatar_url=user.avatar_url
-        ) for user in users]
+        return [UserResponse.fromUserModel(user) for user in users]
 
     def delete_room(self, user_id: str, room_id:str):
         room = self.room_repository.get_room_by_room_id(room_id)
