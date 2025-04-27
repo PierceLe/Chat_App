@@ -13,6 +13,7 @@ import { wsClient } from "@/core/services/websocket";
 import { Avatar, Button } from "antd";
 import NewGroupModal from "@/core/modals/new-group";
 import AddGroupModal from "@/core/modals/add-group";
+import { useParams } from "react-router-dom";
 
 const GroupTab = () => {
   const routes = all_routes;
@@ -24,6 +25,9 @@ const GroupTab = () => {
 
   const debouncedValue = useDebounce(roomNameInput, 500);
   const [refreshKey, setRefreshKey] = useState(0);
+  const [currentChatRoom, setCurrentChatRoom] = useState("")
+
+  const { room_id: roomIDFromUrl } = useParams();
 
   const fetchApiGetRoom = async (roomName: string) => {
     const result: any = await getAllGroupChatMany(roomName, me.user_id);
@@ -44,6 +48,14 @@ const GroupTab = () => {
     handleCloseNewGroup(); // đóng modal hiện tại
     handleOpenAddGroup();  // mở modal tiếp theo
   };
+
+  const selectCurrentChatRoom = async(room_id: string) => {
+    setCurrentChatRoom(room_id)
+  }
+
+  useEffect(() => {
+    setCurrentChatRoom(roomIDFromUrl)
+  }, [roomIDFromUrl]);
 
   useEffect(() => {
     fetchApiGetRoom("");
@@ -116,7 +128,14 @@ const GroupTab = () => {
     return (
       <>
         <div className="chat-list">
-          <Link to={`${routes.groupChat}/${room_id}`} className="chat-user-list">
+          <Link 
+            to={`${routes.groupChat}/${room_id}`} 
+            className="chat-user-list"
+            onClick={() => selectCurrentChatRoom(room_id)}
+            style={{
+              backgroundColor: currentChatRoom === room_id ? 'oklch(90.1% 0.058 230.902)' : 'transparent',
+            }}
+          >
             <div className="avatar avatar-lg online me-2">
               <Avatar
                 size={32}
