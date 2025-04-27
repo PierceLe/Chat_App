@@ -3,7 +3,7 @@ import { Link, useParams } from "react-router-dom";
 import ImageWithBasePath from "../../../core/common/imageWithBasePath";
 import Lightbox from "yet-another-react-lightbox";
 import "yet-another-react-lightbox/styles.css";
-import { Tooltip } from "antd";
+import { Avatar, Tooltip } from "antd";
 import CommonGroupModal from "../../../core/modals/common-group-modal";
 import { all_routes } from "../../router/all_routes";
 import ForwardMessage from "../../../core/modals/forward-message";
@@ -173,10 +173,13 @@ const GroupChat = () => {
       <>
         <div className="chats">
           <div className="chat-avatar">
-            <ImageWithBasePath
-              src="assets/img/profiles/avatar-06.jpg"
-              className="rounded-circle"
-              alt="image"
+            <Avatar
+              size={32}
+              src={
+                sender.avatar_url === 'default'
+                  ? 'assets/img/profiles/avatar-16.jpg'
+                  : `http://localhost:9990/${sender.avatar_url}`
+              }
             />
           </div>
           <div className="chat-content">
@@ -434,137 +437,17 @@ const GroupChat = () => {
               </div>
               <div className="message-content">
                 {content}
-                <div className="emoj-group">
-                  <ul>
-                    <li className="emoj-action">
-                      <Link to="#" onClick={() => toggleEmoji(2)}>
-                        <i className="ti ti-mood-smile" />
-                      </Link>
-                      <div
-                        className="emoj-group-list"
-                        onClick={() => toggleEmoji(2)}
-                        style={{
-                          display: showEmoji[2] ? "block" : "none",
-                        }}
-                      >
-                        <ul>
-                          <li>
-                            <Link to="#">
-                              <ImageWithBasePath
-                                src="assets/img/icons/emonji-02.svg"
-                                alt="Icon"
-                              />
-                            </Link>
-                          </li>
-                          <li>
-                            <Link to="#">
-                              <ImageWithBasePath
-                                src="assets/img/icons/emonji-05.svg"
-                                alt="Icon"
-                              />
-                            </Link>
-                          </li>
-                          <li>
-                            <Link to="#">
-                              <ImageWithBasePath
-                                src="assets/img/icons/emonji-06.svg"
-                                alt="Icon"
-                              />
-                            </Link>
-                          </li>
-                          <li>
-                            <Link to="#">
-                              <ImageWithBasePath
-                                src="assets/img/icons/emonji-07.svg"
-                                alt="Icon"
-                              />
-                            </Link>
-                          </li>
-                          <li>
-                            <Link to="#">
-                              <ImageWithBasePath
-                                src="assets/img/icons/emonji-08.svg"
-                                alt="Icon"
-                              />
-                            </Link>
-                          </li>
-                          <li>
-                            <Link to="#">
-                              <ImageWithBasePath
-                                src="assets/img/icons/emonji-03.svg"
-                                alt="Icon"
-                              />
-                            </Link>
-                          </li>
-                          <li>
-                            <Link to="#">
-                              <ImageWithBasePath
-                                src="assets/img/icons/emonji-10.svg"
-                                alt="Icon"
-                              />
-                            </Link>
-                          </li>
-                          <li>
-                            <Link to="#">
-                              <ImageWithBasePath
-                                src="assets/img/icons/emonji-09.svg"
-                                alt="Icon"
-                              />
-                            </Link>
-                          </li>
-                          <li className="add-emoj">
-                            <Link to="#">
-                              <i className="ti ti-plus" />
-                            </Link>
-                          </li>
-                        </ul>
-                      </div>
-                    </li>
-                    <li>
-                      <Link
-                        to="#"
-                        data-bs-toggle="modal"
-                        data-bs-target="#forward-message"
-                      >
-                        <i className="ti ti-arrow-forward-up" />
-                      </Link>
-                    </li>
-                  </ul>
-                </div>
               </div>
-            </div>
-            <div className="emonji-wrap">
-              <Link to="#">
-                <ImageWithBasePath
-                  src="assets/img/icons/emonji-02.svg"
-                  className="me-2"
-                  alt="icon"
-                />
-                24
-              </Link>
-              <Link to="#">
-                <ImageWithBasePath
-                  src="assets/img/icons/emonji-03.svg"
-                  className="me-2"
-                  alt="icon"
-                />
-                15
-              </Link>
-              <Link to="#">
-                <ImageWithBasePath
-                  src="assets/img/icons/emonji-04.svg"
-                  className="me-2"
-                  alt="icon"
-                />
-                15
-              </Link>
             </div>
           </div>
           <div className="chat-avatar">
-            <ImageWithBasePath
-              src="assets/img/profiles/avatar-17.jpg"
-              className="rounded-circle dreams_chat"
-              alt="image"
+            <Avatar
+              size={32}
+              src={
+                sender.avatar_url === 'default'
+                  ? 'assets/img/profiles/avatar-16.jpg'
+                  : `http://localhost:9990/${sender.avatar_url}`
+              }
             />
           </div>
         </div>
@@ -578,7 +461,14 @@ const GroupChat = () => {
       <>
         {/* Chat */}
         <div className="chat chat-messages show" id="middle">
-          <div>
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              height: "100vh",
+            }}
+            
+            >
             <div className="chat-header">
               <div className="user-details">
                 <div className="d-xl-none">
@@ -587,10 +477,13 @@ const GroupChat = () => {
                   </Link>
                 </div>
                 <div className="avatar avatar-lg online flex-shrink-0">
-                  <ImageWithBasePath
-                    src="assets/img/groups/group-01.jpg"
-                    className="rounded-circle"
-                    alt="image"
+                  <Avatar
+                    size={32}
+                    src={
+                      roomData?.avatar_url === 'default'
+                        ? 'assets/img/profiles/avatar-16.jpg'
+                        : `http://localhost:9990/${roomData?.avatar_url}`
+                    }
                   />
                 </div>
                 <div className="ms-2 overflow-hidden">
@@ -602,40 +495,6 @@ const GroupChat = () => {
               </div>
               <div className="chat-options">
                 <ul>
-                  <li>
-                    <div className="avatar-list-stacked avatar-group-md d-flex">
-                      <span className="avatar avatar-rounded">
-                        <ImageWithBasePath
-                          src="assets/img/profiles/avatar-06.jpg"
-                          alt="img"
-                        />
-                      </span>
-                      <span className="avatar avatar-rounded">
-                        <ImageWithBasePath
-                          src="assets/img/profiles/avatar-01.jpg"
-                          alt="img"
-                        />
-                      </span>
-                      <span className="avatar avatar-rounded">
-                        <ImageWithBasePath
-                          src="assets/img/profiles/avatar-02.jpg"
-                          alt="img"
-                        />
-                      </span>
-                      <span className="avatar avatar-rounded">
-                        <ImageWithBasePath
-                          src="assets/img/profiles/avatar-04.jpg"
-                          alt="img"
-                        />
-                      </span>
-                      <Link
-                        className="avatar bg-primary avatar-rounded text-fixed-white"
-                        to="#"
-                      >
-                        35+
-                      </Link>
-                    </div>
-                  </li>
                   <li>
                     <Tooltip title="Search" placement="bottom">
                       <Link
@@ -814,7 +673,13 @@ const GroupChat = () => {
               </div>
             </Scrollbars>
           </div>
-          <div className="chat-footer">
+          <div 
+            className="chat-footer" 
+            style={{
+            borderTop: "1px solid #eee",
+            background: "#fff",
+            padding: "10px",
+          }}>
             <form className="footer-form" onSubmit={handleSendMessage}>
               <div className="chat-footer-wrap">
                 <div className="form-item">
@@ -977,7 +842,7 @@ const GroupChat = () => {
                   </div>
                 </div>
                 <div className="form-btn">
-                  <button className="btn btn-primary" type="button">
+                  <button className="btn btn-primary" type="submit">
                     <i className="ti ti-send" />
                   </button>
                 </div>
