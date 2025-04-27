@@ -13,7 +13,7 @@ import { useSelector } from "react-redux";
 import { getMeSelector } from "@/core/redux/selectors";
 import { getAllMessInRoom, getMoreMessInRoom, MessageData, SendMessageData } from "@/core/services/messageService";
 import { wsClient } from "@/core/services/websocket";
-import { getRoomById, RoomData } from "@/core/services/roomService";
+import { getRoomById, RoomData, getAllUsersInRoom } from "@/core/services/roomService";
 import { format } from "date-fns";
 
 const GroupChat = () => {
@@ -62,6 +62,7 @@ const GroupChat = () => {
 
   const [isLoading, setIsLoading] = useState(false);
   const [hasMore, setHasMore] = useState(true);
+  const [listUserInRoom, setListUserInroom] = useState([])
 
   const fetchApiGetMoreMessInRoom = async (room_id: string) => {
     try {
@@ -101,6 +102,11 @@ const GroupChat = () => {
   const fetchApiGetRoomById = async (room_id: string) => {
     const result: RoomData = await getRoomById(room_id)
     setRoomData(result)
+  };
+
+  const fetchApiGetAllUserInRoom = async (room_id: string) => {
+    const result = await getAllUsersInRoom(room_id)
+    setListUserInroom(result)
   }
 
   const { room_id } = useParams();
@@ -108,6 +114,7 @@ const GroupChat = () => {
   useEffect(() => {
     if (room_id) {
       fetchApiGetRoomById(room_id);
+      fetchApiGetAllUserInRoom(room_id);
     }
     fetchApiGetMessInRoom(room_id);
     console.log("messages: ", messages);
@@ -489,7 +496,7 @@ const GroupChat = () => {
                 <div className="ms-2 overflow-hidden">
                   <h6>{roomData?.room_name}</h6>
                   <p className="last-seen text-truncate">
-                    40 Member, <span className="text-success">24 Online</span>
+                    {listUserInRoom.length} Member, <span className="text-success">{listUserInRoom.length} Online</span>
                   </p>
                 </div>
               </div>
