@@ -8,6 +8,7 @@ from controller.room_controller import room_router
 from controller.friend_controller import friend_router
 from controller.chat_controller import chat_router
 from controller.file_controller import file_router
+from controller.task_controller import task_router
 from exception.app_exception import AppException
 from exception.global_exception_handler import app_exception_handler, http_exception_handler
 from middleware.token_middleware import TokenMiddleware
@@ -44,6 +45,7 @@ app.include_router(user_router, prefix="/user", tags=["User"])
 app.include_router(room_router, prefix="/room", tags=["Room"])
 app.include_router(friend_router, prefix="/friend", tags=["Friend"])
 app.include_router(chat_router, prefix="/chat", tags=["Chat WebSocket"])
+app.include_router(task_router, prefix="/task", tags=["Task"])
 app.include_router(file_router, prefix="/file", tags=["File"])
 
 app.mount("/bucket", StaticFiles(directory="bucket"), name="bucket")
