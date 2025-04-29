@@ -57,7 +57,7 @@ const Column: React.FC<ColumnProps> = ({ status, tasks, allTasks, setTasks, user
         overflowY: 'auto',
       }}
     >
-      <h3>{status.replace('_', ' ').toUpperCase()}</h3>
+      <h5 style={{marginBottom: '5px'}}>{status.replace('_', ' ').toUpperCase()}</h5>
       {tasks.map((task) => (
         <TaskCard key={task.task_id} task={task} users={users} />
       ))}

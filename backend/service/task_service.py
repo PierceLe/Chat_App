@@ -18,6 +18,7 @@ class TaskService():
         )
 
         return TaskResponse(
+            task_id = task.task_id,
             room_id = task.room_id,
             task_name = task.task_name,
             task_description = task.task_description,
@@ -27,8 +28,6 @@ class TaskService():
             created_at = task.created_at,
             updated_at = task.updated_at
         )
-
-        return task
     
     def get_task_by_id(self, task_id: str) -> TaskResponse:
         

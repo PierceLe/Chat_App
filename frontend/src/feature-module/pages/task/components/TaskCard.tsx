@@ -33,21 +33,21 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, users }) => {
         boxShadow: '0 2px 5px rgba(0,0,0,0.05)',
       }}
     >
-      <div style={{ fontWeight: 'bold', marginBottom: '6px', fontSize: '0.9em' }}>
+      <div style={{ fontWeight: 'bold', marginBottom: '6px', fontSize: '1.1em' }}>
         {task.task_name}
       </div>
 
       {assignedUser && (
         <div style={{ display: 'flex', alignItems: 'center', marginTop: 4 }}>
           <Avatar
-            size={26}
+            size={25}
             src={
               assignedUser.avatar_url === 'default'
                 ? 'assets/img/profiles/avatar-16.jpg'
                 : `http://localhost:9990/${assignedUser.avatar_url}`
             }
           />
-          <span style={{ fontSize: '1em', marginLeft: '2px' }}>{`${assignedUser.first_name} ${assignedUser.last_name}`}</span>
+          <span style={{ fontSize: '0.9em', marginLeft: '4px' }}>{`${assignedUser.first_name} ${assignedUser.last_name}`}</span>
         </div>
       )}
     </div>
