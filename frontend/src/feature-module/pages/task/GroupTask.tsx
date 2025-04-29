@@ -4,17 +4,21 @@ import React, { useEffect, useState } from 'react';
 import Board from './components/Board';
 import { Task, User, TaskStatus } from './types';
 import { Button, Modal, Form, Input, Select } from 'antd';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import httpRequest from '@/core/api/baseAxios';
 import { notify } from '@/core/utils/notification';
 import { UserData } from '@/core/services/contactService';
 import { useSelector } from 'react-redux';
 import { getMeSelector } from '@/core/redux/selectors';
+import { RoomData } from '@/core/services/roomService';
+import { PlusOutlined, ArrowLeftOutlined } from '@ant-design/icons';
 
 const GroupTask = () => {
   const { roomId } = useParams<{ room_id: string }>();
+  const navigate = useNavigate();
   const [tasks, setTasks] = useState<Task[]>([]);
   const [users, setUsers] = useState<User[]>([]);
+  const [room, setRoom] = useState<RoomData>({});
   const [loadingUpdate, setLoadingUpdate] = useState(false);
   const [loadingRefresh, setLoadingRefresh] = useState(false);
   const [loadingCreateTask, setLoadingCreateTask] = useState(false);
@@ -32,6 +36,20 @@ const GroupTask = () => {
         setUsers(res.result || []);
       } else {
         throw new Error("Failed to load users");
+      }
+    } catch (err) {
+      console.error(err);
+      setHasError(true);
+    }
+  };
+
+  const loadRoomInfo = async () => {
+    try {
+      const res = await httpRequest.get(`/room/?room_id=${roomId}`);
+      if (res.code === 0) {
+        setRoom(res.result || []);
+      } else {
+        throw new Error("Failed to load room info");
       }
     } catch (err) {
       console.error(err);
@@ -59,6 +77,7 @@ const GroupTask = () => {
 
   useEffect(() => {
     loadUsers();
+    loadRoomInfo();
     loadTasks();
   }, [roomId]);
 
@@ -123,14 +142,33 @@ const GroupTask = () => {
 
   return (
     <div style={{ width: '100%', margin: '20px' }}>
-      <Button
-        type="primary"
-        onClick={() => setIsModalCreateTaskOpen(true)}
-        loading={loadingCreateTask}
-        style={{ marginBottom: '15px' }}
-      >
-        Create Task
-      </Button>
+      <div className='d-flex justify-content-between align-items-center' style={{ marginBottom: '15px', width: '90%' }}>
+        <div>
+          <span style={{fontSize: '1.2em'}}>Group</span>
+          <span style={{fontWeight: 'bold', marginLeft: '10px', fontSize: '1.3em'}}>{room.room_name}</span>
+          <span style={{fontSize: '1.2em', marginLeft: '5px'}}>-</span>
+          <span style={{fontSize: '1.2em', marginLeft: '5px'}}>{users.length} members</span>
+        </div>
+        <div>
+          <Button
+            type="primary"
+            ghost
+            icon={<ArrowLeftOutlined />}
+            onClick={() => navigate(`/group-chat/${roomId}`)}
+            style={{marginRight: '5px'}}
+          >
+            Back
+          </Button>
+          <Button
+            type="primary"
+            icon={<PlusOutlined />}
+            onClick={() => setIsModalCreateTaskOpen(true)}
+            loading={loadingCreateTask}
+          >
+            New Task
+          </Button>
+        </div>
+      </div>
       <DndProvider backend={HTML5Backend}>
         <div
           style={{

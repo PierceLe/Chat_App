@@ -4,6 +4,7 @@ import TaskCard from './TaskCard';
 import { Task, TaskStatus, User } from '../types';
 import httpRequest from '@/core/api/baseAxios';
 import { notify } from '@/core/utils/notification';
+import { CheckCircleOutlined } from '@ant-design/icons';
 
 interface ColumnProps {
   status: TaskStatus;
@@ -57,7 +58,12 @@ const Column: React.FC<ColumnProps> = ({ status, tasks, allTasks, setTasks, user
         overflowY: 'auto',
       }}
     >
-      <h5 style={{marginBottom: '5px'}}>{status.replace('_', ' ').toUpperCase()}</h5>
+      <h5 style={{ marginBottom: '5px', display: 'inline-flex', alignItems: 'center' }}>
+        {status.replace('_', ' ').toUpperCase()}
+        {status === TaskStatus.DONE && (
+          <CheckCircleOutlined style={{ color: 'green', marginLeft: 8 }} />
+        )}
+      </h5>
       {tasks.map((task) => (
         <TaskCard key={task.task_id} task={task} users={users} />
       ))}

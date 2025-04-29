@@ -437,43 +437,13 @@ const GroupChat = () => {
                       <i className="ti ti-dots-vertical" />
                     </Link>
                     <ul className="dropdown-menu dropdown-menu-end p-3">
-                      <li>
-                        <Link to={routes.index} className="dropdown-item">
-                          <i className="ti ti-x me-2" />
-                          Close Group
-                        </Link>
-                      </li>
-                      <li>
+                      <li style={{backgroundColor: 'oklch(96.8% 0.007 247.896)'}}>
                         <Link
-                          to="#"
+                          to={`/group-tasks/${room_id}`}
                           className="dropdown-item"
-                          data-bs-toggle="modal"
-                          data-bs-target="#mute-notification"
                         >
-                          <i className="ti ti-volume-off me-2" />
-                          Mute Notification
-                        </Link>
-                      </li>
-                      <li>
-                        <Link
-                          to="#"
-                          className="dropdown-item"
-                          data-bs-toggle="modal"
-                          data-bs-target="#disappearing-messages"
-                        >
-                          <i className="ti ti-clock-hour-4 me-2" />
-                          Disappearing Message
-                        </Link>
-                      </li>
-                      <li>
-                        <Link
-                          to="#"
-                          className="dropdown-item"
-                          data-bs-toggle="modal"
-                          data-bs-target="#clear-chat"
-                        >
-                          <i className="ti ti-clear-all me-2" />
-                          Clear Message
+                          <i className="ti ti-list-check me-2" />
+                          <span>Go to Task</span>
                         </Link>
                       </li>
                       <li>
@@ -485,28 +455,6 @@ const GroupChat = () => {
                         >
                           <i className="ti ti-trash me-2" />
                           Delete Group
-                        </Link>
-                      </li>
-                      <li>
-                        <Link
-                          to="#"
-                          className="dropdown-item"
-                          data-bs-toggle="modal"
-                          data-bs-target="#report-user"
-                        >
-                          <i className="ti ti-thumb-down me-2" />
-                          Report
-                        </Link>
-                      </li>
-                      <li>
-                        <Link
-                          to="#"
-                          className="dropdown-item"
-                          data-bs-toggle="modal"
-                          data-bs-target="#block-user"
-                        >
-                          <i className="ti ti-ban me-2" />
-                          Block
                         </Link>
                       </li>
                     </ul>
