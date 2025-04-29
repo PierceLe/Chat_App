@@ -16,6 +16,6 @@ export const all_routes = {
   status: "/status",
   myStatus: "/my-status",
   userStatus: "/user-status",
-  tasks: "/tasks",
+  groupTasks: "/group-tasks",
   timetable: "/timetable",
 };
