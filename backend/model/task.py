@@ -13,6 +13,6 @@ class Task(Base):
     task_description = Column(String(500))
     assigner_id = Column(String(36))  
     assignee_id = Column(String(36))
-    status = Column(String(8))  # TO DO, DOING, REVIEW, DONE
+    status = Column(String(12))  # TO DO, In Progress, REVIEW, DONE
     created_at = Column(DateTime, default=datetime.datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.datetime.utcnow, onupdate=datetime.datetime.utcnow)

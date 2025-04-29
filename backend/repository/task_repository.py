@@ -1,6 +1,7 @@
 from sqlalchemy.orm import Session
 from database import SessionLocal
 from model.task import Task
+from typing import List, Optional
 
 class TaskRepository:
     def create_task(
@@ -30,19 +31,24 @@ class TaskRepository:
         with SessionLocal() as db:
             return db.query(Task).filter(Task.task_id == task_id).first()
 
-    def get_list_task_by_room_id(self, room_id: str) -> Task:
+    def get_list_task_by_room_id(self, room_id: str) -> List[Task]:
         with SessionLocal() as db:
-            return db.query(Task).filter(Task.room_id == room_id)
+            return (
+                db.query(Task)
+                .filter(Task.room_id == room_id)
+                .order_by(Task.created_at)
+                .all()
+            )
 
-    def update_task_status(self, task_id: str, status: str) -> bool:
+    def update_task_status(self, task_id: str, status: str) -> Optional[Task]:
         with SessionLocal() as db:
             db_task = db.query(Task).filter(Task.task_id == task_id).first()
             if db_task:
                 db_task.status = status
                 db.commit()
                 db.refresh(db_task)
-                return True
-            return False
+                return db_task
+            return None
 
     def delete_task(self, task_id: str) -> bool:
         with SessionLocal() as db:

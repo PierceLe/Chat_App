@@ -2,6 +2,7 @@ from pydantic import BaseModel
 from datetime import datetime
 
 class TaskResponse(BaseModel):
+    task_id: str
     room_id: str
     task_name: str
     task_description: str
