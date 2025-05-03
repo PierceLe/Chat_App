@@ -22,6 +22,7 @@ import { wsClient } from "@/core/services/websocket";
 import NewChat from "@/core/modals/newChat";
 import { Avatar } from "antd";
 import { useParams } from "react-router-dom";
+import { getOnlineUserIds } from "@/core/services/messageService";
 
 const ChatTab = () => {
   const routes = all_routes;
@@ -39,14 +40,21 @@ const ChatTab = () => {
   const openNewChat = () => setIsModalVisible(true);
   const closeNewChat = () => setIsModalVisible(false);
   const [currentChatRoom, setCurrentChatRoom] = useState("")
-  const { room_id: roomIDFromUrl } = useParams();
+  const { room_id: roomIDFromUrl} = useParams();
 
+  const [onlineUserIds, setOnlineUserIds] = useState<Set<string>>(new Set());
+  
 
   const fetchApiGetRoomChatOne = async (friendName: string) => {
     const result: any = await getAllGroupChatOne(friendName, me.user_id);
     setRooms(result);
     console.log("ROOMS ONE: ", result);
   };
+
+  const fetchApiGetOnlineUsers = async () => {
+      const result = await getOnlineUserIds();
+      setOnlineUserIds(new Set(result))
+    }
 
   const getRoom = async(room_id: string) => {
     return await getRoomById(room_id);
@@ -62,6 +70,7 @@ const ChatTab = () => {
 
   useEffect(() => {
     fetchApiGetRoomChatOne("");
+    fetchApiGetOnlineUsers()
     const handleMessage = (data: any) => {
       if (data.action === "chat"){
         setRooms((pre)=>{
@@ -87,6 +96,9 @@ const ChatTab = () => {
           });
           return newRooms;
         })
+      }
+      else if (data.action === "update-status"){
+        fetchApiGetOnlineUsers()
       }
     };
     wsClient.onMessage(handleMessage);
@@ -161,7 +173,7 @@ const ChatTab = () => {
               backgroundColor: currentChatRoom === room_id ? 'oklch(90.1% 0.058 230.902)' : 'transparent',
             }}
           >
-            <div className="avatar avatar-lg online me-2">
+            <div className={`avatar avatar-lg ${onlineUserIds.has(friend_id) ? 'online' : 'offline'} me-2`}>
               <Avatar
                 size={32}
                 src={
@@ -344,7 +356,7 @@ const ChatTab = () => {
                   >
                     {rooms.map((room, index) => (
                       <SwiperSlide key={index}>
-                        <div className="avatar avatar-lg online d-block">
+                        <div className={`avatar avatar-lg ${onlineUserIds.has(room.friend_id) ? 'online' : 'offline'} d-block`}>
                           <Avatar
                             size={32}
                             src={

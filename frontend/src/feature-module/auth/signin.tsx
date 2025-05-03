@@ -11,6 +11,7 @@ import { LoginType } from "@/core/model/responseType";
 import { useNavigate } from "react-router-dom";
 import { all_routes } from "@/feature-module/router/all_routes";
 import httpRequest from "@/core/api/baseAxios";
+import { wsClient } from "@/core/services/websocket";
 
 const Signin = () => {
   const routes = all_routes;
@@ -91,7 +92,12 @@ const Signin = () => {
           setTokenLogin2FA(res.token)
           setIs2FAModalVisible(true);
         }
-        
+        if (wsClient){
+          if (!wsClient.isConnected()){
+            wsClient.connect()
+          }
+          console.log("wsClient:", wsClient)
+        }
       }
     } catch {
       notify.error("Error", "Login Failed !")

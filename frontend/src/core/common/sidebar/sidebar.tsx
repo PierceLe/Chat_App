@@ -9,6 +9,7 @@ import { setDark } from "../../data/redux/commonSlice";
 import { logout } from "../../services/authService";
 import { UserData } from "@/core/services/contactService";
 import { getMeSelector } from "@/core/redux/selectors";
+import { wsClient } from "@/core/services/websocket";
 
 const Sidebar = () => {
   const userMe: UserData = useSelector(getMeSelector); 
@@ -34,6 +35,7 @@ const Sidebar = () => {
   }, [darkMode]);
 
   const handleLogout = () => {
+    wsClient.disconnect();
     logout();
   };
 

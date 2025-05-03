@@ -17,7 +17,7 @@ class WebSocketClient {
     return WebSocketClient.instance;
   }
 
-  private connect() {
+  public connect() {
     this.socket = new WebSocket("ws://localhost:9990/chat/ws");
 
     this.socket.onopen = () => {
@@ -79,6 +79,8 @@ class WebSocketClient {
     if (this.socket) {
       this.socket.close();
       this.reconnectAttempts = this.maxReconnectAttempts;
+      this.socket = null;
+      WebSocketClient.instance = null as any;
     }
   }
 
