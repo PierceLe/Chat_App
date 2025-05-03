@@ -12,6 +12,7 @@ import {
 import useDebounce from "../../hooks/useDebounce";
 import ContactDetailsCustom from "../../modals/contact-details-custom";
 import { wsClient } from "@/core/services/websocket";
+import { getOnlineUserIds } from "@/core/services/messageService";
 import { Avatar } from "antd";
 
 const ContactTab = () => {
@@ -19,6 +20,7 @@ const ContactTab = () => {
   const [friendDrafts, setFriendDrafts] = useState(Array<UserData>);
   const [searchInput, setSearchInput] = useState("");
   const debouncedValue = useDebounce(searchInput, 500);
+  const [onlineUserIds, setOnlineUserIds] = useState<Set<string>>(new Set());
 
   const fetchApiGetFriend = async () => {
     const result = await getAllFriends();
@@ -32,13 +34,22 @@ const ContactTab = () => {
     console.log("getFriendDrafts: ", result);
   };
 
+  const fetchApiGetOnlineUsers = async () => {
+    const result = await getOnlineUserIds();
+    console.log("online_user_ids: ", result)
+    setOnlineUserIds(new Set(result))
+  }
+  
   useEffect(() => {
     console.log("Contact: Rerender")
     fetchApiGetFriend()
     fetchApiGetFriendDraft()
+    fetchApiGetOnlineUsers()
     const handleMessage = (data: any) => {
       if (data.action === "make-request-friend") {
         fetchApiGetFriendDraft()
+      } else if (data.action === "update-status") {
+        fetchApiGetOnlineUsers()
       }
     }
     wsClient.onMessage(handleMessage);
@@ -92,7 +103,8 @@ const ContactTab = () => {
     first_name,
     last_name,
     avatar_url,
-  }: UserData) => {
+    is_online
+  }: any) => {
     return (
       <>
         <div className="mb-4">
@@ -114,7 +126,7 @@ const ContactTab = () => {
                 });
               }}
             >
-              <div className="avatar avatar-lg online me-2">
+              <div className={`avatar avatar-lg ${is_online ? 'online' : 'offline'} me-2`}>
                 <Avatar
                   size={32}
                   src={
@@ -145,7 +157,8 @@ const ContactTab = () => {
     first_name,
     last_name,
     avatar_url,
-  }: UserData) => {
+    is_online
+  }:any) => {
     return (
       <>
         <div className="mb-4">
@@ -167,7 +180,7 @@ const ContactTab = () => {
                 });
               }}
             >
-              <div className="avatar avatar-lg online me-2">
+              <div className={`avatar avatar-lg ${is_online ? 'online' : 'offline'} me-2`}>
                 <Avatar
                   size={32}
                   src={
@@ -292,6 +305,7 @@ const ContactTab = () => {
                     last_name={item.last_name}
                     avatar_url={item.avatar_url}
                     is_verified={item.is_verified}
+                    is_online = {onlineUserIds.has(item.user_id)}
                   ></OneContactRequestTab>
                 ))}
               </div>
@@ -310,6 +324,7 @@ const ContactTab = () => {
                     last_name={item.last_name}
                     avatar_url={item.avatar_url}
                     is_verified={item.is_verified}
+                    is_online = {onlineUserIds.has(item.user_id)}
                   ></OneContactTab>
                 ))}
               </div>
