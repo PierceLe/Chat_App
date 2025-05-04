@@ -1,12 +1,13 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useDrag } from 'react-dnd';
 import { Task, User } from '../types';
-import { Avatar } from 'antd';
+import { Avatar, Button, Col, Modal, Row } from 'antd';
 import { DeleteOutlined, EyeOutlined } from '@ant-design/icons';
 import Swal from 'sweetalert2';
 import withReactContent from 'sweetalert2-react-content';
 import httpRequest from '@/core/api/baseAxios';
 import { notify } from '@/core/utils/notification';
+import { formatDate } from './helper'
 
 interface TaskCardProps {
   task: Task;
@@ -23,7 +24,18 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, users, loadTasks }) => {
     }),
   }));
 
+  const [isModalVisible, setIsModalVisible] = useState(false);
+
+  const handleViewDetails = () => {
+    setIsModalVisible(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalVisible(false);
+  };
+
   const assignedUser = users.find((u) => u.user_id === task.assignee_id);
+  const assignerUser = users.find((u) => u.user_id === task.assigner_id);
   const MySwal = withReactContent(Swal);
 
   const handleDelete = () => {
@@ -50,10 +62,6 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, users, loadTasks }) => {
       }
     });
   };
-
-  const handleViewDetails = async () => {
-    return 1
-  }
 
   return (
     <div
@@ -114,6 +122,58 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, users, loadTasks }) => {
           </div>
         </div>
       )}
+
+      <Modal
+        title="Task Details"
+        visible={isModalVisible}
+        onCancel={handleCloseModal}
+        footer={[
+          <Button key="close" onClick={handleCloseModal}>
+            Close
+          </Button>,
+        ]}
+      >
+        <Row gutter={[16, 16]}>
+          <Col span={8}>
+            <strong>Task Name:</strong>
+          </Col>
+          <Col span={16}>
+            {task.task_name}
+          </Col>
+
+          <Col span={8}>
+            <strong>Description:</strong>
+          </Col>
+          <Col span={16}>
+            {task.task_description}
+          </Col>
+
+          <Col span={8}>
+            <strong>Assigner:</strong>
+          </Col>
+          <Col span={16}>
+            {assignerUser?.first_name} {assignerUser?.last_name}
+          </Col>
+          <Col span={8}>
+            <strong>Assignee:</strong>
+          </Col>
+          <Col span={16}>
+            {assignedUser?.first_name} {assignedUser?.last_name}
+          </Col>
+          <Col span={8}>
+            <strong>Created at:</strong>
+          </Col>
+          <Col span={16}>
+            {formatDate(task?.created_at)}
+          </Col>
+          <Col span={8}>
+            <strong>Updated at:</strong>
+          </Col>
+          <Col span={16}>
+            {formatDate(task?.updated_at)}
+          </Col>
+        </Row>
+      </Modal>
     </div>
   );
 };
