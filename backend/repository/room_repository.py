@@ -53,7 +53,7 @@ class RoomRepository():
                         sorts_by: Optional[List[str]],
                         sorts_dir: Optional[List[str]]
                          ):
-        query = self.db.query(Room)
+        query = self.db.query(Room, User)
 
         if room_name is not None:
             query = query.filter(Room.room_name.ilike(f"%{room_name}%"))
@@ -62,6 +62,8 @@ class RoomRepository():
             query = query.filter(Room.room_type == room_type)
         
         query = query.join(UserRoom, and_(Room.room_id == UserRoom.room_id, UserRoom.user_id == user_id))
+
+        query = query.outerjoin(User, Room.last_sender_id == User.user_id)
 
         total = query.count()
 
@@ -109,13 +111,20 @@ class RoomRepository():
         ur1 = aliased(UserRoom)
         ur2 = aliased(UserRoom)
 
+        u1 = aliased(User)
+
         query = self.db.query(Room, 
+            u1,
             User.user_id.label('friend_id'), 
             User.email.label('friend_email'),
             User.first_name.label('friend_frist_name'),
             User.last_name.label('friend_last_name'),
-            User.avatar_url.label('friend_avatar_url')
-            ).join(ur1, 
+            User.avatar_url.label('friend_avatar_url'),
+            )
+        
+        query = query.outerjoin(u1, Room.last_sender_id == u1.user_id)
+
+        query = query.join(ur1, 
                    and_(
                     Room.room_type == E_Room_Type.ONE, 
                     Room.room_id == ur1.room_id,
@@ -136,6 +145,8 @@ class RoomRepository():
                 )
             ).order_by(User.first_name.asc(), User.last_name.asc())
         
+        
+
         total = query.count()
         offset = (page - 1) * page_size
         query = query.offset(offset).limit(page_size)
@@ -152,8 +163,8 @@ class RoomRepository():
             "total_pages": total_pages
         }
     
-    def update_last_message_in_room(self, room_id: str, message: str):
-        self.db.query(Room).filter(Room.room_id == room_id).update({"last_mess": message})
+    def update_last_message_in_room(self, room_id: str, message: str, last_sender_id: str):
+        self.db.query(Room).filter(Room.room_id == room_id).update({"last_mess": message, "last_sender_id": last_sender_id})
         self.db.commit()
 
     def is_exits_chat_one_one(self, user1_id: str, user2_id: str):

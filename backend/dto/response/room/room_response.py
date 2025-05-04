@@ -1,5 +1,6 @@
 from pydantic import BaseModel
 from datetime import datetime
+from dto.response.user_response import UserResponse
 from enums.enum_room_type import E_Room_Type
 from typing import Optional
 
@@ -14,6 +15,7 @@ class RoomResponse(BaseModel):
     description: Optional[str]
     created_at: datetime
     updated_at: datetime
+    last_sender: Optional[UserResponse] = None
 
     class Config:
         from_attributes = True
