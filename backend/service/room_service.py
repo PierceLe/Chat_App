@@ -124,8 +124,24 @@ class RoomService():
             sorts_by = request.sorts_by,
             sorts_dir = request.sorts_dir
         )
+        items = [] 
+        for item in result["items"]:
+            items.append(
+                RoomResponse(
+                    room_id = item.Room.room_id,
+                    room_name = item.Room.room_name,
+                    creator_id = item.Room.creator_id,
+                    last_mess = item.Room.last_mess,
+                    room_type = item.Room.room_type,
+                    avatar_url = item.Room.avatar_url,
+                    description = item.Room.description,
+                    created_at = item.Room.created_at,
+                    updated_at = item.Room.updated_at,
+                    last_sender = UserResponse.from_orm(item.User) if item.User is not None else None
+                )
+            )
         return BasePageResponse(
-            items=[RoomResponse.from_orm(item) for item in result["items"]],
+            items=items,
             total=result["total"],
             page=result["page"],
             page_size=result["page_size"],
@@ -204,6 +220,7 @@ class RoomService():
                     friend_frist_name = item.friend_frist_name,
                     friend_last_name = item.friend_last_name,
                     friend_avatar_url = item.friend_avatar_url,
+                    last_sender = item[1] if item[1] is not None else None
                 ) for item in result["items"]],
             total=result["total"],
             page=result["page"],
