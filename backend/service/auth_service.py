@@ -19,6 +19,10 @@ from dto.request.auth.user_create_request import UserCreateRequest
 from exception.app_exception import AppException
 from exception.error_code import ErrorCode
 from dto.response.user_response import UserResponse
+from googleapiclient.discovery import build
+from google.oauth2 import id_token
+from google.auth.transport.requests import Request
+from config import app_config
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 oauth2_scheme = OAuth2PasswordBearerWithCookie(tokenUrl="login")
@@ -125,6 +129,27 @@ class AuthService():
                 user.user_id)):
             return False
         return user
+    
+    def login_or_create_google_user(self, token: str):
+        try:
+            idinfo = id_token.verify_oauth2_token(token, Request(), app_config["GOOGLE_AUTHENTICATION"]["CLIENT_ID"])
+            email = idinfo["email"]
+            name = idinfo.get("name")
+            first_name = idinfo.get("given_name")
+            last_name = idinfo.get("family_name")
+            avatar_url = idinfo.get("picture")
+            
+            user = self.user_service.get_user_by_email(email, get_full_info=True)
+            if user:
+                return user
+
+            new_user = self.user_service.create_user_google(email=email, first_name=first_name, 
+                            last_name=last_name, avatar_url=avatar_url)
+
+            return new_user
+        except ValueError:
+            raise AppException(ErrorCode.INVALID_GOOGLE_TOKEN)
+
 
     def update_user_verified(self, email: str, is_verified=True):
         user = self.user_service.get_user_by_email(email, only_verified=False)

@@ -41,6 +41,22 @@ class UserService():
             avatar_url=user.avatar_url,
             is_verified=user.is_verified
         )
+    
+    def create_user_google(self, email, first_name, last_name, avatar_url) -> UserResponse:
+        user = self.user_repository.create_user_google(
+            email=email,
+            first_name=first_name,
+            last_name=last_name,
+            avatar_url=avatar_url)
+
+        return UserResponse(
+            user_id=user.user_id,
+            email=user.email,
+            first_name=user.first_name,
+            last_name=user.last_name,
+            avatar_url=user.avatar_url,
+            is_verified=user.is_verified
+        )
 
     def get_user(self, user_id: str, get_full_info: bool = False) -> Union[UserResponse, UserFullResponse]:
         user = self.user_repository.get_user_by_id(user_id)
