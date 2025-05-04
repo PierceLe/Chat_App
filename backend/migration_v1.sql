@@ -54,3 +54,49 @@ create table user_room
     room_id             varchar(36)  not null,
     encrypted_group_key varchar(500) null
 );
+
+CREATE TABLE friend_draft (
+    id VARCHAR(36) NOT NULL PRIMARY KEY,
+    user_id VARCHAR(36),
+    friend_id VARCHAR(36),
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    UNIQUE KEY friend_draft_unique_constraint_1 (user_id, friend_id),
+    INDEX idx_friend_draft_id (id)
+);
+
+CREATE TABLE friend (
+    id VARCHAR(36) NOT NULL PRIMARY KEY,
+    user_id VARCHAR(36),
+    friend_id VARCHAR(36),
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    UNIQUE KEY friend_unique_constraint_1 (user_id, friend_id),
+    INDEX idx_friend_id (id)
+);
+
+CREATE TABLE message (
+    id VARCHAR(36) NOT NULL PRIMARY KEY,
+    sender_id VARCHAR(36) NOT NULL,
+    room_id VARCHAR(36) NOT NULL,
+    message_type VARCHAR(500) NOT NULL,
+    content VARCHAR(2000),
+    file_url VARCHAR(500),
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    INDEX idx_message_id (id)
+);
+
+CREATE TABLE task (
+    task_id VARCHAR(36) NOT NULL PRIMARY KEY,
+    room_id VARCHAR(36),
+    task_name VARCHAR(100),
+    task_description VARCHAR(500),
+    assigner_id VARCHAR(36),
+    assignee_id VARCHAR(36),
+    status VARCHAR(12),
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (room_id) REFERENCES room(room_id),
+    INDEX idx_task_id (task_id)
+);
