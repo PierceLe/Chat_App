@@ -141,7 +141,7 @@ const Sidebar = () => {
                   </Link>
                 </li>
               </Tooltip>
-              <Tooltip title="Tasks" placement="right" color={"#6338F6 "}>
+              {/* <Tooltip title="Tasks" placement="right" color={"#6338F6 "}>
                 <li>
                   <Link
                     to="#"
@@ -154,7 +154,7 @@ const Sidebar = () => {
                     <i className="ti ti-receipt" />
                   </Link>
                 </li>
-              </Tooltip>
+              </Tooltip> */}
               <Tooltip title="Timetable" placement="right" color={"#6338F6 "}>
                 <li>
                   <Link
