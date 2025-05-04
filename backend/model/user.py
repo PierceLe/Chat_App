@@ -15,3 +15,11 @@ class User(Base):
     is_verified = Column(Boolean, default=False)  # Use Boolean column type
     use_2fa_login = Column(Boolean, default=False) 
     two_factor_secret = Column(String(255), nullable=True)
+    
+    method = Column(String(255))
+
+    salt = Column(String(500))
+    
+    pin = Column(String(500))
+    public_key = Column(String(500))
+    encrypted_private_key = Column(String(500))
