@@ -3,7 +3,7 @@ import { HTML5Backend } from 'react-dnd-html5-backend';
 import React, { useEffect, useState } from 'react';
 import Board from './components/Board';
 import { Task, User, TaskStatus } from './types';
-import { Button, Modal, Form, Input, Select } from 'antd';
+import { Button, Modal, Form, Input, Select, Avatar } from 'antd';
 import { useParams, useNavigate } from 'react-router-dom';
 import httpRequest from '@/core/api/baseAxios';
 import { notify } from '@/core/utils/notification';
@@ -11,7 +11,7 @@ import { UserData } from '@/core/services/contactService';
 import { useSelector } from 'react-redux';
 import { getMeSelector } from '@/core/redux/selectors';
 import { RoomData } from '@/core/services/roomService';
-import { PlusOutlined, ArrowLeftOutlined } from '@ant-design/icons';
+import { PlusOutlined, CommentOutlined } from '@ant-design/icons';
 
 const GroupTask = () => {
   const { roomId } = useParams<{ room_id: string }>();
@@ -153,11 +153,11 @@ const GroupTask = () => {
           <Button
             type="primary"
             ghost
-            icon={<ArrowLeftOutlined />}
+            icon={<CommentOutlined />}
             onClick={() => navigate(`/group-chat/${roomId}`)}
             style={{marginRight: '5px'}}
           >
-            Back
+            Chat
           </Button>
           <Button
             type="primary"
@@ -165,7 +165,7 @@ const GroupTask = () => {
             onClick={() => setIsModalCreateTaskOpen(true)}
             loading={loadingCreateTask}
           >
-            New Task
+            New
           </Button>
         </div>
       </div>
@@ -189,7 +189,7 @@ const GroupTask = () => {
             users={users}
             loading={loadingUpdate || loadingRefresh}
             setLoading={setLoadingUpdate}
-            onTaskUpdated={loadTasks}
+            loadTasks={loadTasks}
           />
         </div>
       </DndProvider>
@@ -229,7 +229,17 @@ const GroupTask = () => {
             >
               {users.map(user => (
                 <Select.Option key={user.user_id} value={user.user_id}>
-                  {user.first_name} {user.last_name}
+                  <div>
+                  <Avatar
+                    size={25}
+                    src={
+                      user.avatar_url === 'default'
+                        ? 'assets/img/profiles/avatar-16.jpg'
+                        : `http://localhost:9990/${user.avatar_url}`
+                    }
+                  />
+                  <span style={{marginLeft: '5px'}}>{user.first_name} {user.last_name}</span>
+                  </div>
                 </Select.Option>
               ))}
             </Select>

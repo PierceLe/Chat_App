@@ -10,7 +10,7 @@ interface BoardProps {
   users: User[];
   loading: boolean;
   setLoading: React.Dispatch<React.SetStateAction<boolean>>;
-  onTaskUpdated: () => void;
+  loadTasks: () => void;
 }
 
 const STATUSES = [
@@ -20,7 +20,7 @@ const STATUSES = [
   TaskStatus.DONE,
 ];
 
-const Board: React.FC<BoardProps> = ({ tasks, setTasks, users, loading, onTaskUpdated, setLoading }) => {
+const Board: React.FC<BoardProps> = ({ tasks, setTasks, users, loading, loadTasks, setLoading }) => {
   return (
     <div style={{ position: 'relative', width: '100%' }}>
       <div
@@ -50,7 +50,7 @@ const Board: React.FC<BoardProps> = ({ tasks, setTasks, users, loading, onTaskUp
               allTasks={tasks}
               setTasks={setTasks}
               users={users}
-              onTaskUpdated={onTaskUpdated}
+              loadTasks={loadTasks}
               setLoading={setLoading}
             />
           </div>
