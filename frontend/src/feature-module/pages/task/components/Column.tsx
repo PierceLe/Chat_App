@@ -12,11 +12,11 @@ interface ColumnProps {
   allTasks: Task[];
   setTasks: React.Dispatch<React.SetStateAction<Task[]>>;
   users: User[];
-  onTaskUpdated: () => void;
+  loadTasks: () => void;
   setLoading: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-const Column: React.FC<ColumnProps> = ({ status, tasks, allTasks, setTasks, users, onTaskUpdated, setLoading }) => {
+const Column: React.FC<ColumnProps> = ({ status, tasks, allTasks, setTasks, users, loadTasks, setLoading }) => {
   const [, drop] = useDrop({
     accept: 'TASK',
     drop: async (item: { id: string }) => {
@@ -32,10 +32,10 @@ const Column: React.FC<ColumnProps> = ({ status, tasks, allTasks, setTasks, user
         );
   
         if (res.code === 0) {
-          onTaskUpdated();
-          notify.success("Update Task status successfully !")
+          loadTasks();
+          notify.success("Update successfully !")
         } else {
-          notify.error("Error", "Update status failed");
+          notify.error("Error", "Update failed");
         }
       } catch (error) {
         notify.error("Error", "Update status failed");
@@ -50,7 +50,7 @@ const Column: React.FC<ColumnProps> = ({ status, tasks, allTasks, setTasks, user
       ref={drop}
       style={{
         flex: '0 0 auto',
-        minWidth: '250px',
+        width: '250px',
         padding: '1rem',
         backgroundColor: '#f8f8f8',
         borderRadius: '8px',
@@ -65,7 +65,7 @@ const Column: React.FC<ColumnProps> = ({ status, tasks, allTasks, setTasks, user
         )}
       </h5>
       {tasks.map((task) => (
-        <TaskCard key={task.task_id} task={task} users={users} />
+        <TaskCard key={task.task_id} task={task} users={users} loadTasks={loadTasks} />
       ))}
     </div>
   );
