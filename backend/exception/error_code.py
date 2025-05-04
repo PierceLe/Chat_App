@@ -16,6 +16,7 @@ class ErrorCode(Enum):
     TWOFA_VERIFICATION_FAILED =  (1011, "2FA authentication failed")  
     CODE_2FA_WRONG =  (1011, "Code 2FA is incorrect") 
 
+    NOT_PERMISSION = (9998, "Not permission")
     UNCATEGORIZED_EXCEPTION = (9999, "An uncategorized error occurred")
 
     ROOM_NOT_FOUND = (2001, "Room not found")
