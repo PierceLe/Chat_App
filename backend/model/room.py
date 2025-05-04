@@ -17,3 +17,5 @@ class Room(Base):
     description = Column(String(500))
     created_at = Column(DateTime, default=datetime.datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.datetime.utcnow, onupdate=datetime.datetime.utcnow)
+
+    last_sender_id = Column(String(36))
