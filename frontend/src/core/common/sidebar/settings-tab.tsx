@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import ImageWithBasePath from "../imageWithBasePath";
-import { DatePickerProps, Avatar } from "antd";
+import { DatePickerProps, Avatar, Input } from "antd";
 import { UploadOutlined } from '@ant-design/icons';
 import { Button, DatePicker, Modal, Spin, Upload } from "antd";
 import LogoutModal from "../../modals/logout-modal";
@@ -48,6 +48,7 @@ const SettingsTab = () => {
   const [avatarUrl, setAvatarUrl] = useState("")
   const [updateUserInfoError, setUpdateUserInfoError] = useState("")
   const [loadingUpdateUserInfo, setLoadingUpdateUserInfo] = useState(false)
+  const [loadingBioUpdate, setLoadingBioUpdate] = useState(false)
 
   const handleChangeOldPassword = (e: any) => {
     setOldPassword(e.target.value);
@@ -149,6 +150,14 @@ const SettingsTab = () => {
     } finally {
       setLoadingChangePassword(false)
     }
+
+  }
+
+  const handleChangeBio = async () => {
+    
+  }
+
+  const handleUpdateBio =  async () => {
 
   }
 
@@ -285,17 +294,17 @@ const SettingsTab = () => {
                             Profile Info
                           </Link>
                         </h2>
-                        {userMe?.method === "google" && (
-                          <span className="text-warning small d-block mt-2 mb-3 text-center">
-                            ⚠️ Information synced from Google
-                          </span>
-                        )}
                         <div
                           id="chatuser-collapse"
                           className="accordion-collapse collapse show"
                           data-bs-parent="#account-setting"
                         >
                           <div className="accordion-body">
+                            {userMe?.method === "google" && (
+                              <span className="text-warning small d-block mt-2 mb-3 text-center">
+                                ⚠️ Information synced from Google
+                              </span>
+                            )}
                             <div>
                               <div className="d-flex justify-content-center align-items-center">
                                 <span className="set-pro avatar avatar-xxl rounded-circle mb-3 p-1" style={{ position: 'relative' }}>
@@ -392,6 +401,44 @@ const SettingsTab = () => {
                                 {updateUserInfoError }
                               </div>
                             </div>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="accordion-item others">
+                        <h2 className="accordion-header">
+                          <Link
+                            to="#"
+                            className="accordion-button collapsed"
+                            data-bs-toggle="collapse"
+                            data-bs-target="#bio-collapse"
+                            aria-expanded="false"
+                            aria-controls="bio-collapse"
+                          >
+                            <i className="ti ti-user me-2" />
+                            About Me
+                          </Link>
+                        </h2>
+                        <div
+                          id="bio-collapse"
+                          className="accordion-collapse collapse"
+                          data-bs-parent="#bio-setting"
+                        >
+                          <div className="accordion-body">
+                            <Input.TextArea
+                              rows={4}
+                              placeholder="Write something about yourself..."
+                              value={userMe.biography}
+                              onChange={handleChangeBio}
+                            />
+                            <Button
+                              className="w-100 btn-primary mt-2"
+                              icon={<SaveOutlined />}
+                              size="large"
+                              loading={loadingBioUpdate}
+                              onClick={() => handleUpdateBio()}
+                            >
+                              Update Biography
+                            </Button>
                           </div>
                         </div>
                       </div>
