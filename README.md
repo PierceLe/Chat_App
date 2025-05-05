@@ -120,6 +120,9 @@ AUTHENTICATION:
   SECRET_KEY_2FA_VERIFICATION: 
   ACCESS_TOKEN_EXPIRE_MINUTES_2FA_VERIFICATION: 5
 
+GOOGLE_AUTHENTICATION:
+  CLIENT_ID:
+
 APP_EMAIL:
   SENDER: "youremail@gmail.com"
   PASSWORD: "app_password"
@@ -131,6 +134,9 @@ WEB:
     DOMAIN: "http://localhost:3000"
   BACKEND:
     DOMAIN: "http://localhost:9990"
+    
+APP_GENERAL:
+  APP_NAME: "Dream Chat"
 ```
 
 ### Running the Server

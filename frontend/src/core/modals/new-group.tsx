@@ -1,157 +1,158 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
-import createRoomSlice from "../redux/reducers/createRoomSlice";
+import { Modal, Input, Radio, Upload, Button, Avatar } from "antd";
+import { PlusOutlined, InfoCircleOutlined, UsergroupAddOutlined } from "@ant-design/icons";
 import { useDispatch } from "react-redux";
+import createRoomSlice from "../redux/reducers/createRoomSlice";
+import { UploadOutlined } from '@ant-design/icons';
+import { notify } from "@/core/utils/notification";
+import httpRequest from "@/core/api/baseAxios";
+import { useEffect } from "react";
 
-const NewGroup = () => {
+
+interface Props {
+  open: boolean;
+  onClose: () => void;
+  onNext: () => void;
+}
+
+const NewGroupModal: React.FC<Props> = ({ open, onClose, onNext }) => {
   const [roomName, setRoomName] = useState("");
   const [roomDescription, setRoomDescription] = useState("");
+  const [avatarUrl, setAvatarUrl] = useState("")
 
   const dispatch = useDispatch();
 
-  const handleChangeRoomName = (e: any) => {
+  const handleChangeRoomName = (e: React.ChangeEvent<HTMLInputElement>) => {
     setRoomName(e.target.value);
     dispatch(createRoomSlice.actions.setRoomName(e.target.value));
   };
 
-  const handleChangeRoomDescription = (e: any) => {
-    setRoomDescription(e.target.value);
-    dispatch(createRoomSlice.actions.setDescription(roomDescription));
+  const handleChangeRoomDescription = (e: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => {
+    const value = e.target.value;
+    setRoomDescription(value);
+    dispatch(createRoomSlice.actions.setDescription(value));
   };
 
-  const handleNext = () => {
+  const handleNextClick = () => {
     setRoomName("");
     setRoomDescription("");
+    onNext();
+    onClose();
   };
 
+  const handleAvatarUpload = async (options) => {
+    const { file, onSuccess, onError } = options;
+  
+    const formData = new FormData();
+    formData.append('file', file);
+  
+    try {
+      const response = await httpRequest.post("/file/upload", formData, {
+        params: { type: 'public' },
+        headers: {
+          Accept: 'application/json'
+        },
+      });
+  
+      if (response.code !== 0) {
+        notify.error("Upload Avatar Failed", "Upload Avatar image failed !")
+        onError(new Error('Upload Avatar Failed'));
+        return
+      }
+  
+      const uploadedUrl = response.result;
+      onSuccess(uploadedUrl);
+      setAvatarUrl(uploadedUrl)
+    } catch (error) {
+      onError(error);
+      notify.error("Upload Avatar Failed", "Upload Avatar image failed !")
+    }
+  };
+
+  useEffect(() => {
+    if (open) {
+      // Reset local state
+      setRoomName("");
+      setRoomDescription("");
+      setAvatarUrl("");
+  
+      // Reset redux state
+      dispatch(createRoomSlice.actions.setRoomName(""));
+      dispatch(createRoomSlice.actions.setDescription(""));
+      dispatch(createRoomSlice.actions.setAvatarUrl(""));
+    }
+  }, [open]);
+
   return (
-    <>
-      {/* New Group */}
-      <div className="modal fade" id="new-group">
-        <div className="modal-dialog modal-dialog-centered">
-          <div className="modal-content">
-            <div className="modal-header">
-              <h4 className="modal-title">New Group</h4>
-              <button
-                type="button"
-                className="btn-close"
-                data-bs-dismiss="modal"
-                aria-label="Close"
-              >
-                <i className="ti ti-x" />
-              </button>
-            </div>
-            <div className="modal-body">
-              <form>
-                <div className="d-flex justify-content-center align-items-center">
-                  <label
-                    htmlFor="avatar-upload"
-                    className="set-pro avatar avatar-xxl rounded-circle mb-3 p-1"
-                  >
-                    <span className="avatar avatar-xl bg-transparent-dark rounded-circle" />
-                    <span className="add avatar avatar-sm d-flex justify-content-center align-items-center">
-                      <i className="ti ti-plus rounded-circle d-flex justify-content-center align-items-center" />
-                    </span>
-                  </label>
-                  <input
-                    type="file"
-                    id="avatar-upload"
-                    style={{ display: "none" }}
-                    accept="image/*"
-                  />
-                </div>
-                <div className="row">
-                  <div className="col-lg-12">
-                    <label className="form-label">Group Name</label>
-                    <div className="input-icon mb-3 position-relative">
-                      <input
-                        type="text"
-                        defaultValue=""
-                        className="form-control"
-                        placeholder="Group Name"
-                        value={roomName}
-                        onChange={(e) => handleChangeRoomName(e)}
-                      />
-                      <span className="icon-addon">
-                        <i className="ti ti-users-group" />
-                      </span>
-                    </div>
-                  </div>
-                  <div className="col-lg-12">
-                    <label className="form-label">About</label>
-                    <div className="input-icon mb-3 position-relative">
-                      <input
-                        type="text"
-                        defaultValue=""
-                        className="form-control"
-                        placeholder="About"
-                        value={roomDescription}
-                        onChange={(e) => handleChangeRoomDescription(e)}
-                      />
-                      <span className="icon-addon">
-                        <i className="ti ti-info-octagon" />
-                      </span>
-                    </div>
-                  </div>
-                  <label className="form-label">Group Type</label>
-                  <div className="d-flex">
-                    <div className="form-check me-3">
-                      <input
-                        className="form-check-input"
-                        type="radio"
-                        name="mute"
-                        id="mute1"
-                      />
-                      <label className="form-check-label" htmlFor="mute1">
-                        One
-                      </label>
-                    </div>
-                    <div className="form-check mb-3">
-                      <input
-                        className="form-check-input"
-                        type="radio"
-                        name="mute"
-                        id="mute2"
-                      />
-                      <label className="form-check-label" htmlFor="mute2">
-                        Many
-                      </label>
-                    </div>
-                  </div>
-                </div>
-                <div className="row g-3">
-                  <div className="col-6">
-                    <Link
-                      to="#"
-                      className="btn btn-outline-primary w-100"
-                      data-bs-dismiss="modal"
-                      aria-label="Close"
-                    >
-                      Cancel
-                    </Link>
-                  </div>
-                  <div className="col-6">
-                    <button
-                      type="button"
-                      className="btn btn-primary w-100"
-                      data-bs-toggle="modal"
-                      data-bs-target="#add-group"
-                      onClick={() => {
-                        handleNext();
-                      }}
-                    >
-                      Next
-                    </button>
-                  </div>
-                </div>
-              </form>
-            </div>
-          </div>
-        </div>
+    <Modal
+      title="New Group"
+      open={open}
+      onCancel={onClose}
+      footer={null}
+      centered
+    >
+      <div style={{ textAlign: "center", marginBottom: 20 }}>
+        <Upload
+          name="file"
+          customRequest={handleAvatarUpload}  
+          listType="picture-card"
+          showUploadList={false}
+          accept="image/*"
+          onChange={({ file, fileList }) => {
+            if (file.status === 'done') {
+              setAvatarUrl(file.response);
+              dispatch(createRoomSlice.actions.setAvatarUrl(file.response));
+            }
+          }}
+        >
+          <Avatar
+            size={100}
+            src={
+              avatarUrl === 'default1'
+                ? 'assets/img/profiles/avatar-16.jpg'
+                : `http://localhost:9990/${avatarUrl}`
+            }
+            icon={<UploadOutlined />}
+          />
+        </Upload>
+                                
       </div>
-      {/* /New Group */}
-    </>
+
+      <div style={{ marginBottom: 16 }}>
+        <label>Group Name</label>
+        <Input
+          placeholder="Group Name"
+          prefix={<UsergroupAddOutlined />}
+          value={roomName}
+          onChange={handleChangeRoomName}
+        />
+      </div>
+
+      <div style={{ marginBottom: 16 }}>
+        <label>About</label>
+        <Input.TextArea
+          placeholder="About"
+          value={roomDescription}
+          onChange={handleChangeRoomDescription}
+          rows={4}
+        />
+      </div>
+
+      <div style={{ display: "flex", gap: 8 }}>
+        <Button onClick={onClose} style={{ flex: 1 }}>
+          Cancel
+        </Button>
+        <Button
+          type="primary"
+          onClick={handleNextClick}
+          style={{ flex: 1 }}
+          disabled={!roomName.trim() || !roomDescription.trim()}
+        >
+          Next
+        </Button>
+      </div>
+    </Modal>
   );
 };
 
-export default NewGroup;
+export default NewGroupModal;

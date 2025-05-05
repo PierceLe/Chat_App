@@ -19,7 +19,7 @@ const AxiosInterceptor = () => {
       (error) => {
         if (error.response?.status === 401 &&
           location.pathname !== all_routes.signin) {
-          notify.error("Login Error", "Login Session Ended");
+          //notify.error("Login Error", "Login Session Ended");
           navigate(all_routes.signin);
         }
         return Promise.reject(error);

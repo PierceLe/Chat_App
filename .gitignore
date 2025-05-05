@@ -43,6 +43,7 @@ backend/.mypy_cache/
 backend/.pytest_cache/
 backend/.coverage
 backend/htmlcov/
+backend/bucket
 
 # =============================
 # 🔁 SHARED DEPENDENCIES

@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { Modal } from "react-bootstrap";
 import { all_routes } from "../../feature-module/router/all_routes";
 import { logout } from "../services/authService";
+import { wsClient } from "../services/websocket";
 type props = {
   showModal?: boolean;
   setShowModal: CallableFunction;
@@ -14,6 +15,7 @@ const LogoutModal: React.FC<props> = ({ showModal, setShowModal }) => {
   const routes = all_routes;
 
   const handleLogout = () => {
+    wsClient.disconnect();
     logout();
     console.log("LOGOUT");
   };

@@ -5,7 +5,7 @@ import Lightbox from "yet-another-react-lightbox";
 import "yet-another-react-lightbox/styles.css";
 import ContactInfo from "../../../core/modals/contact-info-off-canva";
 import ContactFavourite from "../../../core/modals/contact-favourite-canva";
-import { Tooltip } from "antd";
+import { Avatar, Tooltip } from "antd";
 import ForwardMessage from "../../../core/modals/forward-message";
 import MessageDelete from "../../../core/modals/message-delete";
 import Scrollbars from "react-custom-scrollbars-2";
@@ -176,10 +176,13 @@ const Chat = () => {
       <>
         <div className="chats" id={id}>
           <div className="chat-avatar">
-            <ImageWithBasePath
-              src="assets/img/profiles/avatar-06.jpg"
-              className="rounded-circle"
-              alt="image"
+            <Avatar
+              size={32}
+              src={
+                sender.avatar_url === 'default'
+                  ? 'assets/img/profiles/avatar-16.jpg'
+                  : `http://localhost:9990/${sender.avatar_url}`
+              }
             />
           </div>
           <div className="chat-content">
@@ -198,101 +201,6 @@ const Chat = () => {
             <div className="chat-info">
               <div className="message-content">
                 {content}
-                <div className="emoj-group">
-                  <ul>
-                    <li className="emoj-action">
-                      <Link to="#" onClick={() => toggleEmoji(1)}>
-                        <i className="ti ti-mood-smile" />
-                      </Link>
-                      <div
-                        className="emoj-group-list"
-                        onClick={() => toggleEmoji(1)}
-                        style={{ display: showEmoji[1] ? "block" : "none" }}
-                      >
-                        <ul>
-                          <li>
-                            <Link to="#">
-                              <ImageWithBasePath
-                                src="assets/img/icons/emonji-02.svg"
-                                alt="Icon"
-                              />
-                            </Link>
-                          </li>
-                          <li>
-                            <Link to="#">
-                              <ImageWithBasePath
-                                src="assets/img/icons/emonji-05.svg"
-                                alt="Icon"
-                              />
-                            </Link>
-                          </li>
-                          <li>
-                            <Link to="#">
-                              <ImageWithBasePath
-                                src="assets/img/icons/emonji-06.svg"
-                                alt="Icon"
-                              />
-                            </Link>
-                          </li>
-                          <li>
-                            <Link to="#">
-                              <ImageWithBasePath
-                                src="assets/img/icons/emonji-07.svg"
-                                alt="Icon"
-                              />
-                            </Link>
-                          </li>
-                          <li>
-                            <Link to="#">
-                              <ImageWithBasePath
-                                src="assets/img/icons/emonji-08.svg"
-                                alt="Icon"
-                              />
-                            </Link>
-                          </li>
-                          <li>
-                            <Link to="#">
-                              <ImageWithBasePath
-                                src="assets/img/icons/emonji-03.svg"
-                                alt="Icon"
-                              />
-                            </Link>
-                          </li>
-                          <li>
-                            <Link to="#">
-                              <ImageWithBasePath
-                                src="assets/img/icons/emonji-10.svg"
-                                alt="Icon"
-                              />
-                            </Link>
-                          </li>
-                          <li>
-                            <Link to="#">
-                              <ImageWithBasePath
-                                src="assets/img/icons/emonji-09.svg"
-                                alt="Icon"
-                              />
-                            </Link>
-                          </li>
-                          <li className="add-emoj">
-                            <Link to="#">
-                              <i className="ti ti-plus" />
-                            </Link>
-                          </li>
-                        </ul>
-                      </div>
-                    </li>
-                    <li>
-                      <Link
-                        to="#"
-                        data-bs-toggle="modal"
-                        data-bs-target="#forward-message"
-                      >
-                        <i className="ti ti-arrow-forward-up" />
-                      </Link>
-                    </li>
-                  </ul>
-                </div>
               </div>
               <div className="chat-actions">
                 <Link className="#" to="#" data-bs-toggle="dropdown">
@@ -457,135 +365,17 @@ const Chat = () => {
               </div>
               <div className="message-content">
                 {content}
-                <div className="emoj-group">
-                  <ul>
-                    <li className="emoj-action">
-                      <Link to="#" onClick={() => toggleEmoji(3)}>
-                        <i className="ti ti-mood-smile" />
-                      </Link>
-                      <div
-                        className="emoj-group-list"
-                        onClick={() => toggleEmoji(3)}
-                        style={{ display: showEmoji[3] ? "block" : "none" }}
-                      >
-                        <ul>
-                          <li>
-                            <Link to="#">
-                              <ImageWithBasePath
-                                src="assets/img/icons/emonji-02.svg"
-                                alt="Icon"
-                              />
-                            </Link>
-                          </li>
-                          <li>
-                            <Link to="#">
-                              <ImageWithBasePath
-                                src="assets/img/icons/emonji-05.svg"
-                                alt="Icon"
-                              />
-                            </Link>
-                          </li>
-                          <li>
-                            <Link to="#">
-                              <ImageWithBasePath
-                                src="assets/img/icons/emonji-06.svg"
-                                alt="Icon"
-                              />
-                            </Link>
-                          </li>
-                          <li>
-                            <Link to="#">
-                              <ImageWithBasePath
-                                src="assets/img/icons/emonji-07.svg"
-                                alt="Icon"
-                              />
-                            </Link>
-                          </li>
-                          <li>
-                            <Link to="#">
-                              <ImageWithBasePath
-                                src="assets/img/icons/emonji-08.svg"
-                                alt="Icon"
-                              />
-                            </Link>
-                          </li>
-                          <li>
-                            <Link to="#">
-                              <ImageWithBasePath
-                                src="assets/img/icons/emonji-03.svg"
-                                alt="Icon"
-                              />
-                            </Link>
-                          </li>
-                          <li>
-                            <Link to="#">
-                              <ImageWithBasePath
-                                src="assets/img/icons/emonji-10.svg"
-                                alt="Icon"
-                              />
-                            </Link>
-                          </li>
-                          <li>
-                            <Link to="#">
-                              <ImageWithBasePath
-                                src="assets/img/icons/emonji-09.svg"
-                                alt="Icon"
-                              />
-                            </Link>
-                          </li>
-                          <li className="add-emoj">
-                            <Link to="#">
-                              <i className="ti ti-plus" />
-                            </Link>
-                          </li>
-                        </ul>
-                      </div>
-                    </li>
-                    <li>
-                      <Link
-                        to="#"
-                        data-bs-toggle="modal"
-                        data-bs-target="#forward-message"
-                      >
-                        <i className="ti ti-arrow-forward-up" />
-                      </Link>
-                    </li>
-                  </ul>
-                </div>
               </div>
-            </div>
-            <div className="emonji-wrap">
-              <Link to="#">
-                <ImageWithBasePath
-                  src="assets/img/icons/emonji-02.svg"
-                  className="me-2"
-                  alt="icon"
-                />
-                24
-              </Link>
-              <Link to="#">
-                <ImageWithBasePath
-                  src="assets/img/icons/emonji-03.svg"
-                  className="me-2"
-                  alt="icon"
-                />
-                15
-              </Link>
-              <Link to="#">
-                <ImageWithBasePath
-                  src="assets/img/icons/emonji-04.svg"
-                  className="me-2"
-                  alt="icon"
-                />
-                15
-              </Link>
             </div>
           </div>
           <div className="chat-avatar">
-            <ImageWithBasePath
-              src="assets/img/profiles/avatar-17.jpg"
-              className="rounded-circle dreams_chat"
-              alt="image"
+            <Avatar
+              size={32}
+              src={
+                me.avatar_url === 'default'
+                  ? 'assets/img/profiles/avatar-16.jpg'
+                  : `http://localhost:9990/${me.avatar_url}`
+              }
             />
           </div>
         </div>
@@ -595,228 +385,251 @@ const Chat = () => {
 
   return (
     <>
+    
       {/* Chat */}
       <div className={`chat chat-messages show`} id="middle">
-        <div>
-          <div className="chat-header">
-            <div className="user-details">
-              <div className="d-xl-none">
-                <Link className="text-muted chat-close me-2" to="#">
-                  <i className="fas fa-arrow-left" />
-                </Link>
-              </div>
-              <div className="avatar avatar-lg online flex-shrink-0">
-                <ImageWithBasePath
-                  src="assets/img/profiles/avatar-06.jpg"
-                  className="rounded-circle"
-                  alt="image"
-                />
-              </div>
-              <div className="ms-2 overflow-hidden">
-                <h6>{`${state.friend_frist_name} ${state.friend_last_name}`}</h6>
-                <span className="last-seen">Online</span>
-              </div>
-            </div>
-            <div className="chat-options">
-              <ul>
-                <li>
-                  <Tooltip title="Search" placement="bottom">
-                    <Link
-                      to="#"
-                      className="btn chat-search-btn"
-                      onClick={() => toggleSearch()}
-                    >
-                      <i className="ti ti-search" />
-                    </Link>
-                  </Tooltip>
-                </li>
-                <li>
-                  <Tooltip title="Video Call" placement="bottom">
-                    <Link
-                      to="#"
-                      className="btn"
-                      data-bs-toggle="modal"
-                      data-bs-target="#video-call"
-                    >
-                      <i className="ti ti-video" />
-                    </Link>
-                  </Tooltip>
-                </li>
-                <li>
-                  <Tooltip title="Voice Call" placement="bottom">
-                    <Link
-                      to="#"
-                      className="btn"
-                      data-bs-toggle="modal"
-                      data-bs-target="#voice_call"
-                    >
-                      <i className="ti ti-phone" />
-                    </Link>
-                  </Tooltip>
-                </li>
-                <li>
-                  <Tooltip title="Contact Info" placement="bottom">
-                    <Link
-                      to="#"
-                      className="btn"
-                      data-bs-toggle="offcanvas"
-                      data-bs-target="#contact-profile"
-                    >
-                      <i className="ti ti-info-circle" />
-                    </Link>
-                  </Tooltip>
-                </li>
-                <li>
-                  <Link className="btn no-bg" to="#" data-bs-toggle="dropdown">
-                    <i className="ti ti-dots-vertical" />
-                  </Link>
-                  <ul className="dropdown-menu dropdown-menu-end p-3">
-                    <li>
-                      <Link to={all_routes.dashboard} className="dropdown-item">
-                        <i className="ti ti-x me-2" />
-                        Close Chat
-                      </Link>
-                    </li>
-                    <li>
-                      <Link
-                        to="#"
-                        className="dropdown-item"
-                        data-bs-toggle="modal"
-                        data-bs-target="#mute-notification"
-                      >
-                        <i className="ti ti-volume-off me-2" />
-                        Mute Notification
-                      </Link>
-                    </li>
-                    <li>
-                      <Link
-                        to="#"
-                        className="dropdown-item"
-                        data-bs-toggle="modal"
-                        data-bs-target="#disappearing-messages"
-                      >
-                        <i className="ti ti-clock-hour-4 me-2" />
-                        Disappearing Message
-                      </Link>
-                    </li>
-                    <li>
-                      <Link
-                        to="#"
-                        className="dropdown-item"
-                        data-bs-toggle="modal"
-                        data-bs-target="#clear-chat"
-                      >
-                        <i className="ti ti-clear-all me-2" />
-                        Clear Message
-                      </Link>
-                    </li>
-                    <li>
-                      <Link
-                        to="#"
-                        className="dropdown-item"
-                        data-bs-toggle="modal"
-                        data-bs-target="#delete-chat"
-                      >
-                        <i className="ti ti-trash me-2" />
-                        Delete Chat
-                      </Link>
-                    </li>
-                    <li>
-                      <Link
-                        to="#"
-                        className="dropdown-item"
-                        data-bs-toggle="modal"
-                        data-bs-target="#report-user"
-                      >
-                        <i className="ti ti-thumb-down me-2" />
-                        Report
-                      </Link>
-                    </li>
-                    <li>
-                      <Link
-                        to="#"
-                        className="dropdown-item"
-                        data-bs-toggle="modal"
-                        data-bs-target="#block-user"
-                      >
-                        <i className="ti ti-ban me-2" />
-                        Block
-                      </Link>
-                    </li>
-                  </ul>
-                </li>
-              </ul>
-            </div>
-            {/* Chat Search */}
-            <div
-              className={`chat-search search-wrap contact-search ${showSearch ? "visible-chat" : ""}`}
-            >
-              <form>
-                <div className="input-group">
-                  <input
-                    type="text"
-                    className="form-control"
-                    placeholder="Search Contacts"
-                  />
-                  <span className="input-group-text">
-                    <i className="ti ti-search" />
-                  </span>
-                </div>
-              </form>
-            </div>
-            {/* /Chat Search */}
-          </div>
-          <Scrollbars
-            ref={scrollbarsRef}
-            autoHide
-            autoHideTimeout={1000}
-            autoHideDuration={200}
-            autoHeight
-            autoHeightMin={0}
-            autoHeightMax="88vh"
-            thumbMinSize={30}
-            universal={false}
-            hideTracksWhenNotNeeded={true}
-            onScrollFrame={handleScroll}
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            height: "100vh",
+          }}
+          
           >
-            <div className="chat-body chat-page-group ">
-              <div className="messages">
-                {messages.map((item) => {
-                  if (item.sender.user_id === me.user_id) {
-                    return (
-                      <OneMessageInRight
-                        key={item.id}
-                        id={item.id}
-                        room_id={item.room_id}
-                        message_type={item.message_type}
-                        content={item.content}
-                        file_url={item.file_url}
-                        created_at={item.created_at}
-                        updated_at={item.updated_at}
-                        sender={item.sender}
-                      ></OneMessageInRight>
-                    );
-                  } else {
-                    return (
-                      <OneMessageInLeft
-                        key={item.id}
-                        id={item.id}
-                        room_id={item.room_id}
-                        message_type={item.message_type}
-                        content={item.content}
-                        file_url={item.file_url}
-                        created_at={item.created_at}
-                        updated_at={item.updated_at}
-                        sender={item.sender}
-                      ></OneMessageInLeft>
-                    );
-                  }
-                })}
+          <div style={{ flex: 1, overflowY: "auto" }}>
+            <div className="chat-header">
+              <div className="user-details">
+                <div className="d-xl-none">
+                  <Link className="text-muted chat-close me-2" to="#">
+                    <i className="fas fa-arrow-left" />
+                  </Link>
+                </div>
+                <div className="avatar avatar-lg online flex-shrink-0">
+                  {state && (
+                    <Avatar
+                      size={32}
+                      src={
+                        state.friend_avatar_url === 'default'
+                          ? 'assets/img/profiles/avatar-16.jpg'
+                          : `http://localhost:9990/${state.friend_avatar_url}`
+                      }
+                    />
+                  )}
+                </div>
+                <div className="ms-2 overflow-hidden">
+                  {state && (
+                    <h6>{`${state.friend_frist_name} ${state.friend_last_name}`}</h6>
+                  )}
+                  <span className="last-seen">Online</span>
+                </div>
               </div>
+              <div className="chat-options">
+                <ul>
+                  <li>
+                    <Tooltip title="Search" placement="bottom">
+                      <Link
+                        to="#"
+                        className="btn chat-search-btn"
+                        onClick={() => toggleSearch()}
+                      >
+                        <i className="ti ti-search" />
+                      </Link>
+                    </Tooltip>
+                  </li>
+                  <li>
+                    <Tooltip title="Video Call" placement="bottom">
+                      <Link
+                        to="#"
+                        className="btn"
+                        data-bs-toggle="modal"
+                        data-bs-target="#video-call"
+                      >
+                        <i className="ti ti-video" />
+                      </Link>
+                    </Tooltip>
+                  </li>
+                  <li>
+                    <Tooltip title="Voice Call" placement="bottom">
+                      <Link
+                        to="#"
+                        className="btn"
+                        data-bs-toggle="modal"
+                        data-bs-target="#voice_call"
+                      >
+                        <i className="ti ti-phone" />
+                      </Link>
+                    </Tooltip>
+                  </li>
+                  <li>
+                    <Tooltip title="Contact Info" placement="bottom">
+                      <Link
+                        to="#"
+                        className="btn"
+                        data-bs-toggle="offcanvas"
+                        data-bs-target="#contact-profile"
+                      >
+                        <i className="ti ti-info-circle" />
+                      </Link>
+                    </Tooltip>
+                  </li>
+                  <li>
+                    <Link className="btn no-bg" to="#" data-bs-toggle="dropdown">
+                      <i className="ti ti-dots-vertical" />
+                    </Link>
+                    <ul className="dropdown-menu dropdown-menu-end p-3">
+                      <li>
+                        <Link to={all_routes.dashboard} className="dropdown-item">
+                          <i className="ti ti-x me-2" />
+                          Close Chat
+                        </Link>
+                      </li>
+                      <li>
+                        <Link
+                          to="#"
+                          className="dropdown-item"
+                          data-bs-toggle="modal"
+                          data-bs-target="#mute-notification"
+                        >
+                          <i className="ti ti-volume-off me-2" />
+                          Mute Notification
+                        </Link>
+                      </li>
+                      <li>
+                        <Link
+                          to="#"
+                          className="dropdown-item"
+                          data-bs-toggle="modal"
+                          data-bs-target="#disappearing-messages"
+                        >
+                          <i className="ti ti-clock-hour-4 me-2" />
+                          Disappearing Message
+                        </Link>
+                      </li>
+                      <li>
+                        <Link
+                          to="#"
+                          className="dropdown-item"
+                          data-bs-toggle="modal"
+                          data-bs-target="#clear-chat"
+                        >
+                          <i className="ti ti-clear-all me-2" />
+                          Clear Message
+                        </Link>
+                      </li>
+                      <li>
+                        <Link
+                          to="#"
+                          className="dropdown-item"
+                          data-bs-toggle="modal"
+                          data-bs-target="#delete-chat"
+                        >
+                          <i className="ti ti-trash me-2" />
+                          Delete Chat
+                        </Link>
+                      </li>
+                      <li>
+                        <Link
+                          to="#"
+                          className="dropdown-item"
+                          data-bs-toggle="modal"
+                          data-bs-target="#report-user"
+                        >
+                          <i className="ti ti-thumb-down me-2" />
+                          Report
+                        </Link>
+                      </li>
+                      <li>
+                        <Link
+                          to="#"
+                          className="dropdown-item"
+                          data-bs-toggle="modal"
+                          data-bs-target="#block-user"
+                        >
+                          <i className="ti ti-ban me-2" />
+                          Block
+                        </Link>
+                      </li>
+                    </ul>
+                  </li>
+                </ul>
+              </div>
+              {/* Chat Search */}
+              <div
+                className={`chat-search search-wrap contact-search ${showSearch ? "visible-chat" : ""}`}
+              >
+                <form>
+                  <div className="input-group">
+                    <input
+                      type="text"
+                      className="form-control"
+                      placeholder="Search Contacts"
+                    />
+                    <span className="input-group-text">
+                      <i className="ti ti-search" />
+                    </span>
+                  </div>
+                </form>
+              </div>
+              {/* /Chat Search */}
             </div>
-          </Scrollbars>
+            <Scrollbars
+              ref={scrollbarsRef}
+              autoHide
+              autoHideTimeout={1000}
+              autoHideDuration={200}
+              autoHeight
+              autoHeightMin={0}
+              autoHeightMax="88vh"
+              thumbMinSize={30}
+              universal={false}
+              hideTracksWhenNotNeeded={true}
+              onScrollFrame={handleScroll}
+            >
+              <div className="chat-body chat-page-group ">
+                <div className="messages">
+                  {messages.map((item) => {
+                    if (item.sender.user_id === me.user_id) {
+                      return (
+                        <OneMessageInRight
+                          key={item.id}
+                          id={item.id}
+                          room_id={item.room_id}
+                          message_type={item.message_type}
+                          content={item.content}
+                          file_url={item.file_url}
+                          created_at={item.created_at}
+                          updated_at={item.updated_at}
+                          sender={item.sender}
+                        ></OneMessageInRight>
+                      );
+                    } else {
+                      return (
+                        <OneMessageInLeft
+                          key={item.id}
+                          id={item.id}
+                          room_id={item.room_id}
+                          message_type={item.message_type}
+                          content={item.content}
+                          file_url={item.file_url}
+                          created_at={item.created_at}
+                          updated_at={item.updated_at}
+                          sender={item.sender}
+                        ></OneMessageInLeft>
+                      );
+                    }
+                  })}
+                </div>
+              </div>
+            </Scrollbars>
+          </div>
         </div>
-        <div className="chat-footer">
+        <div 
+          className="chat-footer" 
+          style={{
+          borderTop: "1px solid #eee",
+          background: "#fff",
+          padding: "10px",
+        }}>
           <form className="footer-form" onSubmit={handleSendMessage}>
             <div className="chat-footer-wrap">
               <div className="form-item">
@@ -831,22 +644,29 @@ const Chat = () => {
                   }`}
                 >
                   <div className="chat-avatar">
-                    <ImageWithBasePath
-                      src="assets/img/profiles/avatar-06.jpg"
-                      className="rounded-circle"
-                      alt="image"
-                    />
+                    {state && (
+                      <Avatar
+                        size={32}
+                        src={
+                          state.friend_avatar_url === 'default'
+                            ? 'assets/img/profiles/avatar-16.jpg'
+                            : `http://localhost:9990/${state.friend_avatar_url}`
+                        }
+                      />
+                    )}
                   </div>
                   <div className="chat-content">
                     <div className="chat-profile-name">
-                      <h6>
-                        {`${state.friend_frist_name} ${state.friend_last_name}`}
-                        <i className="ti ti-circle-filled fs-7 mx-2" />
-                        <span className="chat-time">02:39 PM</span>
-                        <span className="msg-read success">
-                          <i className="ti ti-checks" />
-                        </span>
-                      </h6>
+                      {state && (
+                        <h6>
+                          {`${state.friend_frist_name} ${state.friend_last_name}`}
+                          <i className="ti ti-circle-filled fs-7 mx-2" />
+                          <span className="chat-time">02:39 PM</span>
+                          <span className="msg-read success">
+                            <i className="ti ti-checks" />
+                          </span>
+                        </h6>
+                      )}
                     </div>
                     <div className="chat-info">
                       <div className="message-content">
@@ -871,68 +691,6 @@ const Chat = () => {
                   value={newMessage}
                   onChange={(e) => setNewMessage(e.target.value)}
                 />
-              </div>
-              <div className="form-item emoj-action-foot">
-                <Link
-                  to="#"
-                  className="action-circle"
-                  onClick={() => toggleEmoji(17)}
-                >
-                  <i className="ti ti-mood-smile" />
-                </Link>
-                <div
-                  className="emoj-group-list-foot down-emoji-circle"
-                  onClick={() => toggleEmoji(17)}
-                  style={{ display: showEmoji[17] ? "block" : "none" }}
-                >
-                  <ul>
-                    <li>
-                      <Link to="#">
-                        <ImageWithBasePath
-                          src="assets/img/icons/emonji-02.svg"
-                          alt="Icon"
-                        />
-                      </Link>
-                    </li>
-                    <li>
-                      <Link to="#">
-                        <ImageWithBasePath
-                          src="assets/img/icons/emonji-05.svg"
-                          alt="Icon"
-                        />
-                      </Link>
-                    </li>
-                    <li>
-                      <Link to="#">
-                        <ImageWithBasePath
-                          src="assets/img/icons/emonji-06.svg"
-                          alt="Icon"
-                        />
-                      </Link>
-                    </li>
-                    <li>
-                      <Link to="#">
-                        <ImageWithBasePath
-                          src="assets/img/icons/emonji-07.svg"
-                          alt="Icon"
-                        />
-                      </Link>
-                    </li>
-                    <li>
-                      <Link to="#">
-                        <ImageWithBasePath
-                          src="assets/img/icons/emonji-08.svg"
-                          alt="Icon"
-                        />
-                      </Link>
-                    </li>
-                    <li className="add-emoj">
-                      <Link to="#">
-                        <i className="ti ti-plus" />
-                      </Link>
-                    </li>
-                  </ul>
-                </div>
               </div>
               <div className="form-item position-relative d-flex align-items-center justify-content-center ">
                 <Link

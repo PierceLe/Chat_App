@@ -11,3 +11,5 @@ class UserRoom(Base):
 
     user_id = Column(String(36))
     room_id = Column(String(36))
+
+    encrypted_group_key = Column(String(500))

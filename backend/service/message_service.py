@@ -23,7 +23,7 @@ class MessageService():
             file_url = file_url
         )
         mess_db = self.message_repository.save(mess)
-        self.room_repository.update_last_message_in_room(room_id, mess.content)
+        self.room_repository.update_last_message_in_room(room_id, mess.content, sender_id)
         return mess_db
     
     def get_all_mess_in_room(self, room_id: str):

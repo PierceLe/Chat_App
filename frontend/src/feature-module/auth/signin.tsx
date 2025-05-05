@@ -11,6 +11,9 @@ import { LoginType } from "@/core/model/responseType";
 import { useNavigate } from "react-router-dom";
 import { all_routes } from "@/feature-module/router/all_routes";
 import httpRequest from "@/core/api/baseAxios";
+import { wsClient } from "@/core/services/websocket";
+import { GoogleLogin, GoogleOAuthProvider } from "@react-oauth/google";
+import { GOOGLE_CLIENT_ID } from "@/environment"
 
 const Signin = () => {
   const routes = all_routes;
@@ -29,7 +32,7 @@ const Signin = () => {
       try {
         const user = await getMe();
         if (user) {
-          navigate(routes.index); // Redirect nếu đã login
+          navigate(routes.index);
         }
       } catch (error) {
         console.log("Not logged in");
@@ -91,7 +94,12 @@ const Signin = () => {
           setTokenLogin2FA(res.token)
           setIs2FAModalVisible(true);
         }
-        
+        if (wsClient){
+          if (!wsClient.isConnected()){
+            wsClient.connect()
+          }
+          console.log("wsClient:", wsClient)
+        }
       }
     } catch {
       notify.error("Error", "Login Failed !")
@@ -130,6 +138,30 @@ const Signin = () => {
       setLoading2FA(false);
     }
   };
+
+  const handleGoogleSuccess = async (credentialResponse) => {
+    setLoginErrorMessage("")
+    try {
+      const res = await httpRequest.post("/login/google", {
+        token: credentialResponse.credential,
+      });
+
+      if (res.code !== 0) {
+        setLoginErrorMessage("Login with Google Account Failed !")
+
+        return
+      }
+      
+      notify.success("Login Successfully !")
+      navigate(routes.index);
+    } catch (err) {
+      console.error("Google login failed", err);
+    }
+  };
+
+  const handleGoogleError = () => {
+    setLoginErrorMessage("Login with Google Account Failed !")
+  }
 
   return (
     <>
@@ -204,28 +236,19 @@ const Signin = () => {
                           </div>
                           <div className="mb-4">
                             <Button className="w-100 btn btn-primary" size="large" loading={loadingSignin} onClick={() => handleSubmit()}>Sign In</Button>
-                            <div className="text-danger text-center mt-2">
-                              {loginErrorMessage }
-                            </div>
                           </div>
-                          {/* <div className="login-or mb-3">
+                          <div className="login-or mb-3">
                             <span className="span-or">Or sign in with </span>
                           </div>
-                          <div className="d-flex align-items-center justify-content-center flex-wrap">
-                            <div className="text-center me-2 flex-fill">
-                              <Link
-                                to="#"
-                                className="fs-16 btn btn-white btn-shadow d-flex align-items-center justify-content-center"
-                              >
-                                <ImageWithBasePath
-                                  className="img-fluid me-3"
-                                  src="assets/img/icons/google.svg"
-                                  alt="Facebook"
-                                />
-                                Google
-                              </Link>
-                            </div>
-                            <div className="text-center flex-fill">
+                          <div style={{ width: '100%', boxSizing: 'border-box' }}>
+                            <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
+                              <GoogleLogin
+                                onSuccess={handleGoogleSuccess}
+                                onError={handleGoogleError}
+                                scope="openid profile email"
+                              />
+                            </GoogleOAuthProvider>
+                            {/* <div className="text-center flex-fill">
                               <Link
                                 to="#"
                                 className="fs-16 btn btn-white btn-shadow d-flex align-items-center justify-content-center"
@@ -237,8 +260,11 @@ const Signin = () => {
                                 />
                                 Facebook
                               </Link>
-                            </div>
-                          </div> */}
+                            </div> */}
+                          </div>
+                          <div className="text-danger text-center mt-2">
+                            {loginErrorMessage }
+                          </div>
                         </div>
                       </div>
                       <div className="mt-5 text-center">

@@ -58,3 +58,16 @@ export const getMoreMessInRoom = async (room_id: string, created_at: Date) => {
     return [];
   }
 };
+
+export const getOnlineUserIds = async () => {
+  try {
+    const res = await httpRequest.get("/chat/online-user");
+    if (res.status === 200) {
+      return res.data["result"];
+    }
+    return [];
+  } catch (error) {
+    console.log(error);
+    return [];
+  }
+};

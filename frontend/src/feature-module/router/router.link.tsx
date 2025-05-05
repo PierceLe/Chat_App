@@ -15,7 +15,7 @@ import Status from "../pages/status/status";
 import MyStatus from "../pages/status/myStatus";
 import UserStatus from "../pages/status/userStatus";
 import AllCalls from "../pages/calls/allCalls";
-import Task from "../pages/task/task";
+import GroupTask from "../pages/task/GroupTask";
 import TimeTable from "../pages/timeTable/timeTable";
 
 const route = all_routes;
@@ -46,6 +46,12 @@ export const protectedRoutes = [
     title: "Group",
   },
   {
+    path: `${route.groupTasks}/:roomId`,
+    element: <GroupTask />,
+    route: Route,
+    title: "Group",
+  },
+  {
     path: route.status,
     element: <Status />,
     route: Route,
@@ -68,12 +74,6 @@ export const protectedRoutes = [
     element: <AllCalls />,
     route: Route,
     title: "Calls",
-  },
-  {
-    path: route.tasks,
-    element: <Task />,
-    route: Route,
-    title: "Tasks",
   },
   {
     path: route.timetable,

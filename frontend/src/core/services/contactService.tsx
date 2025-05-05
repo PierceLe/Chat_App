@@ -15,19 +15,14 @@ export interface UserData {
   avatar_url: string;
   is_verified: boolean;
   use_2fa_login?: boolean;
-  two_factor_secret?: string | null
+  two_factor_secret?: string | null,
+  method?: string | null,
+  salt?: string | null,
+  pin?: string | null,
+  public_key?: string | null,
+  encrypted_private_key?: string | null,
+  biography?: string | null
 }
-
-const data: Array<UserData> = [
-  {
-    user_id: "9fa61df6-c906-4dc9-9d05-6e1bd1f712fe",
-    email: "minhhoang.a10@gmail.com",
-    first_name: "Pham",
-    last_name: "Hoang",
-    avatar_url: "xxx",
-    is_verified: true,
-  },
-];
 
 export const getAllFriends = async () => {
   try {
@@ -84,9 +79,3 @@ export const unFriend = async (friend_id: string) => {
     console.log(error);
   }
 };
-
-const getAllFriendsMock = () => {
-  return data;
-};
-
-export default getAllFriendsMock;

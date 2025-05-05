@@ -10,7 +10,9 @@ class TokenMiddleware(BaseHTTPMiddleware):
 
     async def dispatch(self, request: Request, call_next):
         # Ignore token check for specific APIs
-        WHITE_LIST_API = ["/login", "/logout", "/signup", "/verify-email-signup", "/forgot-password", "/reset-password", "/check-2fa", "/test", "/docs", "/openapi.json"]
+        WHITE_LIST_API = ["/login", "/logout", "/signup", "/verify-email-signup", 
+                "/forgot-password", "/reset-password", "/check-2fa", 
+                "/login/google", "/test", "/docs", "/openapi.json"]
 
         if request.url.path in WHITE_LIST_API:
             response = await call_next(request)

@@ -10,6 +10,10 @@ import { useSelector } from "react-redux";
 import { UserData } from "../../services/contactService";
 import useDebounce from "../../hooks/useDebounce";
 import { wsClient } from "@/core/services/websocket";
+import { Avatar, Button } from "antd";
+import NewGroupModal from "@/core/modals/new-group";
+import AddGroupModal from "@/core/modals/add-group";
+import { useParams } from "react-router-dom";
 
 const GroupTab = () => {
   const routes = all_routes;
@@ -21,12 +25,37 @@ const GroupTab = () => {
 
   const debouncedValue = useDebounce(roomNameInput, 500);
   const [refreshKey, setRefreshKey] = useState(0);
+  const [currentChatRoom, setCurrentChatRoom] = useState("")
+
+  const { room_id: roomIDFromUrl } = useParams();
 
   const fetchApiGetRoom = async (roomName: string) => {
     const result: any = await getAllGroupChatMany(roomName, me.user_id);
     setRooms(result);
     console.log("ROOMS: ", result);
   };
+
+  const [isModalNewGroupOpen, setIsModalNewGroupOpen] = useState(false);
+  const [isModalAddGroupOpen, setIsModalAddGroupOpen] = useState(false);
+
+  const handleOpenNewGroup = () => setIsModalNewGroupOpen(true);
+  const handleCloseNewGroup = () => setIsModalNewGroupOpen(false);
+
+  const handleOpenAddGroup = () => setIsModalAddGroupOpen(true);
+  const handleCloseAddGroup = () => setIsModalAddGroupOpen(false);
+
+  const handleNext = () => {
+    handleCloseNewGroup(); // đóng modal hiện tại
+    handleOpenAddGroup();  // mở modal tiếp theo
+  };
+
+  const selectCurrentChatRoom = async(room_id: string) => {
+    setCurrentChatRoom(room_id)
+  }
+
+  useEffect(() => {
+    setCurrentChatRoom(roomIDFromUrl)
+  }, [roomIDFromUrl]);
 
   useEffect(() => {
     fetchApiGetRoom("");
@@ -50,7 +79,9 @@ const GroupTab = () => {
             // }
             fetchApiGetRoom(roomNameInput)
           }
-          newRooms.sort((a, b) => { return b.updated_at.valueOf() - a.updated_at.valueOf() })
+          newRooms.sort((a, b) => {
+            return new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime();
+          });
           return newRooms;
         })
       }
@@ -97,12 +128,22 @@ const GroupTab = () => {
     return (
       <>
         <div className="chat-list">
-          <Link to={`${routes.groupChat}/${room_id}`} className="chat-user-list">
+          <Link 
+            to={`${routes.groupChat}/${room_id}`} 
+            className="chat-user-list"
+            onClick={() => selectCurrentChatRoom(room_id)}
+            style={{
+              backgroundColor: currentChatRoom === room_id ? 'oklch(90.1% 0.058 230.902)' : 'transparent',
+            }}
+          >
             <div className="avatar avatar-lg online me-2">
-              <ImageWithBasePath
-                src="assets/img/groups/group-08.jpg"
-                className="rounded-circle"
-                alt="image"
+              <Avatar
+                size={32}
+                src={
+                  avatar_url === 'default'
+                    ? 'assets/img/profiles/avatar-16.jpg'
+                    : `http://localhost:9990/${avatar_url}`
+                }
               />
             </div>
             <div className="chat-user-info">
@@ -182,14 +223,24 @@ const GroupTab = () => {
               <div className="header-title d-flex align-items-center justify-content-between">
                 <h4 className="mb-3">Group</h4>
                 <div className="d-flex align-items-center mb-3">
-                  <Link
-                    to="#"
-                    data-bs-toggle="modal"
-                    data-bs-target="#new-group"
-                    className="add-icon btn btn-primary p-0 d-flex align-items-center justify-content-center fs-16 me-2"
-                  >
-                    <i className="ti ti-plus" />
-                  </Link>
+                  <Button className="btn-primary" size="small" shape="circle" onClick={handleOpenNewGroup}>
+                    +
+                  </Button>
+
+                  <NewGroupModal
+                    open={isModalNewGroupOpen}
+                    onClose={handleCloseNewGroup}
+                    onNext={handleNext}
+                  />
+
+                  <AddGroupModal
+                    open={isModalAddGroupOpen}
+                    onClose={handleCloseAddGroup}
+                    onBack={() => {
+                      handleCloseAddGroup();
+                      handleOpenNewGroup();
+                    }}
+                  />
                   <div className="dropdown">
                     <Link
                       to="#"
@@ -221,7 +272,7 @@ const GroupTab = () => {
                     <input
                       type="text"
                       className="form-control"
-                      placeholder="Seach group"
+                      placeholder="Search group"
                       value={roomNameInput}
                       onChange={(e) => {
                         handleChangeNameInput(e);

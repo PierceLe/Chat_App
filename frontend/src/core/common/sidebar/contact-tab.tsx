@@ -12,12 +12,15 @@ import {
 import useDebounce from "../../hooks/useDebounce";
 import ContactDetailsCustom from "../../modals/contact-details-custom";
 import { wsClient } from "@/core/services/websocket";
+import { getOnlineUserIds } from "@/core/services/messageService";
+import { Avatar } from "antd";
 
 const ContactTab = () => {
   const [friends, setFriends] = useState(Array<UserData>);
   const [friendDrafts, setFriendDrafts] = useState(Array<UserData>);
   const [searchInput, setSearchInput] = useState("");
   const debouncedValue = useDebounce(searchInput, 500);
+  const [onlineUserIds, setOnlineUserIds] = useState<Set<string>>(new Set());
 
   const fetchApiGetFriend = async () => {
     const result = await getAllFriends();
@@ -31,13 +34,22 @@ const ContactTab = () => {
     console.log("getFriendDrafts: ", result);
   };
 
+  const fetchApiGetOnlineUsers = async () => {
+    const result = await getOnlineUserIds();
+    console.log("online_user_ids: ", result)
+    setOnlineUserIds(new Set(result))
+  }
+  
   useEffect(() => {
     console.log("Contact: Rerender")
     fetchApiGetFriend()
     fetchApiGetFriendDraft()
+    fetchApiGetOnlineUsers()
     const handleMessage = (data: any) => {
       if (data.action === "make-request-friend") {
         fetchApiGetFriendDraft()
+      } else if (data.action === "update-status") {
+        fetchApiGetOnlineUsers()
       }
     }
     wsClient.onMessage(handleMessage);
@@ -91,7 +103,8 @@ const ContactTab = () => {
     first_name,
     last_name,
     avatar_url,
-  }: UserData) => {
+    is_online
+  }: any) => {
     return (
       <>
         <div className="mb-4">
@@ -113,11 +126,14 @@ const ContactTab = () => {
                 });
               }}
             >
-              <div className="avatar avatar-lg online me-2">
-                <ImageWithBasePath
-                  src={avatar_url}
-                  className="rounded-circle"
-                  alt="image"
+              <div className={`avatar avatar-lg ${is_online ? 'online' : 'offline'} me-2`}>
+                <Avatar
+                  size={32}
+                  src={
+                    avatar_url === 'default'
+                      ? 'assets/img/profiles/avatar-16.jpg'
+                      : `http://localhost:9990/${avatar_url}`
+                  }
                 />
               </div>
               <div className="chat-user-info">
@@ -141,7 +157,8 @@ const ContactTab = () => {
     first_name,
     last_name,
     avatar_url,
-  }: UserData) => {
+    is_online
+  }:any) => {
     return (
       <>
         <div className="mb-4">
@@ -163,11 +180,14 @@ const ContactTab = () => {
                 });
               }}
             >
-              <div className="avatar avatar-lg online me-2">
-                <ImageWithBasePath
-                  src={avatar_url}
-                  className="rounded-circle"
-                  alt="image"
+              <div className={`avatar avatar-lg ${is_online ? 'online' : 'offline'} me-2`}>
+                <Avatar
+                  size={32}
+                  src={
+                    avatar_url === 'default'
+                      ? 'assets/img/profiles/avatar-16.jpg'
+                      : `http://localhost:9990/${avatar_url}`
+                  }
                 />
               </div>
               <div className="chat-user-info">
@@ -183,6 +203,11 @@ const ContactTab = () => {
                 className="btn-yes"
                 // data-bs-dismiss="modal"
                 aria-label="Close"
+                style={{
+                  background: 'transparent',
+                  color: 'oklch(72.3% 0.219 149.579)',
+                  marginRight: '2px'
+                }}
                 onClick={(e) => {
                   e.stopPropagation();
                   e.preventDefault();
@@ -196,6 +221,10 @@ const ContactTab = () => {
                 className="btn-yes"
                 // data-bs-dismiss="modal"
                 aria-label="Close"
+                style={{
+                  background: 'transparent',
+                  color: '#ff4d4f'
+                }}
                 onClick={(e) => {
                   e.stopPropagation();
                   e.preventDefault();
@@ -276,6 +305,7 @@ const ContactTab = () => {
                     last_name={item.last_name}
                     avatar_url={item.avatar_url}
                     is_verified={item.is_verified}
+                    is_online = {onlineUserIds.has(item.user_id)}
                   ></OneContactRequestTab>
                 ))}
               </div>
@@ -294,6 +324,7 @@ const ContactTab = () => {
                     last_name={item.last_name}
                     avatar_url={item.avatar_url}
                     is_verified={item.is_verified}
+                    is_online = {onlineUserIds.has(item.user_id)}
                   ></OneContactTab>
                 ))}
               </div>
