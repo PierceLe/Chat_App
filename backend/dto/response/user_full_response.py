@@ -33,7 +33,7 @@ class UserFullResponse(BaseModel):
                    two_factor_secret = user_model.two_factor_secret,
                    method = user_model.method,
                    salt = user_model.salt,
-                   pin = user_model.pin,
+                   pin = "1" if user_model.pin is not None else None,
                    public_key = user_model.public_key,
                    encrypted_private_key = user_model.encrypted_private_key,
                    biography = user_model.biography

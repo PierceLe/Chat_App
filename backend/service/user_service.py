@@ -130,4 +130,8 @@ class UserService():
     def disable_2fa(self, user_id: str):
         return self.user_repository.disable_2fa(user_id)
     
+    def create_pin(self, user_id: str, pin: str, public_key: str, encrypted_private_key: str):
+        pin_hashed = pwd_context.hash(pin)
+        return self.user_repository.create_pin(user_id, pin_hashed, public_key, encrypted_private_key)
+    
 

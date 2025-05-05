@@ -65,7 +65,7 @@ async def addUserToRoom(request: AddUserToRoomRequest,
     room_service: RoomService = Depends(RoomService),
     current_user: User = Depends(get_current_user)
     ):
-    room_service.add_user_to_room(current_user.user_id, request.list_user_id, request.room_id)
+    room_service.add_user_to_room(current_user.user_id, request.list_user_id, request.room_id, request.list_encrypted_group_key)
     return SuccessResponse()
 
 @room_router.post("/remove")

@@ -9,8 +9,8 @@ class CreateRoomRequest(BaseModel):
     avatar_url: Optional[str] = None
     description: Optional[str] = None
     member_ids: list[str] = []
-    encrypted_group_keys = list[str] = []
-    encrypted_group_key : str
+    encrypted_group_keys: list[str] = []
+    encrypted_group_key: str
 
     class Config:
         from_attributes = True

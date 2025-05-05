@@ -164,9 +164,9 @@ class RoomService():
         if room.room_type == E_Room_Type.ONE:
             list_friend_user_id = list_friend_user_id[:1]
 
-        for friend_user_id in list_friend_user_id:
+        for friend_user_id, friend_encrypted_group_key in zip(list_friend_user_id, list_friend_encrypted_group_key) :
             if not self.user_room_repository.check_exist_by_user_id_and_room_id(friend_user_id, room_id):
-                self.user_room_repository.create_user_room(friend_user_id, room_id)
+                self.user_room_repository.create_user_room(friend_user_id, room_id, friend_encrypted_group_key)
         return True
 
     def remove_user_from_room(self, current_user_id: str, list_user_id: list[str], room_id: str):

@@ -10,11 +10,13 @@ class UserRoomRepository():
 
     def create_user_room(self,
                          user_id: str,
-                         room_id: str
+                         room_id: str,
+                         encrypted_group_key: str
                          ) -> UserRoom:
         db_user_room = UserRoom(
             user_id=user_id,
-            room_id=room_id
+            room_id=room_id,
+            encrypted_group_key = encrypted_group_key
         )
         self.db.add(db_user_room)
         self.db.commit()

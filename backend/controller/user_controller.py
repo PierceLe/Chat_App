@@ -1,4 +1,5 @@
 from fastapi import APIRouter, HTTPException, status, Depends
+from dto.request.auth.create_pin_request import Create_Pin_Request
 from dto.response.user_response import UserResponse
 from dto.request.auth.user_create_request import UserCreateRequest
 from service.user_service import UserService
@@ -43,4 +44,9 @@ async def update_me_bio(user_update: UserBioUpdateRequest,
 
     return SuccessResponse(result=updated)
 
-
+@user_router.post("/set-pin")
+async def set_pin_and_key(request: Create_Pin_Request,
+                current_user=Depends(get_current_user),
+                user_service: UserService = Depends(UserService)):
+    user_service.create_pin(current_user.user_id, request.pin, request.public_key, request.encrypted_private_key)
+    return SuccessResponse(result=current_user)
