@@ -127,6 +127,14 @@ async def chat(data_json, current_user):
         file_url=file_url
     )
 
+    if current_user.avatar_url == "default":
+        avatar_url_transformed = "assets/img/profiles/avatar-16.jpg"
+    elif "bucket" in current_user.avatar_url:
+        domain = app_config["WEB"]["BACKEND"]["DOMAIN"]
+        avatar_url_transformed = f"{domain}/{current_user.avatar_url}"
+    else:
+        avatar_url_transformed = current_user.avatar_url
+
     mess_response = MessageResponse(
         id=mess_db.id,
         room_id=mess_db.room_id,
@@ -140,8 +148,11 @@ async def chat(data_json, current_user):
             email=current_user.email,
             first_name=current_user.first_name,
             last_name=current_user.last_name,
-            avatar_url=current_user.avatar_url,
-            is_verified=current_user.is_verified
+            avatar_url=avatar_url_transformed,
+            is_verified=current_user.is_verified,
+            method=current_user.method,
+            public_key=current_user.public_key,
+            biography=current_user.biography
         )
     )
     res = WebSocketResponse(

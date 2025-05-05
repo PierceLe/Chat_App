@@ -8,6 +8,7 @@ from repository.user_room_repository import UserRoomRepository
 from dto.request.auth.user_create_request import UserCreateRequest
 from dto.response.user_response import UserResponse
 from dto.response.user_full_response import UserFullResponse
+from config import app_config
 
 class MessageService():
     def __init__(self):
@@ -25,6 +26,17 @@ class MessageService():
         mess_db = self.message_repository.save(mess)
         self.room_repository.update_last_message_in_room(room_id, mess.content, sender_id)
         return mess_db
+    
+    def get_avatar_url_transform(self, url): 
+        if url == "default":
+            avatar_url_transformed = "assets/img/profiles/avatar-16.jpg"
+        elif "bucket" in url:
+            domain = app_config["WEB"]["BACKEND"]["DOMAIN"]
+            avatar_url_transformed = f"{domain}/{url}"
+        else:
+            avatar_url_transformed = url
+
+        return avatar_url_transformed
     
     def get_all_mess_in_room(self, room_id: str):
         items = self.message_repository.get_all_mess_in_room(room_id)
@@ -45,8 +57,11 @@ class MessageService():
                     email= user_db.email,
                     first_name= user_db.first_name,
                     last_name= user_db.last_name,
-                    avatar_url= user_db.avatar_url,
-                    is_verified= user_db.is_verified
+                    avatar_url= self.get_avatar_url_transform(user_db.avatar_url),
+                    is_verified= user_db.is_verified,
+                    method = user_db.method,
+                    public_key = user_db.public_key,
+                    biography = user_db.biography
                 )))
         return res
 
@@ -70,7 +85,10 @@ class MessageService():
                     email= user_db.email,
                     first_name= user_db.first_name,
                     last_name= user_db.last_name,
-                    avatar_url= user_db.avatar_url,
-                    is_verified= user_db.is_verified
+                    avatar_url= self.get_avatar_url_transform(user_db.avatar_url),
+                    is_verified= user_db.is_verified,
+                    method = user_db.method,
+                    public_key = user_db.public_key,
+                    biography = user_db.biography
                 )))
         return res

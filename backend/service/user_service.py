@@ -145,7 +145,6 @@ class UserService():
                 method=user.method,
                 salt=user.salt,
                 pin=user.pin,
-                public_key=user.public_key,
                 encrypted_private_key=user.encrypted_private_key,
                 biography=user.biography
             )

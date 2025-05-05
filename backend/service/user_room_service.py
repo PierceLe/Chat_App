@@ -2,7 +2,6 @@ from repository.user_repository import UserRepository
 from repository.room_repository import RoomRepository
 from repository.user_room_repository import UserRoomRepository
 from dto.request.auth.user_create_request import UserCreateRequest
-from dto.response.user_response import UserResponse
 from dto.response.user_full_response import UserFullResponse
 from fastapi import Depends
 from exception.app_exception import AppException
@@ -20,4 +19,3 @@ class UserRoomService():
         return self.user_room_repository.get_room_of_user(user_id)
 
     
-

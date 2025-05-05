@@ -1,5 +1,4 @@
 from fastapi import APIRouter, HTTPException, status, Depends
-from dto.response.user_response import UserResponse
 from dto.request.auth.user_create_request import UserCreateRequest
 from service.user_service import UserService
 from exception.app_exception import AppException
