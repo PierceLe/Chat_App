@@ -132,7 +132,7 @@ const Sidebar = () => {
                   </Link>
                 </li>
               </Tooltip> */}
-              <Tooltip title="Profile" placement="right" color={"#6338F6 "}>
+              {/* <Tooltip title="Profile" placement="right" color={"#6338F6 "}>
                 <li>
                   <Link
                     to="#"
@@ -142,7 +142,7 @@ const Sidebar = () => {
                     <i className="ti ti-user-circle" />
                   </Link>
                 </li>
-              </Tooltip>
+              </Tooltip> */}
               {/* <Tooltip title="Tasks" placement="right" color={"#6338F6 "}>
                 <li>
                   <Link
