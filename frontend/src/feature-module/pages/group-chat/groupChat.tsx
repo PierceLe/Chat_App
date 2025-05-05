@@ -185,7 +185,9 @@ const GroupChat = () => {
               src={
                 sender.avatar_url === 'default'
                   ? 'assets/img/profiles/avatar-16.jpg'
-                  : `http://localhost:9990/${sender.avatar_url}`
+                  : sender.avatar_url.includes('bucket')
+                    ? `http://localhost:9990/${sender.avatar_url}`
+                    : sender.avatar_url
               }
             />
           </div>
@@ -356,7 +358,9 @@ const GroupChat = () => {
               src={
                 sender.avatar_url === 'default'
                   ? 'assets/img/profiles/avatar-16.jpg'
-                  : `http://localhost:9990/${sender.avatar_url}`
+                  : sender.avatar_url.includes('bucket')
+                    ? `http://localhost:9990/${sender.avatar_url}`
+                    : sender.avatar_url
               }
             />
           </div>
@@ -392,7 +396,9 @@ const GroupChat = () => {
                     src={
                       roomData?.avatar_url === 'default'
                         ? 'assets/img/profiles/avatar-16.jpg'
-                        : `http://localhost:9990/${roomData?.avatar_url}`
+                        : roomData?.avatar_url.includes('bucket')
+                          ? `http://localhost:9990/${roomData?.avatar_url}`
+                          : roomData?.avatar_url
                     }
                   />
                 </div>

@@ -309,9 +309,11 @@ const SettingsTab = () => {
                                     <Avatar
                                       size={100}
                                       src={
-                                        avatarUrl === 'default1'
+                                        avatarUrl === 'default'
                                           ? 'assets/img/profiles/avatar-16.jpg'
-                                          : `http://localhost:9990/${avatarUrl}`
+                                          : avatarUrl.includes('bucket')
+                                            ? `http://localhost:9990/${avatarUrl}`
+                                            : avatarUrl
                                       }
                                       icon={<UploadOutlined />}
                                     />

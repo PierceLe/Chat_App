@@ -152,6 +152,7 @@ async def login(response: Response, login_data: LoginRequest,
 def login_with_google(response: Response, data: GoogleLoginRequest, 
                     auth_service: AuthService = Depends(AuthService)):
     try:
+        response.delete_cookie("access_token")
         user = auth_service.login_or_create_google_user(data.token)
 
         access_token = auth_service.create_token(data={"sub": user.email})

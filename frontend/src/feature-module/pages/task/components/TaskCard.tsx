@@ -106,7 +106,9 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, users, loadTasks }) => {
             src={
               assignedUser.avatar_url === 'default'
                 ? 'assets/img/profiles/avatar-16.jpg'
-                : `http://localhost:9990/${assignedUser.avatar_url}`
+                : assignedUser.avatar_url.includes('bucket')
+                  ? `http://localhost:9990/${assignedUser.avatar_url}`
+                  : assignedUser.avatar_url
             }
           />
           <div className='d-flex w-100 justify-content-between'>

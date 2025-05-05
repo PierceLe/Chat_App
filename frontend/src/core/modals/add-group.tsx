@@ -99,9 +99,11 @@ const AddGroupModal: React.FC<Props> = ({ open, onClose, onBack }) => {
                 avatar={<Avatar
                   size={30}
                   src={
-                    user.avatar_url === 'default1'
+                    user.avatar_url === 'default'
                       ? 'assets/img/profiles/avatar-16.jpg'
-                      : `http://localhost:9990/${user.avatar_url}`
+                      : user.avatar_url.includes('bucket')
+                        ? `http://localhost:9990/${user.avatar_url}`
+                        : user.avatar_url
                   }
                   icon={<UploadOutlined />}
                 />}

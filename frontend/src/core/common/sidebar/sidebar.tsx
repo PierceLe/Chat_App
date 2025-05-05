@@ -10,6 +10,7 @@ import { logout } from "../../services/authService";
 import { UserData } from "@/core/services/contactService";
 import { getMeSelector } from "@/core/redux/selectors";
 import { wsClient } from "@/core/services/websocket";
+import { resetMe } from "@/core/redux/reducers/getMeSlice";
 
 const Sidebar = () => {
   const userMe: UserData = useSelector(getMeSelector); 
@@ -35,6 +36,7 @@ const Sidebar = () => {
   }, [darkMode]);
 
   const handleLogout = () => {
+    dispatch(resetMe());
     wsClient.disconnect();
     logout();
   };
@@ -220,7 +222,9 @@ const Sidebar = () => {
                       src={
                         userMe.avatar_url === 'default'
                           ? 'assets/img/profiles/avatar-16.jpg'
-                          : `http://localhost:9990/${userMe.avatar_url}`
+                          : userMe.avatar_url.includes('bucket')
+                            ? `http://localhost:9990/${userMe.avatar_url}`
+                            : userMe.avatar_url
                       }
                     />
                   </Link>
