@@ -72,34 +72,9 @@ class UserService():
             return None
         
         if get_full_info:
-            return UserFullResponse(
-                user_id=user.user_id,
-                email=user.email,
-                first_name=user.first_name,
-                last_name=user.last_name,
-                avatar_url=user.avatar_url,
-                is_verified=user.is_verified,
-                use_2fa_login=user.use_2fa_login,
-                two_factor_secret=user.two_factor_secret,
-                method=user.method,
-                salt=user.salt,
-                pin=user.pin,
-                public_key=user.public_key,
-                encrypted_private_key=user.encrypted_private_key,
-                biography=user.biography
-            )
+            return UserFullResponse.fromUserModel(user)
         else:
-            return UserResponse(
-                user_id=user.user_id,
-                email=user.email,
-                first_name=user.first_name,
-                last_name=user.last_name,
-                avatar_url=user.avatar_url,
-                is_verified=user.is_verified,
-                method=user.method,
-                public_key=user.public_key,
-                biography=user.biography
-            )
+            return UserResponse.fromUserModel(user)
 
     def get_user_by_email(
             self,
@@ -115,51 +90,11 @@ class UserService():
             return None
 
         if get_full_info:
-            return UserFullResponse(
-                user_id=user.user_id,
-                email=user.email,
-                first_name=user.first_name,
-                last_name=user.last_name,
-                avatar_url=user.avatar_url,
-                is_verified=user.is_verified,
-                use_2fa_login=user.use_2fa_login,
-                two_factor_secret=user.two_factor_secret,
-                method=user.method,
-                salt=user.salt,
-                pin=user.pin,
-                public_key=user.public_key,
-                encrypted_private_key=user.encrypted_private_key,
-                biography=user.biography
-            )
+            return UserFullResponse.fromUserModel(user)
         else:
             if get_use_2fa_login :
-                return UserFullResponse(
-                user_id=user.user_id,
-                email=user.email,
-                first_name=user.first_name,
-                last_name=user.last_name,
-                avatar_url=user.avatar_url,
-                is_verified=user.is_verified,
-                use_2fa_login=user.use_2fa_login,
-                two_factor_secret=None,
-                method=user.method,
-                salt=user.salt,
-                pin=user.pin,
-                public_key=user.public_key,
-                encrypted_private_key=user.encrypted_private_key,
-                biography=user.biography
-            )
-            return UserResponse(
-                user_id=user.user_id,
-                email=user.email,
-                first_name=user.first_name,
-                last_name=user.last_name,
-                avatar_url=user.avatar_url,
-                is_verified=user.is_verified,
-                method=user.method,
-                public_key=user.public_key,
-                biography=user.biography
-            )
+                return UserFullResponse.fromUserModel(user)
+            return UserResponse.fromUserModel(user)
 
     def get_password(self, user_id: str):
         user = self.user_repository.get_user_by_id(user_id)
