@@ -56,3 +56,7 @@ class UserRoomRepository():
     def save_all(self, list_user_room : list[UserRoom]):
         self.db.bulk_save_objects(list_user_room)
         self.db.commit()
+
+    def get_user_room_by_user_id_and_room_id(self, user_id: str, room_id: str):
+        db_user_room = self.db.query(UserRoom).filter(and_(UserRoom.user_id == user_id, UserRoom.room_id == room_id)).first()
+        return db_user_room

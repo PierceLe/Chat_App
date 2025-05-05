@@ -21,7 +21,9 @@ async def creat_room(create_room_request: CreateRoomRequest, room_service: RoomS
         room_type= create_room_request.room_type,
         avatar_url= create_room_request.avatar_url,
         description= create_room_request.description,
-        member_ids= create_room_request.member_ids
+        member_ids= create_room_request.member_ids,
+        encrypted_group_keys = create_room_request.encrypted_group_keys,
+        encrypted_group_key = create_room_request.encrypted_group_key
         )
     return SuccessResponse(result=result)
 
@@ -104,4 +106,12 @@ async def get_room_chat_one_filter(request: FilterRoomOneRequest,
     ):
     request.user_id = current_user.user_id
     result = room_service.get_room_chat_one_filter(request)
+    return SuccessResponse(result = result)
+
+@room_router.get("/group-key")
+async def get_encrypted_group_key(room_id: str,
+    room_service: RoomService = Depends(RoomService),
+    current_user: User = Depends(get_current_user)
+    ):
+    result = room_service.get_encrypted_group_key_by_room_id(current_user.user_id, room_id)
     return SuccessResponse(result = result)
