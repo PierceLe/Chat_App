@@ -7,14 +7,17 @@ import CommonModals from "../core/modals/common-modals";
 import { useAuth } from "../core/hooks/useAuth";
 
 const ProtectedFeature = () => {
-  const { loading, isAuthenticated } = useAuth();
+  const { loading, isAuthenticated, PinModal } = useAuth();
   const themeDark = useSelector((state: any) => state?.darkMode);
+
   if (loading) {
-    return <div>Loading...</div>; // Hoặc spinner loading
+    return <div>Loading...</div>;
   }
+
   if (!isAuthenticated) {
     return null;
   }
+
   return (
     <div className={themeDark ? "darkmode" : ""}>
       <div className="main-wrapper" style={{ visibility: "visible" }}>
@@ -24,6 +27,7 @@ const ProtectedFeature = () => {
           <Outlet />
         </div>
         <CommonModals />
+        {PinModal}
       </div>
     </div>
   );
