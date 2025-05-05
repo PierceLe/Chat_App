@@ -141,7 +141,10 @@ async def chat(data_json, current_user):
             first_name=current_user.first_name,
             last_name=current_user.last_name,
             avatar_url=current_user.avatar_url,
-            is_verified=current_user.is_verified
+            is_verified=current_user.is_verified,
+            method=current_user.method,
+            public_key=current_user.public_key,
+            biography=current_user.biography
         )
     )
     res = WebSocketResponse(
