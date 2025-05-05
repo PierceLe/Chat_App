@@ -14,7 +14,13 @@ const initialState: UserStateInterface = {
     avatar_url: "",
     is_verified: true,
     use_2fa_login: false,
-    two_factor_secret: null
+    two_factor_secret: null,
+    method: '',
+    salt: '',
+    pin: '',
+    public_key: '',
+    encrypted_private_key: '',
+    biography: ''
   },
 };
 

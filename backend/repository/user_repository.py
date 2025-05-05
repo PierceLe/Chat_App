@@ -2,7 +2,7 @@ from sqlalchemy.orm import Session
 from database import SessionLocal
 from model.user import User
 from dto.request.auth.user_update_request import UserUpdateRequest
-
+from enums.enum_login_method import E_Login_Method
 
 class UserRepository:
     def create_user(
@@ -26,7 +26,7 @@ class UserRepository:
                 is_verified=is_verified,
                 use_2fa_login=use_2fa_login,
                 two_factor_secret=two_factor_secret,
-                method="normal"
+                method=E_Login_Method.NORMAL
             )
             db.add(db_user)
             db.commit()
@@ -49,8 +49,7 @@ class UserRepository:
                 avatar_url=avatar_url,
                 is_verified=True,
                 use_2fa_login=False,
-                two_factor_secret="",
-                method="google"
+                method=E_Login_Method.GOOGLE
             )
             db.add(db_user)
             db.commit()

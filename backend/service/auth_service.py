@@ -23,6 +23,7 @@ from googleapiclient.discovery import build
 from google.oauth2 import id_token
 from google.auth.transport.requests import Request
 from config import app_config
+from enums.enum_login_method import E_Login_Method
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 oauth2_scheme = OAuth2PasswordBearerWithCookie(tokenUrl="login")
@@ -141,13 +142,17 @@ class AuthService():
             
             user = self.user_service.get_user_by_email(email, get_full_info=True)
             if user:
-                return user
+                if user.method == E_Login_Method.NORMAL:
+                    raise AppException(ErrorCode.INVALID_METHOD_LOGIN)
+                else:
+                    return user
 
             new_user = self.user_service.create_user_google(email=email, first_name=first_name, 
                             last_name=last_name, avatar_url=avatar_url)
 
             return new_user
-        except ValueError:
+        except ValueError as e:
+            print(e)
             raise AppException(ErrorCode.INVALID_GOOGLE_TOKEN)
 
 
