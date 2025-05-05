@@ -285,6 +285,11 @@ const SettingsTab = () => {
                             Profile Info
                           </Link>
                         </h2>
+                        {userMe?.method === "google" && (
+                          <span className="text-warning small d-block mt-2 mb-3 text-center">
+                            ⚠️ Information synced from Google
+                          </span>
+                        )}
                         <div
                           id="chatuser-collapse"
                           className="accordion-collapse collapse show"
@@ -300,6 +305,7 @@ const SettingsTab = () => {
                                     listType="picture-card"
                                     showUploadList={false}
                                     accept="image/*"
+                                    disabled={userMe?.method === "google"}
                                     onChange={({ file, fileList }) => {
                                       if (file.status === 'done') {
                                         setAvatarUrl(file.response);
@@ -329,6 +335,7 @@ const SettingsTab = () => {
                                       defaultValue=""
                                       className="form-control"
                                       placeholder="First Name"
+                                      disabled={userMe?.method === "google"}
                                       value={firstName}
                                       onChange={handleChangeFirstName}
                                     />
@@ -342,6 +349,7 @@ const SettingsTab = () => {
                                       defaultValue=""
                                       className="form-control"
                                       placeholder="Last Name"
+                                      disabled={userMe?.method === "google"}
                                       value={lastName}
                                       onChange={handleChangeLastName}
                                     />
@@ -374,6 +382,7 @@ const SettingsTab = () => {
                                 className="w-100 btn-primary"
                                 icon={<SaveOutlined />}
                                 size="large"
+                                disabled={userMe?.method === "google"}
                                 loading={loadingUpdateUserInfo}
                                 onClick={() => handleUpdateInfo()}
                               >
@@ -420,7 +429,11 @@ const SettingsTab = () => {
                           data-bs-parent="#pwd-setting"
                         >
                           <div className="accordion-body">
-                            <div className="">
+                            {userMe?.method === "google" ? (
+                              <div className="text-warning text-center">
+                                ⚠️ The change password feature is not available because you are logged in with Google.
+                              </div>
+                            ) : (
                               <div className="row">
                                 <div className="col-lg-12">
                                   <label className="form-label">
@@ -428,23 +441,15 @@ const SettingsTab = () => {
                                   </label>
                                   <div className="input-icon mb-3">
                                     <input
-                                      type={
-                                        passwordVisibility.oldpassword
-                                          ? "text"
-                                          : "password"
-                                      }
+                                      type={passwordVisibility.oldpassword ? "text" : "password"}
                                       className="pass-input form-control"
                                       onChange={handleChangeOldPassword}
                                     />
                                     <span
                                       className={`ti toggle-passwords ${
-                                        passwordVisibility.oldpassword
-                                          ? "ti-eye"
-                                          : "ti-eye-off"
+                                        passwordVisibility.oldpassword ? "ti-eye" : "ti-eye-off"
                                       }`}
-                                      onClick={() =>
-                                        togglePasswordVisibility("oldpassword")
-                                      }
+                                      onClick={() => togglePasswordVisibility("oldpassword")}
                                     ></span>
                                   </div>
                                 </div>
@@ -454,23 +459,15 @@ const SettingsTab = () => {
                                   </label>
                                   <div className="input-icon mb-3">
                                     <input
-                                      type={
-                                        passwordVisibility.newpassword
-                                          ? "text"
-                                          : "password"
-                                      }
+                                      type={passwordVisibility.newpassword ? "text" : "password"}
                                       className="pass-input form-control"
                                       onChange={handleChangeNewPassword}
                                     />
                                     <span
                                       className={`ti toggle-passwords ${
-                                        passwordVisibility.newpassword
-                                          ? "ti-eye"
-                                          : "ti-eye-off"
+                                        passwordVisibility.newpassword ? "ti-eye" : "ti-eye-off"
                                       }`}
-                                      onClick={() =>
-                                        togglePasswordVisibility("newpassword")
-                                      }
+                                      onClick={() => togglePasswordVisibility("newpassword")}
                                     ></span>
                                   </div>
                                 </div>
@@ -480,25 +477,15 @@ const SettingsTab = () => {
                                   </label>
                                   <div className="input-icon mb-3">
                                     <input
-                                      type={
-                                        passwordVisibility.confirmPassword
-                                          ? "text"
-                                          : "password"
-                                      }
+                                      type={passwordVisibility.confirmPassword ? "text" : "password"}
                                       className="pass-input form-control"
                                       onChange={handleChangeConfirmNewPassword}
                                     />
                                     <span
                                       className={`ti toggle-passwords ${
-                                        passwordVisibility.confirmPassword
-                                          ? "ti-eye"
-                                          : "ti-eye-off"
+                                        passwordVisibility.confirmPassword ? "ti-eye" : "ti-eye-off"
                                       }`}
-                                      onClick={() =>
-                                        togglePasswordVisibility(
-                                          "confirmPassword",
-                                        )
-                                      }
+                                      onClick={() => togglePasswordVisibility("confirmPassword")}
                                     ></span>
                                   </div>
                                 </div>
@@ -508,16 +495,16 @@ const SettingsTab = () => {
                                     icon={<SaveOutlined />}
                                     size="large"
                                     loading={loadingChangePassword}
-                                    onClick={() => handleChangePassword()}
+                                    onClick={handleChangePassword}
                                   >
                                     Change Password
                                   </Button>
                                   <div className="text-danger text-center mt-2">
-                                    {changePasswordErrorMessage }
+                                    {changePasswordErrorMessage}
                                   </div>
                                 </div>
                               </div>
-                            </div>
+                            )}
                           </div>
                         </div>
                       </div>
@@ -543,17 +530,25 @@ const SettingsTab = () => {
                           <div className="accordion-body">
                             <div className="">
                               <div className="row">
-                                {userMe?.use_2fa_login === false ? (
+                              {userMe?.use_2fa_login === false ? (
+                                userMe?.method === "google" ? (
+                                  <div className="d-flex flex-column w-100">
+                                    <div className="text-warning mb-2">
+                                      ⚠️ Feature not available due to Google login
+                                    </div>
+                                  </div>
+                                ) : (
                                   <div className="d-flex align-items-center justify-content-between w-100">
                                     <span>Enable 2FA now 👉</span>
                                     <Button type="primary" onClick={handleEnable2FA}>Enable</Button>
                                   </div>
-                                ) : (
-                                  <div className="d-flex align-items-center gap-2">
-                                    <span>2FA is enabled</span>
-                                    <i className="bi bi-check-circle-fill text-success"></i> {/* Bootstrap icon */}
-                                  </div>
-                                )}
+                                )
+                              ) : (
+                                <div className="d-flex align-items-center gap-2">
+                                  <span>2FA is enabled</span>
+                                  <i className="bi bi-check-circle-fill text-success"></i>
+                                </div>
+                              )}
                               </div>
                             </div>
                           </div>
