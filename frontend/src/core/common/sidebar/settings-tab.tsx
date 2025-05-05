@@ -46,6 +46,7 @@ const SettingsTab = () => {
   const [firstName, setFirstName] = useState("")
   const [lastName, setLastName] = useState("")
   const [avatarUrl, setAvatarUrl] = useState("")
+  const [bio, setBio] = useState("")
   const [updateUserInfoError, setUpdateUserInfoError] = useState("")
   const [loadingUpdateUserInfo, setLoadingUpdateUserInfo] = useState(false)
   const [loadingBioUpdate, setLoadingBioUpdate] = useState(false)
@@ -75,6 +76,7 @@ const SettingsTab = () => {
       setFirstName(userMe.first_name)
       setLastName(userMe.last_name)
       setAvatarUrl(userMe.avatar_url)
+      setBio(userMe.biography)
     }
   }, [userMe]);
 
@@ -153,12 +155,32 @@ const SettingsTab = () => {
 
   }
 
-  const handleChangeBio = async () => {
-    
-  }
+  const handleChangeBio = (e: any) => {
+    setBio(e.target.value);
+  };
 
   const handleUpdateBio =  async () => {
+    try {
+      setLoadingBioUpdate(true)
+      const res = await httpRequest.put("/user/update-me-bio", {
+        biography: bio
+      });
+      notify.success("Update successfully !")
 
+      // update state userMe
+      const responseMe: ApiResponse<UserData> = await httpRequest.post(`/user/me?ts=${Date.now()}`, {
+        headers: {
+          "Cache-Control": "no-cache",
+          "Pragma": "no-cache",
+          "Expires": "0"
+        }
+      });
+      dispatch(setMe(responseMe.result));
+    } catch {
+      notify.error("Error", "Update Biography Failed !")
+    } finally {
+      setLoadingBioUpdate(false)
+    }
   }
 
   const handleUpdateInfo =  async () => {
@@ -427,7 +449,7 @@ const SettingsTab = () => {
                             <Input.TextArea
                               rows={4}
                               placeholder="Write something about yourself..."
-                              value={userMe.biography}
+                              value={bio}
                               onChange={handleChangeBio}
                             />
                             <Button
@@ -437,7 +459,7 @@ const SettingsTab = () => {
                               loading={loadingBioUpdate}
                               onClick={() => handleUpdateBio()}
                             >
-                              Update Biography
+                              Update
                             </Button>
                           </div>
                         </div>
