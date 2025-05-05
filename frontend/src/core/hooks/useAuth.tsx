@@ -14,7 +14,10 @@ export const useAuth = () => {
   const dispatch = useDispatch();
   const [loading, setLoading] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [showPinModal, setShowPinModal] = useState(false);
+
+  // Modal states
+  const [showPinSetupModal, setShowPinSetupModal] = useState(false);
+  const [showPinRestoreModal, setShowPinRestoreModal] = useState(false);
   const [pinInput, setPinInput] = useState("");
   const [submittingPin, setSubmittingPin] = useState(false);
 
@@ -37,10 +40,22 @@ export const useAuth = () => {
           setIsAuthenticated(true);
 
           if (!response.result.pin) {
-            setShowPinModal(true);
+            setShowPinSetupModal(true);
+          } else {
+            const localPrivateKey = localStorage.getItem("private_key");
+            if (!localPrivateKey) {
+              setShowPinRestoreModal(true);
+            }
           }
         } else {
           setIsAuthenticated(true);
+
+          if (userMe.pin) {
+            const localPrivateKey = localStorage.getItem("private_key");
+            if (!localPrivateKey) {
+              setShowPinRestoreModal(true);
+            }
+          }
         }
       } catch (error) {
         setIsAuthenticated(false);
@@ -53,37 +68,37 @@ export const useAuth = () => {
     checkAuth();
   }, [navigate]);
 
-  const handleSubmitPin = async () => {
+  const handleSubmitPinSetup = async () => {
     if (pinInput.length !== 6 || isNaN(Number(pinInput))) {
-      message.warning("PIN must be exactly 6 digits long.");
+      message.warning("PIN must be exactly 6 digits.");
       return;
     }
 
     try {
       setSubmittingPin(true);
-      ////////////////////////// CALL API /////////////////
+
+      /////////////////// API 1: Create Pin
       const response = await httpRequest.post("/user/set-pin", {
         pin: pinInput,
       });
 
       if (response.code === 0) {
-        message.success("PIN created successfully.");
+        notify.success("PIN created successfully.");
+
+        const responseUserMe: ApiResponse<UserData> = await httpRequest.post(`/user/me?ts=${Date.now()}`, {
+          headers: {
+            "Cache-Control": "no-cache",
+            "Pragma": "no-cache",
+            "Expires": "0"
+          }
+        });
+
+        dispatch(setMe(responseUserMe.result));
+        if (responseUserMe.result.pin) {
+          setShowPinSetupModal(false);
+        }
       } else {
         notify.error("Error", "Create Pin failed!");
-      }
-
-      // Call api get userMe again 
-      const responseUserMe: ApiResponse<UserData> = await httpRequest.post(`/user/me?ts=${Date.now()}`, {
-        headers: {
-          "Cache-Control": "no-cache",
-          "Pragma": "no-cache",
-          "Expires": "0"
-        }
-      });
-
-      dispatch(setMe(responseUserMe.result));
-      if (responseUserMe.result.pin) {
-        setShowPinModal(false);
       }
     } catch (err) {
       notify.error("Error", "Create Pin failed!");
@@ -92,18 +107,46 @@ export const useAuth = () => {
     }
   };
 
-  const PinModal = (
+  const handleSubmitPinRestore = async () => {
+    if (pinInput.length !== 6 || isNaN(Number(pinInput))) {
+      message.warning("PIN must be exactly 6 digits.");
+      return;
+    }
+
+    try {
+      setSubmittingPin(true);
+
+      /////////////////// API 2: Get private Key again
+      const response = await httpRequest.post("/user/restore-private-key", {
+        pin: pinInput,
+      });
+
+      if (response.code === 0 && response.result?.private_key) {
+        localStorage.setItem("private_key", response.result.private_key);
+        notify.success("Message sync successful");
+        setShowPinRestoreModal(false);
+      } else {
+        notify.error("Error", "Message sync failed");
+      }
+    } catch (err) {
+      notify.error("Error", "Message sync failed");
+    } finally {
+      setSubmittingPin(false);
+    }
+  };
+
+  const PinSetupModal = (
     <Modal
       title="Create PIN"
-      open={showPinModal}
-      onOk={handleSubmitPin}
+      open={showPinSetupModal}
+      onOk={handleSubmitPinSetup}
       confirmLoading={submittingPin}
       onCancel={() => {}}
       okText="Confirm"
       closable={false}
       maskClosable={false}
     >
-      <p>You need to create a Pin code to encrypt data when using the application.</p>
+      <p>You need to create a PIN code to encrypt data when using the application.</p>
       <Input.Password
         placeholder="Enter 6 digit PIN"
         maxLength={6}
@@ -113,5 +156,26 @@ export const useAuth = () => {
     </Modal>
   );
 
-  return { loading, isAuthenticated, PinModal };
+  const PinRestoreModal = (
+    <Modal
+      title="Enter PIN to Restore Access"
+      open={showPinRestoreModal}
+      onOk={handleSubmitPinRestore}
+      confirmLoading={submittingPin}
+      onCancel={() => {}}
+      okText="Restore"
+      closable={false}
+      maskClosable={false}
+    >
+      <p>Please enter pin code to synchronize data.</p>
+      <Input.Password
+        placeholder="Enter your PIN"
+        maxLength={6}
+        value={pinInput}
+        onChange={(e) => setPinInput(e.target.value)}
+      />
+    </Modal>
+  );
+
+  return { loading, isAuthenticated, PinSetupModal, PinRestoreModal };
 };

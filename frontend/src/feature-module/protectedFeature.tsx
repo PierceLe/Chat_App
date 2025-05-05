@@ -7,7 +7,7 @@ import CommonModals from "../core/modals/common-modals";
 import { useAuth } from "../core/hooks/useAuth";
 
 const ProtectedFeature = () => {
-  const { loading, isAuthenticated, PinModal } = useAuth();
+  const { loading, isAuthenticated, PinSetupModal, PinRestoreModal } = useAuth();
   const themeDark = useSelector((state: any) => state?.darkMode);
 
   if (loading) {
@@ -27,10 +27,12 @@ const ProtectedFeature = () => {
           <Outlet />
         </div>
         <CommonModals />
-        {PinModal}
+        {PinSetupModal}
+        {PinRestoreModal}
       </div>
     </div>
   );
 };
+
 
 export default ProtectedFeature;
