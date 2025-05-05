@@ -140,18 +140,28 @@ const Signin = () => {
   };
 
   const handleGoogleSuccess = async (credentialResponse) => {
+    setLoginErrorMessage("")
     try {
       const res = await httpRequest.post("/login/google", {
         token: credentialResponse.credential,
       });
+
+      if (res.code !== 0) {
+        setLoginErrorMessage("Login with Google Account Failed !")
+
+        return
+      }
       
-      localStorage.setItem("access_token", res.data.access_token);
-      
-      window.location.href = "/dashboard"; 
+      notify.success("Login Successfully !")
+      navigate(routes.index);
     } catch (err) {
       console.error("Google login failed", err);
     }
   };
+
+  const handleGoogleError = () => {
+    setLoginErrorMessage("Login with Google Account Failed !")
+  }
 
   return (
     <>
@@ -226,18 +236,15 @@ const Signin = () => {
                           </div>
                           <div className="mb-4">
                             <Button className="w-100 btn btn-primary" size="large" loading={loadingSignin} onClick={() => handleSubmit()}>Sign In</Button>
-                            <div className="text-danger text-center mt-2">
-                              {loginErrorMessage }
-                            </div>
                           </div>
                           <div className="login-or mb-3">
                             <span className="span-or">Or sign in with </span>
                           </div>
-                          <div className="d-flex align-items-center justify-content-center flex-wrap">
+                          <div style={{ width: '100%', boxSizing: 'border-box' }}>
                             <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
                               <GoogleLogin
                                 onSuccess={handleGoogleSuccess}
-                                onError={() => console.log("Login Failed")}
+                                onError={handleGoogleError}
                                 scope="openid profile email"
                               />
                             </GoogleOAuthProvider>
@@ -254,6 +261,9 @@ const Signin = () => {
                                 Facebook
                               </Link>
                             </div> */}
+                          </div>
+                          <div className="text-danger text-center mt-2">
+                            {loginErrorMessage }
                           </div>
                         </div>
                       </div>

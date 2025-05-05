@@ -1,6 +1,7 @@
 import uuid
-from sqlalchemy import Column, String, Boolean
+from sqlalchemy import Column, String, DateTime, Enum as SqlEnum, Boolean
 from database import Base
+from enums.enum_login_method import E_Login_Method
 
 class User(Base):
     __tablename__ = "user"
@@ -16,7 +17,7 @@ class User(Base):
     use_2fa_login = Column(Boolean, default=False) 
     two_factor_secret = Column(String(255), nullable=True)
     
-    method = Column(String(255))
+    method = Column(SqlEnum(E_Login_Method), nullable=False)
 
     salt = Column(String(500))
     

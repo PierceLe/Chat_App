@@ -15,7 +15,13 @@ export interface UserData {
   avatar_url: string;
   is_verified: boolean;
   use_2fa_login?: boolean;
-  two_factor_secret?: string | null
+  two_factor_secret?: string | null,
+  method?: string | null,
+  salt?: string | null,
+  pin?: string | null,
+  public_key?: string | null,
+  encrypted_private_key?: string | null,
+  biography?: string | null
 }
 
 export const getAllFriends = async () => {

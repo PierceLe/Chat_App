@@ -39,7 +39,10 @@ class UserService():
             first_name=user.first_name,
             last_name=user.last_name,
             avatar_url=user.avatar_url,
-            is_verified=user.is_verified
+            is_verified=user.is_verified,
+            method=user.method,
+            public_key=user.public_key,
+            biography=user.biography
         )
     
     def create_user_google(self, email, first_name, last_name, avatar_url) -> UserResponse:
@@ -55,7 +58,10 @@ class UserService():
             first_name=user.first_name,
             last_name=user.last_name,
             avatar_url=user.avatar_url,
-            is_verified=user.is_verified
+            is_verified=user.is_verified,
+            method=user.method,
+            public_key=user.public_key,
+            biography=user.biography
         )
 
     def get_user(self, user_id: str, get_full_info: bool = False) -> Union[UserResponse, UserFullResponse]:
@@ -73,7 +79,13 @@ class UserService():
                 avatar_url=user.avatar_url,
                 is_verified=user.is_verified,
                 use_2fa_login=user.use_2fa_login,
-                two_factor_secret=user.two_factor_secret
+                two_factor_secret=user.two_factor_secret,
+                method=user.method,
+                salt=user.salt,
+                pin=user.pin,
+                public_key=user.public_key,
+                encrypted_private_key=user.encrypted_private_key,
+                biography=user.biography
             )
         else:
             return UserResponse(
@@ -83,6 +95,9 @@ class UserService():
                 last_name=user.last_name,
                 avatar_url=user.avatar_url,
                 is_verified=user.is_verified,
+                method=user.method,
+                public_key=user.public_key,
+                biography=user.biography
             )
 
     def get_user_by_email(
@@ -107,7 +122,13 @@ class UserService():
                 avatar_url=user.avatar_url,
                 is_verified=user.is_verified,
                 use_2fa_login=user.use_2fa_login,
-                two_factor_secret=user.two_factor_secret
+                two_factor_secret=user.two_factor_secret,
+                method=user.method,
+                salt=user.salt,
+                pin=user.pin,
+                public_key=user.public_key,
+                encrypted_private_key=user.encrypted_private_key,
+                biography=user.biography
             )
         else:
             if get_use_2fa_login :
@@ -119,7 +140,13 @@ class UserService():
                 avatar_url=user.avatar_url,
                 is_verified=user.is_verified,
                 use_2fa_login=user.use_2fa_login,
-                two_factor_secret=None
+                two_factor_secret=None,
+                method=user.method,
+                salt=user.salt,
+                pin=user.pin,
+                public_key=user.public_key,
+                encrypted_private_key=user.encrypted_private_key,
+                biography=user.biography
             )
             return UserResponse(
                 user_id=user.user_id,
@@ -128,6 +155,9 @@ class UserService():
                 last_name=user.last_name,
                 avatar_url=user.avatar_url,
                 is_verified=user.is_verified,
+                method=user.method,
+                public_key=user.public_key,
+                biography=user.biography
             )
 
     def get_password(self, user_id: str):
