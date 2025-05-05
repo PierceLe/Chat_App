@@ -2,6 +2,7 @@ from sqlalchemy.orm import Session
 from database import SessionLocal
 from model.user import User
 from dto.request.auth.user_update_request import UserUpdateRequest
+from dto.request.auth.user_bio_update_request import UserBioUpdateRequest
 from enums.enum_login_method import E_Login_Method
 
 class UserRepository:
@@ -109,6 +110,18 @@ class UserRepository:
             return False
 
     def update_user_info(self, user_id: str, user_update: UserUpdateRequest) -> bool:
+        with SessionLocal() as db:
+            db_user = db.query(User).filter(User.user_id == user_id).first()
+            if db_user:
+                update_data = user_update.dict(exclude_unset=True)
+                for key, value in update_data.items():
+                    setattr(db_user, key, value)
+                db.commit()
+                db.refresh(db_user)
+                return True
+            return False
+    
+    def update_user_bio(self, user_id: str, user_update: UserBioUpdateRequest) -> bool:
         with SessionLocal() as db:
             db_user = db.query(User).filter(User.user_id == user_id).first()
             if db_user:

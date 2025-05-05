@@ -1,6 +1,7 @@
 from repository.user_repository import UserRepository
 from dto.request.auth.user_create_request import UserCreateRequest
 from dto.request.auth.user_update_request import UserUpdateRequest
+from dto.request.auth.user_bio_update_request import UserBioUpdateRequest
 from dto.response.user_response import UserResponse
 from dto.response.user_full_response import UserFullResponse
 from fastapi import Depends
@@ -185,6 +186,10 @@ class UserService():
     
     def update_user_info(self, user_id: str, user_update: UserUpdateRequest):
         return self.user_repository.update_user_info(
+            user_id, user_update)
+
+    def update_user_bio(self, user_id: str, user_update: UserBioUpdateRequest):
+        return self.user_repository.update_user_bio(
             user_id, user_update)
     
     def disable_2fa(self, user_id: str):
