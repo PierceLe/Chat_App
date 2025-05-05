@@ -32,7 +32,7 @@ const Signin = () => {
       try {
         const user = await getMe();
         if (user) {
-          navigate(routes.index); // Redirect nếu đã login
+          navigate(routes.index);
         }
       } catch (error) {
         console.log("Not logged in");

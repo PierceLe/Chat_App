@@ -23,3 +23,4 @@ class User(Base):
     pin = Column(String(500))
     public_key = Column(String(500))
     encrypted_private_key = Column(String(500))
+    biography = Column(String(500))

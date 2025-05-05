@@ -1,26 +1,22 @@
-create table user
-(
-    user_id               varchar(36)  not null
-        primary key,
-    username              varchar(50)  null,
-    display_name          varchar(100) null,
-    avatar_url            varchar(500) null,
-    password              varchar(255) not null,
-    email                 varchar(255) not null,
-    first_name            varchar(100) null,
-    last_name             varchar(100) null,
-    is_verified           tinyint(1)   null,
-    use_2fa_login         tinyint(1)   not null,
-    two_factor_secret     varchar(255) null,
-    public_key            varchar(255) null,
-    encrypted_private_key varchar(255) null,
-    salt                  varchar(255) null,
-    method                varchar(255) null,
-    pin                   varchar(500) null
+CREATE TABLE user (
+    user_id VARCHAR(36) NOT NULL PRIMARY KEY,
+    email VARCHAR(255) NOT NULL UNIQUE,
+    password VARCHAR(500) NOT NULL,
+    first_name VARCHAR(100),
+    last_name VARCHAR(100),
+    avatar_url VARCHAR(500),
+    is_verified BOOLEAN DEFAULT FALSE,
+    use_2fa_login BOOLEAN DEFAULT FALSE,
+    two_factor_secret VARCHAR(255),
+    method VARCHAR(255),
+    salt VARCHAR(500),
+    pin VARCHAR(500),
+    public_key VARCHAR(500),
+    encrypted_private_key VARCHAR(500),
+    biography VARCHAR(500),
+    INDEX idx_user_email (email),
+    INDEX idx_user_id (user_id)
 );
-
-create index user_username_index
-    on user (username);
 
 
 -- 
