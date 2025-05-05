@@ -12,6 +12,8 @@ import { useNavigate } from "react-router-dom";
 import { all_routes } from "@/feature-module/router/all_routes";
 import httpRequest from "@/core/api/baseAxios";
 import { wsClient } from "@/core/services/websocket";
+import { GoogleLogin, GoogleOAuthProvider } from "@react-oauth/google";
+import { GOOGLE_CLIENT_ID } from "@/environment"
 
 const Signin = () => {
   const routes = all_routes;
@@ -30,7 +32,7 @@ const Signin = () => {
       try {
         const user = await getMe();
         if (user) {
-          navigate(routes.index); // Redirect nếu đã login
+          navigate(routes.index);
         }
       } catch (error) {
         console.log("Not logged in");
@@ -137,6 +139,20 @@ const Signin = () => {
     }
   };
 
+  const handleGoogleSuccess = async (credentialResponse) => {
+    try {
+      const res = await httpRequest.post("/login/google", {
+        token: credentialResponse.credential,
+      });
+      
+      localStorage.setItem("access_token", res.data.access_token);
+      
+      window.location.href = "/dashboard"; 
+    } catch (err) {
+      console.error("Google login failed", err);
+    }
+  };
+
   return (
     <>
       <div className="container-fuild">
@@ -214,24 +230,18 @@ const Signin = () => {
                               {loginErrorMessage }
                             </div>
                           </div>
-                          {/* <div className="login-or mb-3">
+                          <div className="login-or mb-3">
                             <span className="span-or">Or sign in with </span>
                           </div>
                           <div className="d-flex align-items-center justify-content-center flex-wrap">
-                            <div className="text-center me-2 flex-fill">
-                              <Link
-                                to="#"
-                                className="fs-16 btn btn-white btn-shadow d-flex align-items-center justify-content-center"
-                              >
-                                <ImageWithBasePath
-                                  className="img-fluid me-3"
-                                  src="assets/img/icons/google.svg"
-                                  alt="Facebook"
-                                />
-                                Google
-                              </Link>
-                            </div>
-                            <div className="text-center flex-fill">
+                            <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
+                              <GoogleLogin
+                                onSuccess={handleGoogleSuccess}
+                                onError={() => console.log("Login Failed")}
+                                scope="openid profile email"
+                              />
+                            </GoogleOAuthProvider>
+                            {/* <div className="text-center flex-fill">
                               <Link
                                 to="#"
                                 className="fs-16 btn btn-white btn-shadow d-flex align-items-center justify-content-center"
@@ -243,8 +253,8 @@ const Signin = () => {
                                 />
                                 Facebook
                               </Link>
-                            </div>
-                          </div> */}
+                            </div> */}
+                          </div>
                         </div>
                       </div>
                       <div className="mt-5 text-center">

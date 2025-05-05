@@ -25,7 +25,32 @@ class UserRepository:
                 avatar_url=avatar_url,
                 is_verified=is_verified,
                 use_2fa_login=use_2fa_login,
-                two_factor_secret=two_factor_secret
+                two_factor_secret=two_factor_secret,
+                method="normal"
+            )
+            db.add(db_user)
+            db.commit()
+            db.refresh(db_user)
+            return db_user
+    
+    def create_user_google(
+        self,
+        email: str,
+        first_name: str,
+        last_name: str,
+        avatar_url: str,
+    ) -> User:
+        with SessionLocal() as db:
+            db_user = User(
+                email=email,
+                password="default_google",
+                first_name=first_name,
+                last_name=last_name,
+                avatar_url=avatar_url,
+                is_verified=True,
+                use_2fa_login=False,
+                two_factor_secret="",
+                method="google"
             )
             db.add(db_user)
             db.commit()
