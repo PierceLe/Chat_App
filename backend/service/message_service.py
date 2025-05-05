@@ -46,7 +46,10 @@ class MessageService():
                     first_name= user_db.first_name,
                     last_name= user_db.last_name,
                     avatar_url= user_db.avatar_url,
-                    is_verified= user_db.is_verified
+                    is_verified= user_db.is_verified,
+                    method = user_db.method,
+                    public_key = user_db.public_key,
+                    biography = user_db.biography
                 )))
         return res
 
@@ -71,6 +74,9 @@ class MessageService():
                     first_name= user_db.first_name,
                     last_name= user_db.last_name,
                     avatar_url= user_db.avatar_url,
-                    is_verified= user_db.is_verified
+                    is_verified= user_db.is_verified,
+                    method = user_db.method,
+                    public_key = user_db.public_key,
+                    biography = user_db.biography
                 )))
         return res
