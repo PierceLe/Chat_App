@@ -181,7 +181,9 @@ const Chat = () => {
               src={
                 sender.avatar_url === 'default'
                   ? 'assets/img/profiles/avatar-16.jpg'
-                  : `http://localhost:9990/${sender.avatar_url}`
+                  : sender.avatar_url.includes('bucket')
+                    ? `http://localhost:9990/${sender.avatar_url}`
+                    : sender.avatar_url
               }
             />
           </div>
@@ -374,7 +376,9 @@ const Chat = () => {
               src={
                 me.avatar_url === 'default'
                   ? 'assets/img/profiles/avatar-16.jpg'
-                  : `http://localhost:9990/${me.avatar_url}`
+                  : me.avatar_url.includes('bucket')
+                    ? `http://localhost:9990/${me.avatar_url}`
+                    : me.avatar_url
               }
             />
           </div>
@@ -411,7 +415,9 @@ const Chat = () => {
                       src={
                         state.friend_avatar_url === 'default'
                           ? 'assets/img/profiles/avatar-16.jpg'
-                          : `http://localhost:9990/${state.friend_avatar_url}`
+                          : state.friend_avatar_url.includes('bucket')
+                            ? `http://localhost:9990/${state.friend_avatar_url}`
+                            : state.friend_avatar_url
                       }
                     />
                   )}
@@ -650,7 +656,9 @@ const Chat = () => {
                         src={
                           state.friend_avatar_url === 'default'
                             ? 'assets/img/profiles/avatar-16.jpg'
-                            : `http://localhost:9990/${state.friend_avatar_url}`
+                            : state.friend_avatar_url.includes('bucket')
+                              ? `http://localhost:9990/${state.friend_avatar_url}`
+                              : state.friend_avatar_url
                         }
                       />
                     )}

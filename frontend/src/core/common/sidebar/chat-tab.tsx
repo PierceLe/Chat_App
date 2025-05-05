@@ -179,7 +179,9 @@ const ChatTab = () => {
                 src={
                   friend_avatar_url === 'default'
                     ? 'assets/img/profiles/avatar-16.jpg'
-                    : `http://localhost:9990/${friend_avatar_url}`
+                    : friend_avatar_url.includes('bucket')
+                      ? `http://localhost:9990/${friend_avatar_url}`
+                      : friend_avatar_url
                 }
               />
             </div>
@@ -362,7 +364,9 @@ const ChatTab = () => {
                             src={
                               room.friend_avatar_url === 'default'
                                 ? 'assets/img/profiles/avatar-16.jpg'
-                                : `http://localhost:9990/${room.friend_avatar_url}`
+                                : room.friend_avatar_url.includes('bucket')
+                                  ? `http://localhost:9990/${room.friend_avatar_url}`
+                                  : room.friend_avatar_url
                             }
                           />
                         </div>

@@ -132,7 +132,9 @@ const ContactTab = () => {
                   src={
                     avatar_url === 'default'
                       ? 'assets/img/profiles/avatar-16.jpg'
-                      : `http://localhost:9990/${avatar_url}`
+                      : avatar_url.includes('bucket')
+                        ? `http://localhost:9990/${avatar_url}`
+                        : avatar_url
                   }
                 />
               </div>
@@ -186,7 +188,9 @@ const ContactTab = () => {
                   src={
                     avatar_url === 'default'
                       ? 'assets/img/profiles/avatar-16.jpg'
-                      : `http://localhost:9990/${avatar_url}`
+                      : avatar_url.includes('bucket')
+                        ? `http://localhost:9990/${avatar_url}`
+                        : avatar_url
                   }
                 />
               </div>

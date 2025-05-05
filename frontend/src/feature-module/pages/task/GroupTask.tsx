@@ -235,7 +235,9 @@ const GroupTask = () => {
                     src={
                       user.avatar_url === 'default'
                         ? 'assets/img/profiles/avatar-16.jpg'
-                        : `http://localhost:9990/${user.avatar_url}`
+                        : user.avatar_url.includes('bucket')
+                          ? `http://localhost:9990/${user.avatar_url}`
+                          : user.avatar_url
                     }
                   />
                   <span style={{marginLeft: '5px'}}>{user.first_name} {user.last_name}</span>

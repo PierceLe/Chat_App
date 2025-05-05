@@ -64,9 +64,11 @@ const NewChat = ({ isModalVisible, onClose }: { isModalVisible: boolean; onClose
             <Avatar
               size={32}
               src={
-                avatar_url === "default"
-                  ? "assets/img/profiles/avatar-16.jpg"
-                  : `http://localhost:9990/${avatar_url}`
+                avatar_url === 'default'
+                  ? 'assets/img/profiles/avatar-16.jpg'
+                  : avatar_url.includes('bucket')
+                    ? `http://localhost:9990/${avatar_url}`
+                    : avatar_url
               }
             />
           </div>
