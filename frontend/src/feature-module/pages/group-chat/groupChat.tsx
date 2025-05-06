@@ -13,8 +13,9 @@ import { useSelector } from "react-redux";
 import { getMeSelector } from "@/core/redux/selectors";
 import { getAllMessInRoom, getMoreMessInRoom, MessageData, SendMessageData } from "@/core/services/messageService";
 import { wsClient } from "@/core/services/websocket";
-import { getRoomById, RoomData, getAllUsersInRoom } from "@/core/services/roomService";
+import { getRoomById, RoomData, getAllUsersInRoom, getEncryptedGroupKey } from "@/core/services/roomService";
 import { format } from "date-fns";
+import { decryptMessage, decryptSymmetricKey, encryptMessage } from "@/core/utils/encryption";
 
 const GroupChat = () => {
   const [open1, setOpen1] = useState(false);
@@ -53,6 +54,8 @@ const GroupChat = () => {
         }
       });
     });
+    fetchApiGetGroupKey(room_id as any);
+  
   }, []);
 
   const me: UserData = useSelector(getMeSelector);
@@ -64,24 +67,30 @@ const GroupChat = () => {
   const [hasMore, setHasMore] = useState(true);
   const [listUserInRoom, setListUserInroom] = useState([])
 
-  const [groupKey, setGroupKey] = useState(null)
+  const [groupKey, setGroupKey] = useState('')
 
   const fetchApiGetMoreMessInRoom = async (room_id: string) => {
     try {
-      if (messages.length > 0) {
-        const lastMess = messages[0]
-        setIsLoading(true)
-        const result = await getMoreMessInRoom(room_id, lastMess.created_at)
+      if (messages.length > 0 && groupKey) {
+        const lastMess = messages[0];
+        setIsLoading(true);
+        const result = await getMoreMessInRoom(room_id, lastMess.created_at);
         if (result.length === 0) {
-          setHasMore(false)
+          setHasMore(false);
         } else {
-          setMessages((pre) => [...result, ...pre])
+          const decryptedMessages = await Promise.all(
+            result.map(async (msg : any) => ({
+              ...msg,
+              content: msg.content ? await decryptMessage(msg.content, groupKey) : "",
+            }))
+          );
+          setMessages((prev) => [...decryptedMessages, ...prev]);
         }
       }
     } catch (error) {
-      console.log(error)
+      console.error("Error fetching more messages:", error);
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
   }
 
@@ -96,8 +105,22 @@ const GroupChat = () => {
   }; 
 
   const fetchApiGetMessInRoom = async (room_id: any) => {
-    const result: Array<MessageData> = await getMoreMessInRoom(room_id, new Date());
-    setMessages(result);
+    try {
+      const result: MessageData[] = await getMoreMessInRoom(room_id, new Date());
+      if (groupKey) {
+        const decryptedMessages = await Promise.all(
+          result.map(async (msg) => ({
+            ...msg,
+            content: msg.content ? await decryptMessage(msg.content, groupKey) : "",
+          }))
+        );
+        setMessages(decryptedMessages);
+      } else {
+        setMessages(result);
+      }
+    } catch (error) {
+      console.error("Error fetching messages:", error);
+    }
   };
 
   const fetchApiGetRoomById = async (room_id: string) => {
@@ -110,6 +133,13 @@ const GroupChat = () => {
     setListUserInroom(result)
   }
 
+  const fetchApiGetGroupKey = async(room_id: string) => {
+    const encyptedGroupKey = await getEncryptedGroupKey(room_id)
+    const privateKey = localStorage.getItem("privateKey")
+    const groupKey = await decryptSymmetricKey(encyptedGroupKey, privateKey as any)
+    setGroupKey(groupKey)
+  }
+
   const { room_id } = useParams();
 
   useEffect(() => {
@@ -120,9 +150,21 @@ const GroupChat = () => {
     fetchApiGetMessInRoom(room_id);
     console.log("messages: ", messages);
 
-    const handleMessage = (data: any) => {
-      if (data.action === "chat" && data.data.room_id === room_id) {
-        setMessages((prev) => [...prev, data.data]);
+    const handleMessage = async (data: any) => {
+      if (data.action === "chat" && data.data.room_id === room_id && groupKey) {
+        try {
+          const encryptedMessage = data.data.content;
+          const decryptedContent = encryptedMessage
+            ? await decryptMessage(encryptedMessage, groupKey)
+            : "";
+          const message: MessageData = {
+            ...data.data,
+            content: decryptedContent,
+          };
+          setMessages((prev) => [...prev, message]);
+        } catch (error) {
+          console.error("Error decrypting message:", error);
+        }
       }
     };
     wsClient.onMessage(handleMessage);
@@ -135,24 +177,28 @@ const GroupChat = () => {
     scrollToBottom();
   }, [messages]);
 
-  const handleSendMessage = (e: React.FormEvent) => {
+  const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newMessage.trim() || !room_id) return;
+    if (!newMessage.trim() || !room_id || !groupKey) return;
+    try {
+      const encryptedContent = await encryptMessage(newMessage, groupKey);
+      const messageData: SendMessageData = {
+        room_id,
+        content: encryptedContent,
+        file_url: null,
+        message_type: 0,
+      };
 
-    const messageData: SendMessageData = {
-      room_id,
-      content: newMessage,
-      file_url: null,
-      message_type: 0,
-    };
+      wsClient.send({
+        action: "chat",
+        data: messageData,
+      });
 
-    wsClient.send({
-      action: "chat",
-      data: messageData
-    });
-
-    setNewMessage("");
-    scrollToBottom();
+      setNewMessage("");
+      scrollToBottom();
+    } catch (error) {
+      console.error("Error encrypting message:", error);
+    }
   };
 
   const scrollbarsRef = useRef<Scrollbars>(null);
@@ -161,7 +207,7 @@ const GroupChat = () => {
       const scrollView = scrollbarsRef.current.getScrollTop();
       const scrollHeight = scrollbarsRef.current.getScrollHeight();
       const clientHeight = scrollbarsRef.current.getClientHeight();
-      const isAtBottom = scrollHeight - scrollView <= clientHeight + 100;
+      const isAtBottom = scrollHeight - scrollView <= clientHeight + 600;
       if (isAtBottom) {
         scrollbarsRef.current.scrollToBottom();
       }

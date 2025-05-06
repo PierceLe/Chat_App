@@ -77,10 +77,7 @@ export const useAuth = () => {
 
     try {
       setSubmittingPin(true);
-      console.log("XXXXXXXXXXXXXXXXX")
       const { publicKey, privateKey } = await generateAsymmetricKeyPair();
-      console.log("publicKey: ", publicKey)
-      console.log("privateKey: ", privateKey)
       const encryptedPrivateKey = await encryptPrivateKey(privateKey, pinInput);
 
       /////////////////// API 1: Create Pin

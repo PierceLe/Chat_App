@@ -45,7 +45,7 @@ const AddGroupModal: React.FC<Props> = ({ open, onClose, onBack }) => {
   useEffect(() => {
     if (open) {
       fetchApiGetFriend();
-      setUsersSelected(new Set());
+      setUsersSelected(new Map());
     }
   }, [open]);
 

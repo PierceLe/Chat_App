@@ -158,3 +158,15 @@ export const getAllUsersInRoom = async (room_id: string) => {
     return null;
   }
 }
+
+export const getEncryptedGroupKey = async (room_id: string) => {
+  try {
+    const res = await httpRequest.get("/room/group-key", {params: {room_id: room_id}});
+  if (res.status === 200) {
+    return res.data["result"];
+  }
+  } catch (error) {
+    console.log(error);
+    return null;
+  }
+}
