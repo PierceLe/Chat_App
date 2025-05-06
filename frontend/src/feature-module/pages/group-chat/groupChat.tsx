@@ -18,72 +18,127 @@ import { format } from "date-fns";
 import { decryptMessage, decryptSymmetricKey, encryptMessage } from "@/core/utils/encryption";
 
 const GroupChat = () => {
-  const [open1, setOpen1] = useState(false);
-  const [showSearch, setShowSearch] = useState(false);
-  const [showReply, setShowReply] = useState(false);
+  const [showSearch, setShowSearch] = useState<boolean>(false);
+  const [showReply, setShowReply] = useState<boolean>(false);
   const [showEmoji, setShowEmoji] = useState<Record<number, boolean>>({});
-
-  const toggleEmoji = (groupId: number) => {
-    setShowEmoji((prev) => ({
-      ...prev,
-      [groupId]: !prev[groupId], // Toggle the state for this specific group
-    }));
-  };
-  const toggleSearch = () => {
-    setShowSearch(!showSearch);
-  };
-  const routes = all_routes;
-  useEffect(() => {
-    document.querySelectorAll(".chat-user-list").forEach(function (element) {
-      element.addEventListener("click", function () {
-        if (window.innerWidth <= 992) {
-          const showChat = document.querySelector(".chat-messages");
-          if (showChat) {
-            showChat.classList.add("show");
-          }
-        }
-      });
-    });
-    document.querySelectorAll(".chat-close").forEach(function (element) {
-      element.addEventListener("click", function () {
-        if (window.innerWidth <= 992) {
-          const hideChat = document.querySelector(".chat-messages");
-          if (hideChat) {
-            hideChat.classList.remove("show");
-          }
-        }
-      });
-    });
-    fetchApiGetGroupKey(room_id as any);
-  
-  }, []);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [hasMore, setHasMore] = useState<boolean>(true);
+  const [messages, setMessages] = useState<MessageData[]>([]);
+  const [newMessage, setNewMessage] = useState<string>("");
+  const [roomData, setRoomData] = useState<RoomData | undefined>();
+  const [listUserInRoom, setListUserInRoom] = useState<UserData[]>([]);
+  const [groupKey, setGroupKey] = useState<string>("");
 
   const me: UserData = useSelector(getMeSelector);
-  const [messages, setMessages] = useState(Array<MessageData>);
-  const [newMessage, setNewMessage] = useState<string>("");
-  const [roomData, setRoomData] = useState<RoomData>();
+  const { room_id } = useParams<RouteParams>();
+  const scrollbarsRef = useRef<Scrollbars>(null);
+  const routes = all_routes;
 
-  const [isLoading, setIsLoading] = useState(false);
-  const [hasMore, setHasMore] = useState(true);
-  const [listUserInRoom, setListUserInroom] = useState([])
+  const toggleEmoji = (groupId: number): void => {
+    setShowEmoji((prev) => ({
+      ...prev,
+      [groupId]: !prev[groupId],
+    }));
+  };
 
-  const [groupKey, setGroupKey] = useState('')
+  const toggleSearch = (): void => {
+    setShowSearch(!showSearch);
+  };
 
-  const fetchApiGetMoreMessInRoom = async (room_id: string) => {
+  const fetchApiGetGroupKey = async (roomId: string): Promise<string | null> => {
+    try {
+      const encryptedGroupKey = await getEncryptedGroupKey(roomId);
+      const privateKey = localStorage.getItem("privateKey");
+      if (!privateKey || !encryptedGroupKey) {
+        console.error("Missing privateKey or encryptedGroupKey");
+        return null;
+      }
+      const groupKey = await decryptSymmetricKey(encryptedGroupKey, privateKey);
+      setGroupKey(groupKey);
+      return groupKey;
+    } catch (error) {
+      console.error("Error fetching group key:", error);
+      return null;
+    }
+  };
+
+  const fetchApiGetRoomById = async (roomId: string): Promise<void> => {
+    try {
+      const result: RoomData = await getRoomById(roomId);
+      setRoomData(result);
+    } catch (error) {
+      console.error("Error fetching room data:", error);
+    }
+  };
+
+  const fetchApiGetAllUserInRoom = async (roomId: string): Promise<void> => {
+    try {
+      const result = await getAllUsersInRoom(roomId);
+      setListUserInRoom(result);
+    } catch (error) {
+      console.error("Error fetching users in room:", error);
+    }
+  };
+
+  const fetchApiGetMessInRoom = async (roomId: string, groupKey: string): Promise<void> => {
+    try {
+      const result: MessageData[] = await getMoreMessInRoom(roomId, new Date());
+      if (groupKey) {
+        const decryptedMessages = await Promise.all(
+          result.map(async (msg) => {
+            try {
+              if (!msg.content) {
+                console.warn(`Message ${msg.id} has no content, skipping decryption`);
+                return { ...msg, content: "" };
+              }
+  
+              console.log(`Decrypting message ${msg.id} with content:`, msg.content);
+              const decryptedContent = await decryptMessage(msg.content, groupKey);
+              return { ...msg, content: decryptedContent };
+            } catch (decryptError) {
+              console.error(`Error decrypting message ${msg.id}:`, decryptError);
+              return { ...msg, content: "" };
+            }
+          })
+        );
+        setMessages(decryptedMessages);
+
+      } else {
+        console.warn("No groupKey available, skipping decryption");
+        setMessages(result);
+      }
+    } catch (error) {
+      console.error("Error fetching messages:", error);
+    }
+  };
+
+  const fetchApiGetMoreMessInRoom = async (roomId: string): Promise<void> => {
     try {
       if (messages.length > 0 && groupKey) {
         const lastMess = messages[0];
         setIsLoading(true);
-        const result = await getMoreMessInRoom(room_id, lastMess.created_at);
+        const result = await getMoreMessInRoom(roomId, lastMess.created_at);
         if (result.length === 0) {
           setHasMore(false);
         } else {
           const decryptedMessages = await Promise.all(
-            result.map(async (msg : any) => ({
-              ...msg,
-              content: msg.content ? await decryptMessage(msg.content, groupKey) : "",
-            }))
+            result.map(async (msg: MessageData) => {
+              try {
+                if (!msg.content) {
+                  console.warn(`Message ${msg.id} has no content, skipping decryption`);
+                  return { ...msg, content: "" };
+                }
+                console.log(`Decrypting message ${msg.id} with content:`, msg.content);
+                const decryptedContent = await decryptMessage(msg.content, groupKey);
+                return { ...msg, content: decryptedContent };
+              } catch (decryptError) {
+                console.error(`Error decrypting message ${msg.id}:`, decryptError);
+                return { ...msg, content: "" };
+              }
+            })
           );
+      
+          console.log("Decrypted more messages:", decryptedMessages);
           setMessages((prev) => [...decryptedMessages, ...prev]);
         }
       }
@@ -92,94 +147,21 @@ const GroupChat = () => {
     } finally {
       setIsLoading(false);
     }
-  }
+  };
 
-  const handleScroll = (values: any) => {
+  const handleScroll = (values: { scrollTop: number }): void => {
     if (scrollbarsRef.current) {
       const { scrollTop } = values;
-      console.log(scrollTop, isLoading, hasMore)
-      if (scrollTop === 0  && !isLoading && hasMore && room_id) {
+      if (scrollTop === 0 && !isLoading && hasMore && room_id) {
         fetchApiGetMoreMessInRoom(room_id);
       }
     }
-  }; 
-
-  const fetchApiGetMessInRoom = async (room_id: any) => {
-    try {
-      const result: MessageData[] = await getMoreMessInRoom(room_id, new Date());
-      if (groupKey) {
-        const decryptedMessages = await Promise.all(
-          result.map(async (msg) => ({
-            ...msg,
-            content: msg.content ? await decryptMessage(msg.content, groupKey) : "",
-          }))
-        );
-        setMessages(decryptedMessages);
-      } else {
-        setMessages(result);
-      }
-    } catch (error) {
-      console.error("Error fetching messages:", error);
-    }
   };
 
-  const fetchApiGetRoomById = async (room_id: string) => {
-    const result: RoomData = await getRoomById(room_id)
-    setRoomData(result)
-  };
-
-  const fetchApiGetAllUserInRoom = async (room_id: string) => {
-    const result = await getAllUsersInRoom(room_id)
-    setListUserInroom(result)
-  }
-
-  const fetchApiGetGroupKey = async(room_id: string) => {
-    const encyptedGroupKey = await getEncryptedGroupKey(room_id)
-    const privateKey = localStorage.getItem("privateKey")
-    const groupKey = await decryptSymmetricKey(encyptedGroupKey, privateKey as any)
-    setGroupKey(groupKey)
-  }
-
-  const { room_id } = useParams();
-
-  useEffect(() => {
-    if (room_id) {
-      fetchApiGetRoomById(room_id);
-      fetchApiGetAllUserInRoom(room_id);
-    }
-    fetchApiGetMessInRoom(room_id);
-    console.log("messages: ", messages);
-
-    const handleMessage = async (data: any) => {
-      if (data.action === "chat" && data.data.room_id === room_id && groupKey) {
-        try {
-          const encryptedMessage = data.data.content;
-          const decryptedContent = encryptedMessage
-            ? await decryptMessage(encryptedMessage, groupKey)
-            : "";
-          const message: MessageData = {
-            ...data.data,
-            content: decryptedContent,
-          };
-          setMessages((prev) => [...prev, message]);
-        } catch (error) {
-          console.error("Error decrypting message:", error);
-        }
-      }
-    };
-    wsClient.onMessage(handleMessage);
-    return () => {
-      wsClient.offMessage(handleMessage);
-    };
-  }, [room_id]);
-
-  useEffect(() => {
-    scrollToBottom();
-  }, [messages]);
-
-  const handleSendMessage = async (e: React.FormEvent) => {
+  const handleSendMessage = async (e: React.FormEvent): Promise<void> => {
     e.preventDefault();
     if (!newMessage.trim() || !room_id || !groupKey) return;
+
     try {
       const encryptedContent = await encryptMessage(newMessage, groupKey);
       const messageData: SendMessageData = {
@@ -201,18 +183,111 @@ const GroupChat = () => {
     }
   };
 
-  const scrollbarsRef = useRef<Scrollbars>(null);
-  const scrollToBottom = () => {
+  const scrollToBottom = (): void => {
     if (scrollbarsRef.current) {
       const scrollView = scrollbarsRef.current.getScrollTop();
       const scrollHeight = scrollbarsRef.current.getScrollHeight();
       const clientHeight = scrollbarsRef.current.getClientHeight();
       const isAtBottom = scrollHeight - scrollView <= clientHeight + 600;
+      console.log(scrollHeight - scrollView)
       if (isAtBottom) {
         scrollbarsRef.current.scrollToBottom();
       }
     }
   };
+
+  useEffect(() => {
+    const initialize = async () => {
+      console.log("room_id: ", room_id)
+      if (!room_id) return;
+
+      setMessages([]);
+      setGroupKey("");
+      setRoomData(undefined);
+      setListUserInRoom([]);
+      setHasMore(true);
+
+      const userListElements = document.querySelectorAll(".chat-user-list");
+      const handleUserListClick = () => {
+        if (window.innerWidth <= 992) {
+          const showChat = document.querySelector(".chat-messages");
+          if (showChat) {
+            showChat.classList.add("show");
+          }
+        }
+      };
+      userListElements.forEach((element) => {
+        element.addEventListener("click", handleUserListClick);
+      });
+
+      const closeElements = document.querySelectorAll(".chat-close");
+      const handleCloseClick = () => {
+        if (window.innerWidth <= 992) {
+          const hideChat = document.querySelector(".chat-messages");
+          if (hideChat) {
+            hideChat.classList.remove("show");
+          }
+        }
+      };
+      closeElements.forEach((element) => {
+        element.addEventListener("click", handleCloseClick);
+      });
+
+      const groupKey = await fetchApiGetGroupKey(room_id);
+      if (!groupKey) {
+        console.error("Failed to fetch groupKey, skipping further initialization");
+        return;
+      }
+
+      await Promise.all([
+        fetchApiGetRoomById(room_id),
+        fetchApiGetAllUserInRoom(room_id),
+        fetchApiGetMessInRoom(room_id, groupKey),
+      ]);
+
+      return () => {
+        userListElements.forEach((element) => {
+          element.removeEventListener("click", handleUserListClick);
+        });
+        closeElements.forEach((element) => {
+          element.removeEventListener("click", handleCloseClick);
+        });
+      };
+    };
+
+    initialize();
+  }, [room_id]);
+
+  useEffect(() => {
+    if (!room_id) return;
+
+    const handleMessage = async (data: any): Promise<void> => {
+      if (data.action === "chat" && data.data.room_id === room_id && groupKey) {
+        try {
+          const encryptedMessage = data.data.content;
+          const decryptedContent = encryptedMessage
+            ? await decryptMessage(encryptedMessage, groupKey)
+            : "";
+          const message: MessageData = {
+            ...data.data,
+            content: decryptedContent,
+          };
+          setMessages((prev) => [...prev, message]);
+        } catch (error) {
+          console.error("Error decrypting message:", error);
+        }
+      }
+    };
+
+    wsClient.onMessage(handleMessage);
+    return () => {
+      wsClient.offMessage(handleMessage);
+    };
+  }, [room_id, groupKey]);
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
 
   const OneMessageInLeft = ({
     id,
