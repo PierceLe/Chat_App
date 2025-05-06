@@ -39,6 +39,7 @@ const Sidebar = () => {
     dispatch(resetMe());
     wsClient.disconnect();
     logout();
+    localStorage.clear();
   };
 
   return (

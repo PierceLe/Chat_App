@@ -134,4 +134,13 @@ class UserService():
         pin_hashed = pwd_context.hash(pin)
         return self.user_repository.create_pin(user_id, pin_hashed, public_key, encrypted_private_key)
     
+    def restore_priave_key(self, user_id: str, pin: str):
+        user_db = self.user_repository.get_user_by_id(user_id)
+        if user_db.pin is not None and pwd_context.verify(pin, user_db.pin):
+            return {
+                "public_key": user_db.public_key,
+                "encrypted_private_key": user_db.encrypted_private_key
+            }
+        else:
+            raise AppException(ErrorCode.PIN_INVALID)
 

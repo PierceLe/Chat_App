@@ -17,6 +17,7 @@ class ErrorCode(Enum):
     CODE_2FA_WRONG =  (1012, "Code 2FA is incorrect") 
     INVALID_GOOGLE_TOKEN = (1013, "Invalid Google Token") 
     INVALID_METHOD_LOGIN = (1014, "Account was registered by another method")
+    PIN_INVALID = (1015, "Pin is invalid")
 
     NOT_PERMISSION = (9998, "Not permission")
     UNCATEGORIZED_EXCEPTION = (9999, "An uncategorized error occurred")

@@ -1,5 +1,6 @@
 from fastapi import APIRouter, HTTPException, status, Depends
 from dto.request.auth.create_pin_request import Create_Pin_Request
+from dto.request.auth.restore_private_key_request import Restore_Private_Key_Request
 from dto.response.user_response import UserResponse
 from dto.request.auth.user_create_request import UserCreateRequest
 from service.user_service import UserService
@@ -50,3 +51,9 @@ async def set_pin_and_key(request: Create_Pin_Request,
                 user_service: UserService = Depends(UserService)):
     user_service.create_pin(current_user.user_id, request.pin, request.public_key, request.encrypted_private_key)
     return SuccessResponse(result=current_user)
+
+@user_router.post("/restore-private-key")
+async def restore_private_key(request: Restore_Private_Key_Request,
+                current_user=Depends(get_current_user),
+                user_service: UserService = Depends(UserService)):
+    return SuccessResponse(result = user_service.restore_priave_key(current_user.user_id, request.pin))

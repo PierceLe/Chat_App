@@ -19,7 +19,7 @@ interface Props {
 
 const AddGroupModal: React.FC<Props> = ({ open, onClose, onBack }) => {
   const [friends, setFriends] = useState<UserData[]>([]);
-  const [usersSelected, setUsersSelected] = useState<Set<string>>(new Set());
+  const [usersSelected, setUsersSelected] = useState<Map<string, UserData>>(new Map());
 
   const roomName = useSelector(roomNameSelector);
   const roomDescription = useSelector(roomDescriptionSelector);
@@ -30,12 +30,11 @@ const AddGroupModal: React.FC<Props> = ({ open, onClose, onBack }) => {
     setFriends(result);
   };
 
-  const handleCheckboxChange = (user_id: string, checked: boolean) => {
+  const handleCheckboxChange = (user: UserData, checked: boolean) => {
     setUsersSelected((prev) => {
-      const newSelected = new Set(prev);
-      if (checked) newSelected.add(user_id);
-      else newSelected.delete(user_id);
-      return newSelected;
+      if (checked) prev.set(user.user_id, user);
+      else prev.delete(user.user_id);
+      return prev;
     });
   };
 
@@ -47,12 +46,23 @@ const AddGroupModal: React.FC<Props> = ({ open, onClose, onBack }) => {
   }, [open]);
 
   const handleCreateRoom = async () => {
+    const userIds: string[] = [];
+    const encryptedGroupKeys: string[] = [];
+    Array.from(usersSelected.entries()).forEach(([userId, userData]) => {
+      if (userData.public_key){
+        userIds.push(userId);
+        encryptedGroupKeys.push("userData");
+      }
+    });
+
     const room_id = await createRoom(
       roomName,
       2,
       roomAvatarUrl,
       roomDescription,
-      Array.from(usersSelected)
+      userIds,
+      encryptedGroupKeys,
+      
     );
 
     if (room_id) {
@@ -110,7 +120,7 @@ const AddGroupModal: React.FC<Props> = ({ open, onClose, onBack }) => {
               <Checkbox
                 checked={usersSelected.has(user.user_id)}
                 onChange={(e) =>
-                  handleCheckboxChange(user.user_id, e.target.checked)
+                  handleCheckboxChange(user, e.target.checked)
                 }
               />
             </List.Item>

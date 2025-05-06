@@ -9,6 +9,7 @@ import { getMeSelector } from "../redux/selectors";
 
 import { Modal, Input, message } from "antd";
 import { notify } from "../utils/notification";
+import { decryptPrivateKey, encryptPrivateKey, generateAsymmetricKeyPair } from "../utils/encryption";
 
 export const useAuth = () => {
   const dispatch = useDispatch();
@@ -42,7 +43,7 @@ export const useAuth = () => {
           if (!response.result.pin) {
             setShowPinSetupModal(true);
           } else {
-            const localPrivateKey = localStorage.getItem("private_key");
+            const localPrivateKey = localStorage.getItem("privateKey");
             if (!localPrivateKey) {
               setShowPinRestoreModal(true);
             }
@@ -51,7 +52,7 @@ export const useAuth = () => {
           setIsAuthenticated(true);
 
           if (userMe.pin) {
-            const localPrivateKey = localStorage.getItem("private_key");
+            const localPrivateKey = localStorage.getItem("privateKey");
             if (!localPrivateKey) {
               setShowPinRestoreModal(true);
             }
@@ -76,15 +77,25 @@ export const useAuth = () => {
 
     try {
       setSubmittingPin(true);
+      console.log("XXXXXXXXXXXXXXXXX")
+      const { publicKey, privateKey } = await generateAsymmetricKeyPair();
+      console.log("publicKey: ", publicKey)
+      console.log("privateKey: ", privateKey)
+      const encryptedPrivateKey = await encryptPrivateKey(privateKey, pinInput);
 
       /////////////////// API 1: Create Pin
       const response = await httpRequest.post("/user/set-pin", {
         pin: pinInput,
+        public_key: publicKey,
+        encrypted_private_key: encryptedPrivateKey
       });
+
+      console.log(response)
 
       if (response.code === 0) {
         notify.success("PIN created successfully.");
-
+        localStorage.setItem("publicKey", publicKey)
+        localStorage.setItem("privateKey", privateKey)
         const responseUserMe: ApiResponse<UserData> = await httpRequest.post(`/user/me?ts=${Date.now()}`, {
           headers: {
             "Cache-Control": "no-cache",
@@ -120,9 +131,13 @@ export const useAuth = () => {
       const response = await httpRequest.post("/user/restore-private-key", {
         pin: pinInput,
       });
-
-      if (response.code === 0 && response.result?.private_key) {
-        localStorage.setItem("private_key", response.result.private_key);
+      console.log("Get private Key again: ", response)
+      if (response.code === 0 && response.result?.encrypted_private_key) {
+        const encryptedPrivateKey = response.result.encrypted_private_key;
+        const privateKey = await decryptPrivateKey(encryptedPrivateKey, pinInput);
+        console.log("encryptPrivateKey after decrypt: ", privateKey)
+        localStorage.setItem("publicKey", response.result.public_key);
+        localStorage.setItem("privateKey", privateKey);
         notify.success("Message sync successful");
         setShowPinRestoreModal(false);
       } else {

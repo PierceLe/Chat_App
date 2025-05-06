@@ -143,7 +143,7 @@ class RoomService():
                     description = item.Room.description,
                     created_at = item.Room.created_at,
                     updated_at = item.Room.updated_at,
-                    last_sender = UserResponse.from_orm(item.User) if item.User is not None else None
+                    last_sender = UserResponse.fromUserModel(item.User) if item.User is not None else None
                 )
             )
         return BasePageResponse(
