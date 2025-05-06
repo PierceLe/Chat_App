@@ -31,6 +31,13 @@ export interface RoomChatOneData extends RoomData {
   last_sender_avatar_url: string;
 }
 
+export interface RoomChatGroupData extends RoomData {
+  last_sender_user_id: string;
+  last_sender_first_name: string;
+  las_sender_last_name: string;
+  last_sender_avatar_url: string;
+}
+
 export const createRoom = async (
   room_name: string,
   room_type: number,
