@@ -170,43 +170,6 @@ const GroupTab = () => {
               </div>
             </div>
           </Link>
-          <div className="chat-dropdown">
-            <Link className="#" to="#" data-bs-toggle="dropdown">
-              <i className="ti ti-dots-vertical" />
-            </Link>
-            <ul className="dropdown-menu dropdown-menu-end p-3">
-              <li>
-                <Link className="dropdown-item" to="#">
-                  <i className="ti ti-box-align-right me-2" />
-                  Archive Group
-                </Link>
-              </li>
-              <li>
-                <Link className="dropdown-item" to="#">
-                  <i className="ti ti-volume-off me-2" />
-                  Mute Notification
-                </Link>
-              </li>
-              <li>
-                <Link className="dropdown-item" to="#">
-                  <i className="ti ti-logout-2 me-2" />
-                  Exit Group
-                </Link>
-              </li>
-              <li>
-                <Link className="dropdown-item" to="#">
-                  <i className="ti ti-pinned me-2" />
-                  Pin Group
-                </Link>
-              </li>
-              <li>
-                <Link className="dropdown-item" to="#">
-                  <i className="ti ti-square-check me-2" />
-                  Mark as Unread
-                </Link>
-              </li>
-            </ul>
-          </div>
         </div>
       </>
     );

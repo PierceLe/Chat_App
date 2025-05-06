@@ -206,64 +206,6 @@ const GroupChat = () => {
               <div className="message-content">
                 {content}
               </div>
-              <div className="chat-actions">
-                <Link className="#" to="#" data-bs-toggle="dropdown">
-                  <i className="ti ti-dots-vertical" />
-                </Link>
-                <ul className="dropdown-menu dropdown-menu-end p-3">
-                  <li>
-                    <Link
-                      className="dropdown-item"
-                      to="#"
-                      data-bs-toggle="offcanvas"
-                      data-bs-target="#contact-message"
-                    >
-                      <i className="ti ti-info-circle me-2" />
-                      Message Info
-                    </Link>
-                  </li>
-                  <li>
-                    <Link
-                      className="dropdown-item reply-button"
-                      onClick={() => setShowReply(true)}
-                      to="#"
-                    >
-                      <i className="ti ti-arrow-back-up me-2" />
-                      Reply
-                    </Link>
-                  </li>
-                  <li>
-                    <Link className="dropdown-item" to="#">
-                      <i className="ti ti-arrow-forward-up-double me-2" />
-                      Forward
-                    </Link>
-                  </li>
-                  <li>
-                    <Link className="dropdown-item" to="#">
-                      <i className="ti ti-file-export me-2" />
-                      Copy
-                    </Link>
-                  </li>
-                  <li>
-                    <Link className="dropdown-item" to="#">
-                      <i className="ti ti-heart me-2" />
-                      Mark as Favourite
-                    </Link>
-                  </li>
-                  <li>
-                    <Link className="dropdown-item" to="#">
-                      <i className="ti ti-edit me-2" />
-                      Edit
-                    </Link>
-                  </li>
-                  <li>
-                    <Link className="dropdown-item" to="#">
-                      <i className="ti ti-trash me-2" />
-                      Delete Group
-                    </Link>
-                  </li>
-                </ul>
-              </div>
             </div>
           </div>
         </div>
@@ -295,58 +237,6 @@ const GroupChat = () => {
               </h6>
             </div>
             <div className="chat-info">
-              <div className="chat-actions">
-                <Link className="#" to="#" data-bs-toggle="dropdown">
-                  <i className="ti ti-dots-vertical" />
-                </Link>
-                <ul className="dropdown-menu dropdown-menu-end p-3">
-                  <li>
-                    <Link
-                      className="dropdown-item"
-                      to="#"
-                      data-bs-toggle="offcanvas"
-                      data-bs-target="#contact-message"
-                    >
-                      <i className="ti ti-info-circle me-2" />
-                      Message Info
-                    </Link>
-                  </li>
-                  <li>
-                    <Link
-                      className="dropdown-item reply-button"
-                      onClick={() => setShowReply(true)}
-                      to="#"
-                    >
-                      <i className="ti ti-arrow-back-up me-2" />
-                      Reply
-                    </Link>
-                  </li>
-                  <li>
-                    <Link className="dropdown-item" to="#">
-                      <i className="ti ti-arrow-forward-up-double me-2" />
-                      Forward
-                    </Link>
-                  </li>
-                  <li>
-                    <Link className="dropdown-item" to="#">
-                      <i className="ti ti-heart me-2" />
-                      Mark as Favourite
-                    </Link>
-                  </li>
-                  <li>
-                    <Link className="dropdown-item" to="#">
-                      <i className="ti ti-edit me-2" />
-                      Edit
-                    </Link>
-                  </li>
-                  <li>
-                    <Link className="dropdown-item" to="#">
-                      <i className="ti ti-trash me-2" />
-                      Delete Group
-                    </Link>
-                  </li>
-                </ul>
-              </div>
               <div className="message-content">
                 {content}
               </div>
@@ -419,18 +309,6 @@ const GroupChat = () => {
                         onClick={() => toggleSearch()}
                       >
                         <i className="ti ti-search" />
-                      </Link>
-                    </Tooltip>
-                  </li>
-                  <li>
-                    <Tooltip title="Group Info" placement="bottom">
-                      <Link
-                        to="#"
-                        className="btn"
-                        data-bs-toggle="offcanvas"
-                        data-bs-target="#contact-profile"
-                      >
-                        <i className="ti ti-info-circle" />
                       </Link>
                     </Tooltip>
                   </li>

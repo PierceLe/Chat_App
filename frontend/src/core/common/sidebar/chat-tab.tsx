@@ -206,48 +206,6 @@ const ChatTab = () => {
               </div>
             </div>
           </Link>
-          <div className="chat-dropdown">
-            <Link className="#" to="#" data-bs-toggle="dropdown">
-              <i className="ti ti-dots-vertical" />
-            </Link>
-            <ul className="dropdown-menu dropdown-menu-end p-3">
-              <li>
-                <Link className="dropdown-item" to="#">
-                  <i className="ti ti-box-align-right me-2" />
-                  Archive Chat
-                </Link>
-              </li>
-              <li>
-                <Link className="dropdown-item" to="#">
-                  <i className="ti ti-heart me-2" />
-                  Mark as Favourite
-                </Link>
-              </li>
-              <li>
-                <Link className="dropdown-item" to="#">
-                  <i className="ti ti-check me-2" />
-                  Mark as Unread
-                </Link>
-              </li>
-              <li>
-                <Link className="dropdown-item" to="#">
-                  <i className="ti ti-pinned me-2" />
-                  Pin Chats
-                </Link>
-              </li>
-              <li>
-                <Link
-                  className="dropdown-item"
-                  to="#"
-                  data-bs-toggle="modal"
-                  data-bs-target="#delete-chat"
-                >
-                  <i className="ti ti-trash me-2" />
-                  Delete
-                </Link>
-              </li>
-            </ul>
-          </div>
         </div>
       </>
     );

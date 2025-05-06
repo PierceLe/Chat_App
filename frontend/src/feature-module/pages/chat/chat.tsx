@@ -204,70 +204,6 @@ const Chat = () => {
               <div className="message-content">
                 {content}
               </div>
-              <div className="chat-actions">
-                <Link className="#" to="#" data-bs-toggle="dropdown">
-                  <i className="ti ti-dots-vertical" />
-                </Link>
-                <ul className="dropdown-menu dropdown-menu-end p-3">
-                  <li>
-                    <Link
-                      className="dropdown-item"
-                      onClick={() => setShowReply(true)}
-                      to="#"
-                    >
-                      <i className="ti ti-arrow-back-up me-2" />
-                      Reply
-                    </Link>
-                  </li>
-                  <li>
-                    <Link className="dropdown-item" to="#">
-                      <i className="ti ti-arrow-forward-up-double me-2" />
-                      Forward
-                    </Link>
-                  </li>
-                  <li>
-                    <Link className="dropdown-item" to="#">
-                      <i className="ti ti-file-export me-2" />
-                      Copy
-                    </Link>
-                  </li>
-                  <li>
-                    <Link className="dropdown-item" to="#">
-                      <i className="ti ti-heart me-2" />
-                      Mark as Favourite
-                    </Link>
-                  </li>
-                  <li>
-                    <Link
-                      className="dropdown-item"
-                      to="#"
-                      data-bs-toggle="modal"
-                      data-bs-target="#message-delete"
-                    >
-                      <i className="ti ti-trash me-2" />
-                      Delete
-                    </Link>
-                  </li>
-                  <li>
-                    <Link className="dropdown-item" to="#">
-                      <i className="ti ti-check me-2" />
-                      Mark as Unread
-                    </Link>
-                  </li>
-                  <li>
-                    <Link className="dropdown-item" to="#">
-                      <i className="ti ti-box-align-right me-2" />
-                      Archeive Chat
-                    </Link>
-                  </li>
-                  <li>
-                    <Link className="dropdown-item" to="#">
-                      <i className="ti ti-pinned me-2" />
-                      Pin Chat
-                    </Link>
-                  </li>
-                </ul>
-              </div>
             </div>
           </div>
         </div>
@@ -301,70 +237,6 @@ const Chat = () => {
               </h6>
             </div>
             <div className="chat-info">
-              <div className="chat-actions">
-                <Link className="#" to="#" data-bs-toggle="dropdown">
-                  <i className="ti ti-dots-vertical" />
-                </Link>
-                <ul className="dropdown-menu dropdown-menu-end p-3">
-                  <li>
-                    <Link
-                      className="dropdown-item"
-                      onClick={() => setShowReply(true)}
-                      to="#"
-                    >
-                      <i className="ti ti-arrow-back-up me-2" />
-                      Reply
-                    </Link>
-                  </li>
-                  <li>
-                    <Link className="dropdown-item" to="#">
-                      <i className="ti ti-arrow-forward-up-double me-2" />
-                      Forward
-                    </Link>
-                  </li>
-                  <li>
-                    <Link className="dropdown-item" to="#">
-                      <i className="ti ti-file-export me-2" />
-                      Copy
-                    </Link>
-                  </li>
-                  <li>
-                    <Link className="dropdown-item" to="#">
-                      <i className="ti ti-heart me-2" />
-                      Mark as Favourite
-                    </Link>
-                  </li>
-                  <li>
-                    <Link
-                      className="dropdown-item"
-                      to="#"
-                      data-bs-toggle="modal"
-                      data-bs-target="#message-delete"
-                    >
-                      <i className="ti ti-trash me-2" />
-                      Delete
-                    </Link>
-                  </li>
-                  <li>
-                    <Link className="dropdown-item" to="#">
-                      <i className="ti ti-check me-2" />
-                      Mark as Unread
-                    </Link>
-                  </li>
-                  <li>
-                    <Link className="dropdown-item" to="#">
-                      <i className="ti ti-box-align-right me-2" />
-                      Archeive Chat
-                    </Link>
-                  </li>
-                  <li>
-                    <Link className="dropdown-item" to="#">
-                      <i className="ti ti-pinned me-2" />
-                      Pin Chat
-                    </Link>
-                  </li>
-                </ul>
-              </div>
               <div className="message-content">
                 {content}
               </div>
@@ -443,85 +315,10 @@ const Chat = () => {
                     </Tooltip>
                   </li>
                   <li>
-                    <Tooltip title="Video Call" placement="bottom">
-                      <Link
-                        to="#"
-                        className="btn"
-                        data-bs-toggle="modal"
-                        data-bs-target="#video-call"
-                      >
-                        <i className="ti ti-video" />
-                      </Link>
-                    </Tooltip>
-                  </li>
-                  <li>
-                    <Tooltip title="Voice Call" placement="bottom">
-                      <Link
-                        to="#"
-                        className="btn"
-                        data-bs-toggle="modal"
-                        data-bs-target="#voice_call"
-                      >
-                        <i className="ti ti-phone" />
-                      </Link>
-                    </Tooltip>
-                  </li>
-                  <li>
-                    <Tooltip title="Contact Info" placement="bottom">
-                      <Link
-                        to="#"
-                        className="btn"
-                        data-bs-toggle="offcanvas"
-                        data-bs-target="#contact-profile"
-                      >
-                        <i className="ti ti-info-circle" />
-                      </Link>
-                    </Tooltip>
-                  </li>
-                  <li>
                     <Link className="btn no-bg" to="#" data-bs-toggle="dropdown">
                       <i className="ti ti-dots-vertical" />
                     </Link>
                     <ul className="dropdown-menu dropdown-menu-end p-3">
-                      <li>
-                        <Link to={all_routes.dashboard} className="dropdown-item">
-                          <i className="ti ti-x me-2" />
-                          Close Chat
-                        </Link>
-                      </li>
-                      <li>
-                        <Link
-                          to="#"
-                          className="dropdown-item"
-                          data-bs-toggle="modal"
-                          data-bs-target="#mute-notification"
-                        >
-                          <i className="ti ti-volume-off me-2" />
-                          Mute Notification
-                        </Link>
-                      </li>
-                      <li>
-                        <Link
-                          to="#"
-                          className="dropdown-item"
-                          data-bs-toggle="modal"
-                          data-bs-target="#disappearing-messages"
-                        >
-                          <i className="ti ti-clock-hour-4 me-2" />
-                          Disappearing Message
-                        </Link>
-                      </li>
-                      <li>
-                        <Link
-                          to="#"
-                          className="dropdown-item"
-                          data-bs-toggle="modal"
-                          data-bs-target="#clear-chat"
-                        >
-                          <i className="ti ti-clear-all me-2" />
-                          Clear Message
-                        </Link>
-                      </li>
                       <li>
                         <Link
                           to="#"
@@ -542,17 +339,6 @@ const Chat = () => {
                         >
                           <i className="ti ti-thumb-down me-2" />
                           Report
-                        </Link>
-                      </li>
-                      <li>
-                        <Link
-                          to="#"
-                          className="dropdown-item"
-                          data-bs-toggle="modal"
-                          data-bs-target="#block-user"
-                        >
-                          <i className="ti ti-ban me-2" />
-                          Block
                         </Link>
                       </li>
                     </ul>
