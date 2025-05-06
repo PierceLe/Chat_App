@@ -25,10 +25,6 @@ const AddGroupModal: React.FC<Props> = ({ open, onClose, onBack }) => {
   const roomDescription = useSelector(roomDescriptionSelector);
   const roomAvatarUrl = useSelector(roomAvatarUrlSelector)
 
-  useEffect(() => {
-    fetchApiGetFriend();
-  }, []);
-
   const fetchApiGetFriend = async () => {
     const result = await getAllFriends();
     setFriends(result);
@@ -45,6 +41,7 @@ const AddGroupModal: React.FC<Props> = ({ open, onClose, onBack }) => {
 
   useEffect(() => {
     if (open) {
+      fetchApiGetFriend();
       setUsersSelected(new Set());
     }
   }, [open]);
