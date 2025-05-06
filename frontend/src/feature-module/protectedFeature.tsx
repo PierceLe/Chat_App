@@ -8,7 +8,7 @@ import { useAuth } from "../core/hooks/useAuth";
 
 const ProtectedFeature = () => {
   const { loading, isAuthenticated, PinSetupModal, PinRestoreModal } = useAuth();
-  const themeDark = useSelector((state: any) => state?.darkMode);
+  const isDarkMode = useSelector((state: any) => state?.common?.darkMode);
 
   if (loading) {
     return <div>Loading...</div>;
@@ -19,7 +19,7 @@ const ProtectedFeature = () => {
   }
 
   return (
-    <div className={themeDark ? "darkmode" : ""}>
+    <div className={isDarkMode ? "darkmode" : ""}>
       <div className="main-wrapper" style={{ visibility: "visible" }}>
         <div className="content main_content">
           <Sidebar />

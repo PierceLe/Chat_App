@@ -45,8 +45,8 @@ const GroupTab = () => {
   const handleCloseAddGroup = () => setIsModalAddGroupOpen(false);
 
   const handleNext = () => {
-    handleCloseNewGroup(); // đóng modal hiện tại
-    handleOpenAddGroup();  // mở modal tiếp theo
+    handleCloseNewGroup(); // close current modal
+    handleOpenAddGroup();  // open next modal
   };
 
   const selectCurrentChatRoom = async(room_id: string) => {

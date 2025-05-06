@@ -1,9 +1,8 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import ImageWithBasePath from "../imageWithBasePath";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { all_routes } from "../../../feature-module/router/all_routes";
-import OverlayTrigger from "react-bootstrap/OverlayTrigger";
 import { Avatar, Tooltip } from "antd";
 import { setDark } from "../../data/redux/commonSlice";
 import { logout } from "../../services/authService";
@@ -18,22 +17,14 @@ const Sidebar = () => {
   const location = useLocation();
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const [darkMode, setDarkMode] = useState(localStorage.getItem("darkMode"));
-  const LayoutDark = () => {
-    if (darkMode === "enabled") {
-      localStorage.setItem("darkMode", "enabled");
-      dispatch(setDark(true));
-      setDarkMode("enabled");
-    } else {
-      localStorage.setItem("darkMode", "disabled");
-      dispatch(setDark(false));
-      setDarkMode("disabled");
-    }
+  
+  // Get dark mode directly from Redux state
+  const isDarkMode = useSelector((state: any) => state?.common?.darkMode);
+  
+  // Toggle dark mode using Redux action
+  const toggleDarkMode = (enabled: boolean) => {
+    dispatch(setDark(enabled));
   };
-  useEffect(() => {
-    setDarkMode(localStorage.getItem("darkMode"));
-    LayoutDark();
-  }, [darkMode]);
 
   const handleLogout = () => {
     dispatch(resetMe());
@@ -194,9 +185,9 @@ const Sidebar = () => {
                   to="#"
                   id="dark-mode-toggle"
                   className={`dark-mode-toggle ${
-                    darkMode === "disabled" ? "active" : ""
+                    !isDarkMode ? "active" : ""
                   }`}
-                  onClick={() => setDarkMode("enabled")}
+                  onClick={() => toggleDarkMode(true)}
                 >
                   <i className="ti ti-moon" />
                 </Link>
@@ -204,9 +195,9 @@ const Sidebar = () => {
                   to="#"
                   id="light-mode-toggle"
                   className={`dark-mode-toggle ${
-                    darkMode === "enabled" ? "active" : ""
+                    isDarkMode ? "active" : ""
                   }`}
-                  onClick={() => setDarkMode("disabled")}
+                  onClick={() => toggleDarkMode(false)}
                 >
                   <i className="ti ti-sun" />
                 </Link>

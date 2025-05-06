@@ -24,7 +24,7 @@ const NotFound = () => {
         The page you are looking for does not exist or has been deleted.
       </p>
 
-      {/* Link về trang chủ */}
+      {/* Link to home page */}
       <Link to={route.index} className="btn btn-primary">
         Back to home page
       </Link>

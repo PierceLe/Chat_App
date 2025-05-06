@@ -3,23 +3,27 @@ import { Link } from "react-router-dom";
 import ImageWithBasePath from "../imageWithBasePath";
 import { DatePickerProps, Avatar, Input } from "antd";
 import { UploadOutlined } from '@ant-design/icons';
-import { Button, DatePicker, Modal, Spin, Upload } from "antd";
+import { Button, DatePicker, Modal, Spin, Upload, Table, Space } from "antd";
 import LogoutModal from "../../modals/logout-modal";
 import Scrollbars from "react-custom-scrollbars-2";
 import { getMe } from "../../services/authService";
 import { UserData } from "../../services/contactService";
-import { SaveOutlined } from "@ant-design/icons";
+import { SaveOutlined, EditOutlined, DeleteOutlined, PlusOutlined, CalendarOutlined } from "@ant-design/icons";
 import { notify } from "@/core/utils/notification";
 import httpRequest from "@/core/api/baseAxios";
 import { getMeSelector } from "@/core/redux/selectors";
 import { useDispatch, useSelector } from "react-redux";
 import { setMe } from "@/core/redux/reducers/getMeSlice";
 import { ApiResponse } from "@/core/api/baseAxios";
+import { TimetableEvent, getAllEvents, deleteEvent } from "../../services/timetableService";
+import moment from "moment";
+import EventModal from "../../../feature-module/pages/timeTable/EventModal";
 
 type PasswordField = "confirmPassword" | "newpassword" | "oldpassword";
 const SettingsTab = () => {
   const userMe: UserData = useSelector(getMeSelector); 
   const dispatch = useDispatch();
+  const { all_routes } = require("../../../feature-module/router/all_routes");
 
   const [passwordVisibility, setPasswordVisibility] = useState({
     confirmPassword: false,
@@ -628,6 +632,33 @@ const SettingsTab = () => {
                 </div>
               </div>
               {/* /Security setting */}
+              
+              {/* Timetable Management */}
+              <div className="content-wrapper">
+                <h5 className="sub-title">Timetable Management</h5>
+                <div className="chat-file">
+                  <div className="file-item">
+                    <div
+                      className="accordion accordion-flush chat-accordion"
+                      id="timetable-setting"
+                    >
+                      <div className="accordion-item others mb-3">
+                        <h2 className="accordion-header">
+                          <Link
+                            to={all_routes.timetable}
+                            className="accordion-button"
+                          >
+                            <i className="ti ti-calendar me-2" />
+                            My Events
+                          </Link>
+                        </h2>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              {/* /Timetable Management */}
+              
               {/* Privacy setting */}
             </div>
           </div>
@@ -671,6 +702,238 @@ const SettingsTab = () => {
       </Modal>
 
     </>
+  );
+};
+
+// Timetable Management Component
+const TimetableManagement = () => {
+  const [events, setEvents] = useState<TimetableEvent[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [showModal, setShowModal] = useState(false);
+  const [selectedEvent, setSelectedEvent] = useState<TimetableEvent | undefined>(undefined);
+  const [isEditMode, setIsEditMode] = useState(false);
+  const [deleteConfirmVisible, setDeleteConfirmVisible] = useState(false);
+  const { all_routes } = require("../../../feature-module/router/all_routes");
+
+  const fetchEvents = async () => {
+    setLoading(true);
+    try {
+      const eventsData = await getAllEvents();
+      setEvents(eventsData || []);
+    } catch (error) {
+      console.error("Error fetching events:", error);
+      notify.error("Failed to load events", "Please try again later");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchEvents();
+  }, []);
+
+  const handleAddEvent = () => {
+    setSelectedEvent(undefined);
+    setIsEditMode(false);
+    setShowModal(true);
+  };
+
+  const handleEditEvent = (event: TimetableEvent) => {
+    setSelectedEvent(event);
+    setIsEditMode(true);
+    setShowModal(true);
+  };
+
+  const handleDeleteEvent = async () => {
+    if (!selectedEvent) return;
+
+    try {
+      const success = await deleteEvent(selectedEvent.event_id);
+      if (success) {
+        notify.success("Event deleted successfully");
+        fetchEvents();
+      } else {
+        notify.error("Failed to delete event", "Please try again");
+      }
+    } catch (error) {
+      console.error("Error deleting event:", error);
+      notify.error("Failed to delete event", "Please try again");
+    } finally {
+      setDeleteConfirmVisible(false);
+    }
+  };
+
+  const showDeleteConfirm = (event: TimetableEvent) => {
+    setSelectedEvent(event);
+    setDeleteConfirmVisible(true);
+  };
+
+  const columns = [
+    {
+      title: 'Title',
+      dataIndex: 'title',
+      key: 'title',
+      render: (text: string, record: TimetableEvent) => (
+        <a onClick={() => handleViewEvent(record)} style={{ fontWeight: 'bold' }}>
+          {text}
+        </a>
+      ),
+    },
+    {
+      title: 'Date',
+      dataIndex: 'start_time',
+      key: 'date',
+      render: (text: string) => moment(text).format('MMM D, YYYY'),
+    },
+    {
+      title: 'Time',
+      key: 'time',
+      render: (_, record: TimetableEvent) => (
+        <span>
+          {moment(record.start_time).format('h:mm A')} - {moment(record.end_time).format('h:mm A')}
+        </span>
+      ),
+    },
+    {
+      title: 'Actions',
+      key: 'actions',
+      render: (_, record: TimetableEvent) => (
+        <Space size="small">
+          <Button 
+            type="text" 
+            icon={<EditOutlined />} 
+            onClick={() => handleEditEvent(record)}
+            title="Edit"
+          />
+          <Button 
+            type="text" 
+            danger 
+            icon={<DeleteOutlined />}
+            onClick={() => showDeleteConfirm(record)}
+            title="Delete"
+          />
+        </Space>
+      ),
+    },
+  ];
+
+  const [viewModalVisible, setViewModalVisible] = useState(false);
+
+  const handleViewEvent = (event: TimetableEvent) => {
+    setSelectedEvent(event);
+    setViewModalVisible(true);
+  };
+
+  return (
+    <div className="timetable-management">
+      <div className="d-flex justify-content-between align-items-center mb-3">
+        <h6 className="mb-0">My Timetable Events</h6>
+        <div>
+          <Link to={all_routes.timetable} className="btn btn-outline-primary btn-sm me-2">
+            <CalendarOutlined /> View Full Calendar
+          </Link>
+          <Button 
+            type="primary" 
+            icon={<PlusOutlined />} 
+            onClick={handleAddEvent}
+            size="small"
+          >
+            Add Event
+          </Button>
+        </div>
+      </div>
+
+      <Table 
+        columns={columns} 
+        dataSource={events} 
+        rowKey="event_id"
+        pagination={{ pageSize: 5 }}
+        loading={loading}
+        size="small"
+        locale={{ emptyText: 'No events found' }}
+      />
+
+      {/* Event Modal */}
+      <EventModal 
+        show={showModal}
+        onHide={() => setShowModal(false)}
+        onEventSaved={fetchEvents}
+        event={selectedEvent}
+        isEdit={isEditMode}
+      />
+
+      {/* View Event Modal */}
+      <Modal
+        title="Event Details"
+        open={viewModalVisible}
+        onCancel={() => setViewModalVisible(false)}
+        footer={[
+          <Button key="edit" type="primary" onClick={() => {
+            setViewModalVisible(false);
+            handleEditEvent(selectedEvent!);
+          }}>
+            Edit
+          </Button>,
+          <Button key="delete" danger onClick={() => {
+            setViewModalVisible(false);
+            showDeleteConfirm(selectedEvent!);
+          }}>
+            Delete
+          </Button>,
+          <Button key="close" onClick={() => setViewModalVisible(false)}>
+            Close
+          </Button>
+        ]}
+      >
+        {selectedEvent && (
+          <div>
+            <h3>{selectedEvent.title}</h3>
+            <p>
+              <strong>Date:</strong> {moment(selectedEvent.start_time).format('dddd, MMMM D, YYYY')}
+            </p>
+            <p>
+              <strong>Time:</strong> {moment(selectedEvent.start_time).format('h:mm A')} - {moment(selectedEvent.end_time).format('h:mm A')}
+            </p>
+            {selectedEvent.description && (
+              <p>
+                <strong>Description:</strong> {selectedEvent.description}
+              </p>
+            )}
+            {selectedEvent.location && (
+              <p>
+                <strong>Location:</strong> {selectedEvent.location}
+              </p>
+            )}
+            {selectedEvent.is_recurring && (
+              <p>
+                <strong>Recurrence:</strong> {selectedEvent.recurrence_pattern}
+              </p>
+            )}
+            <p>
+              <strong>Created:</strong> {moment(selectedEvent.created_at).format('MMMM D, YYYY')}
+            </p>
+          </div>
+        )}
+      </Modal>
+
+      {/* Delete Confirmation Modal */}
+      <Modal
+        title="Delete Event"
+        open={deleteConfirmVisible}
+        onCancel={() => setDeleteConfirmVisible(false)}
+        onOk={handleDeleteEvent}
+        okText="Delete"
+        okButtonProps={{ danger: true }}
+      >
+        <p>Are you sure you want to delete this event?</p>
+        <p><strong>{selectedEvent?.title}</strong></p>
+        {selectedEvent && (
+          <p>
+            {moment(selectedEvent.start_time).format('MMM D, YYYY h:mm A')} - {moment(selectedEvent.end_time).format('h:mm A')}
+          </p>
+        )}
+      </Modal>
+    </div>
   );
 };
 
