@@ -10,6 +10,7 @@ import {
 import { createRoom } from "../services/roomService";
 import { wsClient } from "../services/websocket";
 import { UploadOutlined } from '@ant-design/icons';
+import { encryptSymmetricKey, generateSymmetricKey } from "../utils/encryption";
 
 interface Props {
   open: boolean;
@@ -32,9 +33,12 @@ const AddGroupModal: React.FC<Props> = ({ open, onClose, onBack }) => {
 
   const handleCheckboxChange = (user: UserData, checked: boolean) => {
     setUsersSelected((prev) => {
-      if (checked) prev.set(user.user_id, user);
-      else prev.delete(user.user_id);
-      return prev;
+      const newMap = new Map(prev);
+      if (checked) {
+        newMap.set(user.user_id, user);
+      }
+      else newMap.delete(user.user_id);
+      return newMap;
     });
   };
 
@@ -48,13 +52,23 @@ const AddGroupModal: React.FC<Props> = ({ open, onClose, onBack }) => {
   const handleCreateRoom = async () => {
     const userIds: string[] = [];
     const encryptedGroupKeys: string[] = [];
-    Array.from(usersSelected.entries()).forEach(([userId, userData]) => {
-      if (userData.public_key){
-        userIds.push(userId);
-        encryptedGroupKeys.push("userData");
-      }
-    });
+    const groupKey = await generateSymmetricKey()
 
+    const encryptedGroupKey = await encryptSymmetricKey(groupKey, localStorage.getItem("publicKey") as any)
+
+    for (const [userId, userData] of usersSelected.entries()) {
+      if (userData.public_key) {
+        try {
+          userIds.push(userId);
+          const memberEncryptedKey = await encryptSymmetricKey(groupKey, userData.public_key);
+          encryptedGroupKeys.push(memberEncryptedKey);
+        } catch (error) {
+          console.error(`Error encrypting key for user ${userId}:`, error);
+        }
+      } else {
+        console.warn(`No public key for user ${userId}`);
+      }
+    }
     const room_id = await createRoom(
       roomName,
       2,
@@ -62,14 +76,14 @@ const AddGroupModal: React.FC<Props> = ({ open, onClose, onBack }) => {
       roomDescription,
       userIds,
       encryptedGroupKeys,
-      
+      encryptedGroupKey
     );
 
     if (room_id) {
       wsClient.send({
         action: "join",
         data: {
-          user_ids: Array.from(usersSelected),
+          user_ids: Array.from(usersSelected.keys()),
           room_id,
         },
       });

@@ -1,6 +1,6 @@
 import uuid
 
-from sqlalchemy import Column, String
+from sqlalchemy import Column, String, Text
 
 from database import Base
 
@@ -12,4 +12,4 @@ class UserRoom(Base):
     user_id = Column(String(36))
     room_id = Column(String(36))
 
-    encrypted_group_key = Column(String(500))
+    encrypted_group_key = Column(Text())

@@ -64,13 +64,14 @@ const GroupChat = () => {
   const [hasMore, setHasMore] = useState(true);
   const [listUserInRoom, setListUserInroom] = useState([])
 
+  const [groupKey, setGroupKey] = useState(null)
+
   const fetchApiGetMoreMessInRoom = async (room_id: string) => {
     try {
       if (messages.length > 0) {
         const lastMess = messages[0]
         setIsLoading(true)
         const result = await getMoreMessInRoom(room_id, lastMess.created_at)
-        console.log("fetchApiGetMoreMessInRoom: ", result)
         if (result.length === 0) {
           setHasMore(false)
         } else {
@@ -160,7 +161,7 @@ const GroupChat = () => {
       const scrollView = scrollbarsRef.current.getScrollTop();
       const scrollHeight = scrollbarsRef.current.getScrollHeight();
       const clientHeight = scrollbarsRef.current.getClientHeight();
-      const isAtBottom = scrollHeight - scrollView <= clientHeight + 600; // Khoảng cách 100px
+      const isAtBottom = scrollHeight - scrollView <= clientHeight + 100;
       if (isAtBottom) {
         scrollbarsRef.current.scrollToBottom();
       }
@@ -497,7 +498,7 @@ const GroupChat = () => {
               autoHeightMax="88vh"
               thumbMinSize={30}
               universal={false}
-              hideTracksWhenNotNeeded={true}
+              hideTracksWhenNotNeeded={false}
               onScrollFrame={handleScroll}
             >
               <div className="chat-body chat-page-group ">

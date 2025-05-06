@@ -33,6 +33,8 @@ export const createRoom = async (
   avatar_url: string | null,
   description: string | null,
   member_ids: string[] = [],
+  encrypted_group_keys: string[] = [],
+  encrypted_group_key: string
 ) => {
   try {
     const res = await httpRequest.post("/room", {
@@ -41,6 +43,8 @@ export const createRoom = async (
       avatar_url,
       description,
       member_ids,
+      encrypted_group_keys,
+      encrypted_group_key
     });
     console.log("createRoom: ", res)
     if (res.status === 200) {
