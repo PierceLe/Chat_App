@@ -7,4 +7,4 @@ from pydantic import BaseModel
 class MoreMessageRequest(BaseModel):
     room_id: str
     created_at: datetime.datetime
-    limit: Optional[int] = 10
+    limit: Optional[int] = 20

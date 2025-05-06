@@ -72,34 +72,9 @@ class UserService():
             return None
         
         if get_full_info:
-            return UserFullResponse(
-                user_id=user.user_id,
-                email=user.email,
-                first_name=user.first_name,
-                last_name=user.last_name,
-                avatar_url=user.avatar_url,
-                is_verified=user.is_verified,
-                use_2fa_login=user.use_2fa_login,
-                two_factor_secret=user.two_factor_secret,
-                method=user.method,
-                salt=user.salt,
-                pin=user.pin,
-                public_key=user.public_key,
-                encrypted_private_key=user.encrypted_private_key,
-                biography=user.biography
-            )
+            return UserFullResponse.fromUserModel(user)
         else:
-            return UserResponse(
-                user_id=user.user_id,
-                email=user.email,
-                first_name=user.first_name,
-                last_name=user.last_name,
-                avatar_url=user.avatar_url,
-                is_verified=user.is_verified,
-                method=user.method,
-                public_key=user.public_key,
-                biography=user.biography
-            )
+            return UserResponse.fromUserModel(user)
 
     def get_user_by_email(
             self,
@@ -115,51 +90,11 @@ class UserService():
             return None
 
         if get_full_info:
-            return UserFullResponse(
-                user_id=user.user_id,
-                email=user.email,
-                first_name=user.first_name,
-                last_name=user.last_name,
-                avatar_url=user.avatar_url,
-                is_verified=user.is_verified,
-                use_2fa_login=user.use_2fa_login,
-                two_factor_secret=user.two_factor_secret,
-                method=user.method,
-                salt=user.salt,
-                pin=user.pin,
-                public_key=user.public_key,
-                encrypted_private_key=user.encrypted_private_key,
-                biography=user.biography
-            )
+            return UserFullResponse.fromUserModel(user)
         else:
             if get_use_2fa_login :
-                return UserFullResponse(
-                user_id=user.user_id,
-                email=user.email,
-                first_name=user.first_name,
-                last_name=user.last_name,
-                avatar_url=user.avatar_url,
-                is_verified=user.is_verified,
-                use_2fa_login=user.use_2fa_login,
-                two_factor_secret=None,
-                method=user.method,
-                salt=user.salt,
-                pin=user.pin,
-                public_key=user.public_key,
-                encrypted_private_key=user.encrypted_private_key,
-                biography=user.biography
-            )
-            return UserResponse(
-                user_id=user.user_id,
-                email=user.email,
-                first_name=user.first_name,
-                last_name=user.last_name,
-                avatar_url=user.avatar_url,
-                is_verified=user.is_verified,
-                method=user.method,
-                public_key=user.public_key,
-                biography=user.biography
-            )
+                return UserFullResponse.fromUserModel(user)
+            return UserResponse.fromUserModel(user)
 
     def get_password(self, user_id: str):
         user = self.user_repository.get_user_by_id(user_id)
@@ -195,4 +130,17 @@ class UserService():
     def disable_2fa(self, user_id: str):
         return self.user_repository.disable_2fa(user_id)
     
+    def create_pin(self, user_id: str, pin: str, public_key: str, encrypted_private_key: str):
+        pin_hashed = pwd_context.hash(pin)
+        return self.user_repository.create_pin(user_id, pin_hashed, public_key, encrypted_private_key)
+    
+    def restore_priave_key(self, user_id: str, pin: str):
+        user_db = self.user_repository.get_user_by_id(user_id)
+        if user_db.pin is not None and pwd_context.verify(pin, user_db.pin):
+            return {
+                "public_key": user_db.public_key,
+                "encrypted_private_key": user_db.encrypted_private_key
+            }
+        else:
+            raise AppException(ErrorCode.PIN_INVALID)
 

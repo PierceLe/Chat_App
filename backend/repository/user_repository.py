@@ -161,3 +161,15 @@ class UserRepository:
                 db.refresh(db_user)
                 return True
             return False
+
+    def create_pin(self, user_id: str, pin: str, public_key: str, encrypted_private_key: str):
+        with SessionLocal() as db:
+            db_user = db.query(User).filter(User.user_id == user_id).first()
+            if db_user:
+                db_user.pin = pin
+                db_user.public_key = public_key
+                db_user.encrypted_private_key = encrypted_private_key
+                db.commit()
+                db.refresh(db_user)
+                return True
+            return False

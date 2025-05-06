@@ -44,6 +44,8 @@ export const createRoom = async (
   avatar_url: string | null,
   description: string | null,
   member_ids: string[] = [],
+  encrypted_group_keys: string[] = [],
+  encrypted_group_key: string
 ) => {
   try {
     const res = await httpRequest.post("/room", {
@@ -52,6 +54,8 @@ export const createRoom = async (
       avatar_url,
       description,
       member_ids,
+      encrypted_group_keys,
+      encrypted_group_key
     });
     console.log("createRoom: ", res)
     if (res.status === 200) {
@@ -157,6 +161,18 @@ export const getRoomById = async (room_id: string) => {
 export const getAllUsersInRoom = async (room_id: string) => {
   try {
     const res = await httpRequest.get("/room/user", {params: {room_id: room_id}});
+  if (res.status === 200) {
+    return res.data["result"];
+  }
+  } catch (error) {
+    console.log(error);
+    return null;
+  }
+}
+
+export const getEncryptedGroupKey = async (room_id: string) => {
+  try {
+    const res = await httpRequest.get("/room/group-key", {params: {room_id: room_id}});
   if (res.status === 200) {
     return res.data["result"];
   }

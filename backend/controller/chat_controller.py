@@ -135,17 +135,7 @@ async def chat(data_json, current_user):
         file_url=mess_db.file_url,
         created_at=mess_db.created_at,
         updated_at=mess_db.updated_at,
-        sender=UserResponse(
-            user_id=current_user.user_id,
-            email=current_user.email,
-            first_name=current_user.first_name,
-            last_name=current_user.last_name,
-            avatar_url=current_user.avatar_url,
-            is_verified=current_user.is_verified,
-            method=current_user.method,
-            public_key=current_user.public_key,
-            biography=current_user.biography
-        )
+        sender=UserResponse.fromUserModel(current_user)
     )
     res = WebSocketResponse(
         action=data_json["action"],

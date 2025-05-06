@@ -64,12 +64,12 @@ class FriendService():
 
     def get_user_send_request_add_friend(self, user_id: str) -> list[UserResponse]:
         users = self.friend_draft_repository.get_user_send_request_add_friend(user_id)
-        return [UserResponse.from_orm(user) for user in users]
+        return [UserResponse.fromUserModel(user) for user in users]
     
     def get_user_send_request_add_friend_pagging(self, user_id: str, page: int, page_size: int) -> BasePageResponse:
         result = self.friend_draft_repository.get_user_send_request_add_friend_pagging(user_id, page, page_size)
         return BasePageResponse(
-            items=[UserResponse.from_orm(item) for item in result["items"]],
+            items=[UserResponse.fromUserModel(item) for item in result["items"]],
             total=result["total"],
             page=result["page"],
             page_size=result["page_size"],
@@ -78,7 +78,7 @@ class FriendService():
     
     def get_all_friends(self, user_id: str) -> list[UserResponse]:
         users = self.friend_reposiotry.get_all_friends(user_id)
-        return [UserResponse.from_orm(user) for user in users]
+        return [UserResponse.fromUserModel(user) for user in users]
     
     def get_friend_by_filter(self, request: FilterFriendRequest):
         result = self.friend_reposiotry.get_friend_pagging_and_filter(
@@ -90,7 +90,7 @@ class FriendService():
             sorts_dir= request.sorts_dir
         )
         return BasePageResponse(
-            items=[UserResponse.from_orm(item) for item in result["items"]],
+            items=[UserResponse.fromUserModel(item) for item in result["items"]],
             total=result["total"],
             page=result["page"],
             page_size=result["page_size"],

@@ -1,4 +1,5 @@
 from pydantic import BaseModel
+from enums.enum_login_method import E_Login_Method
 from model.user import User
 
 class UserResponse(BaseModel):
@@ -10,7 +11,7 @@ class UserResponse(BaseModel):
     last_name: str
     avatar_url: str
     is_verified: bool
-    method: str
+    method: E_Login_Method
     public_key: str | None
     biography: str | None
 

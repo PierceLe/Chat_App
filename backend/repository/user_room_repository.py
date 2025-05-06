@@ -10,11 +10,13 @@ class UserRoomRepository():
 
     def create_user_room(self,
                          user_id: str,
-                         room_id: str
+                         room_id: str,
+                         encrypted_group_key: str
                          ) -> UserRoom:
         db_user_room = UserRoom(
             user_id=user_id,
-            room_id=room_id
+            room_id=room_id,
+            encrypted_group_key = encrypted_group_key
         )
         self.db.add(db_user_room)
         self.db.commit()
@@ -56,3 +58,7 @@ class UserRoomRepository():
     def save_all(self, list_user_room : list[UserRoom]):
         self.db.bulk_save_objects(list_user_room)
         self.db.commit()
+
+    def get_user_room_by_user_id_and_room_id(self, user_id: str, room_id: str):
+        db_user_room = self.db.query(UserRoom).filter(and_(UserRoom.user_id == user_id, UserRoom.room_id == room_id)).first()
+        return db_user_room

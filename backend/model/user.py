@@ -1,5 +1,5 @@
 import uuid
-from sqlalchemy import Column, String, DateTime, Enum as SqlEnum, Boolean
+from sqlalchemy import Column, String, DateTime, Enum as SqlEnum, Boolean, Text
 from database import Base
 from enums.enum_login_method import E_Login_Method
 
@@ -21,7 +21,7 @@ class User(Base):
 
     salt = Column(String(500))
     
-    pin = Column(String(500))
-    public_key = Column(String(500))
-    encrypted_private_key = Column(String(500))
+    pin = Column(Text())
+    public_key = Column(Text())
+    encrypted_private_key = Column(Text())
     biography = Column(String(500))
