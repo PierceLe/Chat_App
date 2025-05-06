@@ -405,7 +405,7 @@ const GroupChat = () => {
                 <div className="ms-2 overflow-hidden">
                   <h6>{roomData?.room_name}</h6>
                   <p className="last-seen text-truncate">
-                    {listUserInRoom.length} Member, <span className="text-success">{listUserInRoom.length} Online</span>
+                    {listUserInRoom.length} Member
                   </p>
                 </div>
               </div>
