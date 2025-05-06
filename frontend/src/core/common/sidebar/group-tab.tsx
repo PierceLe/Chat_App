@@ -3,7 +3,7 @@ import ImageWithBasePath from "../imageWithBasePath";
 import { Link } from "react-router-dom";
 import { all_routes } from "../../../feature-module/router/all_routes";
 import Scrollbars from "react-custom-scrollbars-2";
-import { getAllGroupChatMany, RoomData } from "../../services/roomService";
+import { getAllGroupChatMany, RoomChatGroupData } from "../../services/roomService";
 import { format } from "date-fns";
 import { getMeSelector } from "../../redux/selectors";
 import { useSelector } from "react-redux";
@@ -20,7 +20,7 @@ const GroupTab = () => {
 
   const me: UserData = useSelector(getMeSelector);
 
-  const [rooms, setRooms] = useState(Array<RoomData>);
+  const [rooms, setRooms] = useState(Array<RoomChatGroupData>);
   const [roomNameInput, setRoomNameInput] = useState("");
 
   const debouncedValue = useDebounce(roomNameInput, 500);
@@ -63,7 +63,7 @@ const GroupTab = () => {
       if (data.action === "chat"){
         setRooms((pre) => {
           let isNewRoom = true;
-          let newRooms = new Array<RoomData>();
+          let newRooms = new Array<RoomChatGroupData>();
           pre.map((item) => {
             if (item.room_id === data.data.room_id) {
               isNewRoom = false;
@@ -124,7 +124,11 @@ const GroupTab = () => {
     description,
     created_at,
     updated_at,
-  }: RoomData) => {
+    last_sender_user_id,
+    last_sender_first_name,
+    las_sender_last_name,
+    last_sender_avatar_url
+  }: RoomChatGroupData) => {
     return (
       <>
         <div className="chat-list">
@@ -151,7 +155,10 @@ const GroupTab = () => {
             <div className="chat-user-info">
               <div className="chat-user-msg">
                 <h6>{room_name}</h6>
-                <p>{last_mess ?? ""}</p>
+                <div className="d-flex">
+                  <span style={{fontWeight: 'bold'}}>{last_sender_user_id === me.user_id ? "You: " : `${last_sender_first_name}: `}</span>
+                  <p style={{marginLeft: '5px'}}>{last_mess}</p>
+                </div>
               </div>
               <div className="chat-user-time">
                 <span className="time">{format(updated_at, "hh:mm a")}</span>
@@ -307,6 +314,10 @@ const GroupTab = () => {
                     description={item.description}
                     created_at={item.created_at}
                     updated_at={item.updated_at}
+                    last_sender_user_id={item.last_sender.user_id}
+                    last_sender_first_name={item.last_sender.first_name}
+                    las_sender_last_name={item.last_sender.last_name}
+                    last_sender_avatar_url={item.last_sender.avatar_url}
                   ></OneChatGroup>
                 ))}
               </div>
