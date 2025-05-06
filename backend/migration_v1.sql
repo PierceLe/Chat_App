@@ -10,9 +10,9 @@ CREATE TABLE user (
     two_factor_secret VARCHAR(255),
     method VARCHAR(255),
     salt VARCHAR(500),
-    pin VARCHAR(500),
-    public_key VARCHAR(500),
-    encrypted_private_key VARCHAR(500),
+    pin                   text         null,
+    public_key text         null,
+    encrypted_private_key text         null,
     biography VARCHAR(500),
     INDEX idx_user_email (email),
     INDEX idx_user_id (user_id)
@@ -48,7 +48,7 @@ create table user_room
     id                  varchar(36)  not null,
     user_id             varchar(36)  not null,
     room_id             varchar(36)  not null,
-    encrypted_group_key varchar(500) null
+    encrypted_group_key text        null
 );
 
 CREATE TABLE friend_draft (
@@ -76,7 +76,7 @@ CREATE TABLE message (
     sender_id VARCHAR(36) NOT NULL,
     room_id VARCHAR(36) NOT NULL,
     message_type VARCHAR(500) NOT NULL,
-    content VARCHAR(2000),
+    content      text         null,
     file_url VARCHAR(500),
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,

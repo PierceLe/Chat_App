@@ -150,7 +150,7 @@ const AddGroupModal: React.FC<Props> = ({ open, onClose, onBack }) => {
           type="primary"
           onClick={handleCreateRoom}
           style={{ flex: 1 }}
-          disabled={usersSelected.size < 2}
+          disabled={usersSelected.size < 1}
         >
           Start Group
         </Button>
