@@ -24,6 +24,8 @@ class ErrorCode(Enum):
 
     ROOM_NOT_FOUND = (2001, "Room not found")
     EDIT_ROOM_NOT_PERMISSION = (2002, "Edit room not permission")
+    
+    INVALID_TIME_RANGE = (3001, "Invalid time range: start time must be before end time")
 
     def __init__(self, code: int, error_message: str):
         self.code = code

@@ -12,7 +12,7 @@ const VerifySignup = () => {
   const location = useLocation();
   const navigate = useNavigate();
 
-  // Lấy token từ query string
+  // Get token from query string
   const query = new URLSearchParams(location.search);
   const token = query.get("token");
 

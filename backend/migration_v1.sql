@@ -96,3 +96,22 @@ CREATE TABLE task (
     FOREIGN KEY (room_id) REFERENCES room(room_id),
     INDEX idx_task_id (task_id)
 );
+
+CREATE TABLE timetable_event (
+    event_id VARCHAR(36) NOT NULL PRIMARY KEY,
+    user_id VARCHAR(36) NOT NULL,
+    title VARCHAR(100) NOT NULL,
+    description VARCHAR(500),
+    start_time DATETIME NOT NULL,
+    end_time DATETIME NOT NULL,
+    location VARCHAR(200),
+    color VARCHAR(50),
+    is_recurring BOOLEAN DEFAULT FALSE,
+    recurrence_pattern VARCHAR(100),
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES user(user_id),
+    INDEX idx_timetable_event_id (event_id),
+    INDEX idx_timetable_user_id (user_id),
+    INDEX idx_timetable_start_time (start_time)
+);
