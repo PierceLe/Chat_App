@@ -4,6 +4,7 @@ from dto.request.room.update_room_request import UpdateRoomRequest
 from dto.response.base_page_response import BasePageResponse
 from dto.response.room.room_one_response import RoomChatOneResponse
 from dto.response.user_response import UserResponse
+from enums.enum_login_method import E_Login_Method
 from enums.enum_message import E_Message
 from model.room import Room
 from model.user_room import UserRoom
@@ -143,7 +144,17 @@ class RoomService():
                     description = item.Room.description,
                     created_at = item.Room.created_at,
                     updated_at = item.Room.updated_at,
-                    last_sender = UserResponse.fromUserModel(item.User) if item.User is not None else None
+                    last_sender = UserResponse.fromUserModel(item.User) if item.User is not None else UserResponse(
+                        user_id = "",
+                        email = "",
+                        first_name = "",
+                        last_name = "",
+                        avatar_url = "",
+                        is_verified = True,
+                        method = E_Login_Method.NORMAL,
+                        public_key = None,
+                        biography = None
+                    )
                 )
             )
         return BasePageResponse(
