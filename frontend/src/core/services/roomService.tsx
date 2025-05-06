@@ -25,6 +25,10 @@ export interface RoomChatOneData extends RoomData {
   friend_frist_name: string;
   friend_last_name: string;
   friend_avatar_url: string;
+  last_sender_user_id: string;
+  last_sender_first_name: string;
+  las_sender_last_name: string;
+  last_sender_avatar_url: string;
 }
 
 export const createRoom = async (
