@@ -14,6 +14,7 @@ import ContactDetailsCustom from "../../modals/contact-details-custom";
 import { wsClient } from "@/core/services/websocket";
 import { getOnlineUserIds } from "@/core/services/messageService";
 import { Avatar } from "antd";
+import ContactUserDetailModal from "@/core/modals/user-detail";
 
 const ContactTab = () => {
   const [friends, setFriends] = useState(Array<UserData>);
@@ -21,6 +22,18 @@ const ContactTab = () => {
   const [searchInput, setSearchInput] = useState("");
   const debouncedValue = useDebounce(searchInput, 500);
   const [onlineUserIds, setOnlineUserIds] = useState<Set<string>>(new Set());
+  const [userDetailModalVisible, setUserDetailModalVisible] = useState(false);
+  const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
+
+  const openUserDetailModal = (user_id: string) => {
+    setSelectedUserId(user_id);
+    setUserDetailModalVisible(true);
+  };
+  
+  const closeUserDetailModal = () => {
+    setSelectedUserId(null);
+    setUserDetailModalVisible(false);
+  };
 
   const fetchApiGetFriend = async () => {
     const result = await getAllFriends();
@@ -109,22 +122,10 @@ const ContactTab = () => {
       <>
         <div className="mb-4">
           <div className="chat-list">
-            <Link
-              to=""
-              // data-bs-toggle="modal"
-              // data-bs-target="#contact-details"
+            <div
               className="chat-user-list"
-              onClick={(e) => {
-                e.preventDefault();
-                openModal({
-                  user_id,
-                  email,
-                  first_name,
-                  last_name,
-                  avatar_url,
-                  is_verified: true,
-                });
-              }}
+              onClick={() => openUserDetailModal(user_id)}
+              style={{cursor: 'pointer'}}
             >
               <div className={`avatar avatar-lg ${is_online ? 'online' : 'offline'} me-2`}>
                 <Avatar
@@ -146,7 +147,7 @@ const ContactTab = () => {
                   <p>{email}</p>
                 </div>
               </div>
-            </Link>
+            </div>
           </div>
         </div>
       </>
@@ -165,23 +166,7 @@ const ContactTab = () => {
       <>
         <div className="mb-4">
           <div className="chat-list">
-            <Link
-              to="/user_id"
-              // data-bs-toggle="modal"
-              // data-bs-target="#contact-details"
-              className="chat-user-list"
-              onClick={(e) => {
-                e.preventDefault();
-                openModal({
-                  user_id,
-                  email,
-                  first_name,
-                  last_name,
-                  avatar_url,
-                  is_verified: true,
-                });
-              }}
-            >
+            <div>
               <div className={`avatar avatar-lg ${is_online ? 'online' : 'offline'} me-2`}>
                 <Avatar
                   size={32}
@@ -237,7 +222,7 @@ const ContactTab = () => {
               >
                 <i className="ti ti-x" />
               </button>
-            </Link>
+            </div>
           </div>
         </div>
       </>
@@ -329,6 +314,7 @@ const ContactTab = () => {
                     avatar_url={item.avatar_url}
                     is_verified={item.is_verified}
                     is_online = {onlineUserIds.has(item.user_id)}
+                    
                   ></OneContactTab>
                 ))}
               </div>
@@ -343,6 +329,12 @@ const ContactTab = () => {
         onUnfriend={handleUnfriend}
       />
       {/* / Chats sidebar */}
+
+      <ContactUserDetailModal
+        visible={userDetailModalVisible}
+        onClose={closeUserDetailModal}
+        userId={selectedUserId}
+      />
     </>
   );
 };
