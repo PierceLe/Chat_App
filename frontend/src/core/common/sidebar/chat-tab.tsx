@@ -153,6 +153,10 @@ const ChatTab = () => {
     friend_frist_name,
     friend_last_name,
     friend_avatar_url,
+    last_sender_user_id,
+    last_sender_first_name,
+    las_sender_last_name,
+    last_sender_avatar_url,
   }: RoomChatOneData) => {
     const data: FriendData = {
       friend_id,
@@ -188,7 +192,10 @@ const ChatTab = () => {
             <div className="chat-user-info">
               <div className="chat-user-msg">
                 <h6>{friend_frist_name + " " + friend_last_name}</h6>
-                <p>{last_mess}</p>
+                <div className="d-flex">
+                  <span style={{fontWeight: 'bold'}}>{last_sender_user_id === me.user_id ? "You: " : ''}</span>
+                  <p style={{marginLeft: '5px'}}>{last_mess}</p>
+                </div>
               </div>
               <div className="chat-user-time">
                 <span className="time">{format(updated_at, "hh:mm a")}</span>
@@ -500,6 +507,10 @@ const ChatTab = () => {
                         description={item.description}
                         created_at={item.created_at}
                         updated_at={item.updated_at}
+                        last_sender_user_id={item.last_sender.user_id}
+                        last_sender_first_name={item.last_sender.first_name}
+                        las_sender_last_name={item.last_sender.last_name}
+                        last_sender_avatar_url={item.last_sender.avatar_url}
                       ></OneChatOneGroup>
                     ))}
                   </div>
