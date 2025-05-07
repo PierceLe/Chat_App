@@ -1,9 +1,6 @@
 import axios from "axios";
 
-const httpRequest = axios.create({
-  baseURL: "http://localhost:9990",
-  withCredentials: true,
-});
+import httpRequest from "../api/baseAxios";
 
 axios.defaults.withCredentials = true;
 

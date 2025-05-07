@@ -11,6 +11,7 @@ import { createRoom } from "../services/roomService";
 import { wsClient } from "../services/websocket";
 import { UploadOutlined } from '@ant-design/icons';
 import { encryptSymmetricKey, generateSymmetricKey } from "../utils/encryption";
+import { getAvatarUrl } from "../utils/helper";
 
 interface Props {
   open: boolean;
@@ -119,14 +120,8 @@ const AddGroupModal: React.FC<Props> = ({ open, onClose, onBack }) => {
                 className="d-flex align-items-center"
                 avatar={<Avatar
                   size={30}
-                  src={
-                    user.avatar_url === 'default'
-                      ? 'assets/img/profiles/avatar-16.jpg'
-                      : user.avatar_url.includes('bucket')
-                        ? `http://localhost:9990/${user.avatar_url}`
-                        : user.avatar_url
-                  }
-                  icon={<UploadOutlined />}
+                  src={getAvatarUrl(user.avatar_url)}
+                    icon={<UploadOutlined />}
                 />}
                 title={`${user.first_name} ${user.last_name}`}
                 description={user.email}

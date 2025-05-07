@@ -14,6 +14,7 @@ import ContactDetailsCustom from "../../modals/contact-details-custom";
 import { wsClient } from "@/core/services/websocket";
 import { getOnlineUserIds } from "@/core/services/messageService";
 import { Avatar } from "antd";
+import { getAvatarUrl } from "@/core/utils/helper";
 
 const ContactTab = () => {
   const [friends, setFriends] = useState(Array<UserData>);
@@ -129,14 +130,8 @@ const ContactTab = () => {
               <div className={`avatar avatar-lg ${is_online ? 'online' : 'offline'} me-2`}>
                 <Avatar
                   size={32}
-                  src={
-                    avatar_url === 'default'
-                      ? 'assets/img/profiles/avatar-16.jpg'
-                      : avatar_url.includes('bucket')
-                        ? `http://localhost:9990/${avatar_url}`
-                        : avatar_url
-                  }
-                />
+                  src={getAvatarUrl(avatar_url)}
+                  />
               </div>
               <div className="chat-user-info">
                 <div className="chat-user-msg">
@@ -185,13 +180,7 @@ const ContactTab = () => {
               <div className={`avatar avatar-lg ${is_online ? 'online' : 'offline'} me-2`}>
                 <Avatar
                   size={32}
-                  src={
-                    avatar_url === 'default'
-                      ? 'assets/img/profiles/avatar-16.jpg'
-                      : avatar_url.includes('bucket')
-                        ? `http://localhost:9990/${avatar_url}`
-                        : avatar_url
-                  }
+                  src={getAvatarUrl(avatar_url)}
                 />
               </div>
               <div className="chat-user-info">

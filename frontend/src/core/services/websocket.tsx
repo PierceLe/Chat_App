@@ -1,3 +1,6 @@
+import { BASE_WEBSOCKET } from "@/environment";
+
+
 class WebSocketClient {
   private static instance: WebSocketClient;
   private socket: WebSocket | null = null;
@@ -18,7 +21,7 @@ class WebSocketClient {
   }
 
   public connect() {
-    this.socket = new WebSocket("ws://localhost:9990/chat/ws");
+    this.socket = new WebSocket(`${BASE_WEBSOCKET}/chat/ws`);
 
     this.socket.onopen = () => {
       console.log("Connected to WebSocket server");

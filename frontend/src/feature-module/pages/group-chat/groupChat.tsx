@@ -16,6 +16,7 @@ import { wsClient } from "@/core/services/websocket";
 import { getRoomById, RoomData, getAllUsersInRoom, getEncryptedGroupKey } from "@/core/services/roomService";
 import { format } from "date-fns";
 import { decryptMessage, decryptSymmetricKey, encryptMessage } from "@/core/utils/encryption";
+import { getAvatarUrl } from "@/core/utils/helper";
 
 const GroupChat = () => {
   const [showSearch, setShowSearch] = useState<boolean>(false);
@@ -304,13 +305,7 @@ const GroupChat = () => {
           <div className="chat-avatar">
             <Avatar
               size={32}
-              src={
-                sender.avatar_url === 'default'
-                  ? 'assets/img/profiles/avatar-16.jpg'
-                  : sender.avatar_url.includes('bucket')
-                    ? `http://localhost:9990/${sender.avatar_url}`
-                    : sender.avatar_url
-              }
+              src={getAvatarUrl(sender.avatar_url)}
             />
           </div>
           <div className="chat-content">
@@ -367,13 +362,7 @@ const GroupChat = () => {
           <div className="chat-avatar">
             <Avatar
               size={32}
-              src={
-                sender.avatar_url === 'default'
-                  ? 'assets/img/profiles/avatar-16.jpg'
-                  : sender.avatar_url.includes('bucket')
-                    ? `http://localhost:9990/${sender.avatar_url}`
-                    : sender.avatar_url
-              }
+              src={getAvatarUrl(sender.avatar_url)}
             />
           </div>
         </div>
@@ -405,14 +394,8 @@ const GroupChat = () => {
                 <div className="avatar avatar-lg online flex-shrink-0">
                   <Avatar
                     size={32}
-                    src={
-                      roomData?.avatar_url === 'default'
-                        ? 'assets/img/profiles/avatar-16.jpg'
-                        : roomData?.avatar_url.includes('bucket')
-                          ? `http://localhost:9990/${roomData?.avatar_url}`
-                          : roomData?.avatar_url
-                    }
-                  />
+                    src={getAvatarUrl(roomData?.avatar_url)}
+                    />
                 </div>
                 <div className="ms-2 overflow-hidden">
                   <h6>{roomData?.room_name}</h6>

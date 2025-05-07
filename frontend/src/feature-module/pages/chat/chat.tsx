@@ -23,6 +23,7 @@ import { format } from "date-fns";
 import { wsClient } from "../../../core/services/websocket";
 import { getEncryptedGroupKey } from "@/core/services/roomService";
 import { decryptMessage, decryptSymmetricKey, encryptMessage } from "@/core/utils/encryption";
+import { getAvatarUrl } from "@/core/utils/helper";
 
 const Chat = () => {
   const [showReply, setShowReply] = useState(false);
@@ -328,13 +329,7 @@ const Chat = () => {
           <div className="chat-avatar">
             <Avatar
               size={32}
-              src={
-                sender.avatar_url === 'default'
-                  ? 'assets/img/profiles/avatar-16.jpg'
-                  : sender.avatar_url.includes('bucket')
-                    ? `http://localhost:9990/${sender.avatar_url}`
-                    : sender.avatar_url
-              }
+              src={getAvatarUrl(sender.avatar_url)}
             />
           </div>
           <div className="chat-content">
@@ -395,13 +390,7 @@ const Chat = () => {
           <div className="chat-avatar">
             <Avatar
               size={32}
-              src={
-                me.avatar_url === 'default'
-                  ? 'assets/img/profiles/avatar-16.jpg'
-                  : me.avatar_url.includes('bucket')
-                    ? `http://localhost:9990/${me.avatar_url}`
-                    : me.avatar_url
-              }
+              src={getAvatarUrl(me.avatar_url)}
             />
           </div>
         </div>
@@ -434,13 +423,7 @@ const Chat = () => {
                   {state && (
                     <Avatar
                       size={32}
-                      src={
-                        state.friend_avatar_url === 'default'
-                          ? 'assets/img/profiles/avatar-16.jpg'
-                          : state.friend_avatar_url.includes('bucket')
-                            ? `http://localhost:9990/${state.friend_avatar_url}`
-                            : state.friend_avatar_url
-                      }
+                      src={getAvatarUrl(state.friend_avatar_url)}
                     />
                   )}
                 </div>
@@ -589,13 +572,7 @@ const Chat = () => {
                     {state && (
                       <Avatar
                         size={32}
-                        src={
-                          state.friend_avatar_url === 'default'
-                            ? 'assets/img/profiles/avatar-16.jpg'
-                            : state.friend_avatar_url.includes('bucket')
-                              ? `http://localhost:9990/${state.friend_avatar_url}`
-                              : state.friend_avatar_url
-                        }
+                        src={getAvatarUrl(state.friend_avatar_url)}
                       />
                     )}
                   </div>

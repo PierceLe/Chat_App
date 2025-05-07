@@ -4,6 +4,7 @@ import { getAllFriends, UserData } from "../services/contactService";
 import { createRoom } from "../services/roomService";
 import { wsClient } from "../services/websocket";
 import { encryptSymmetricKey, generateSymmetricKey } from "../utils/encryption";
+import { getAvatarUrl } from "../utils/helper";
 
 const NewChat = ({ isModalVisible, onClose }: { isModalVisible: boolean; onClose: () => void }) => {
   const [friends, setFriends] = useState<Array<UserData>>([]);
@@ -91,13 +92,7 @@ const NewChat = ({ isModalVisible, onClose }: { isModalVisible: boolean; onClose
           <div className="avatar avatar-lg">
             <Avatar
               size={32}
-              src={
-                avatar_url === 'default'
-                  ? 'assets/img/profiles/avatar-16.jpg'
-                  : avatar_url.includes('bucket')
-                    ? `http://localhost:9990/${avatar_url}`
-                    : avatar_url
-              }
+              src={getAvatarUrl(avatar_url)}
             />
           </div>
           <div className="ms-2">
