@@ -18,6 +18,7 @@ import { ApiResponse } from "@/core/api/baseAxios";
 import { TimetableEvent, getAllEvents, deleteEvent } from "../../services/timetableService";
 import moment from "moment";
 import EventModal from "../../../feature-module/pages/timeTable/EventModal";
+import { getAvatarUrl } from "@/core/utils/helper";
 
 type PasswordField = "confirmPassword" | "newpassword" | "oldpassword";
 const SettingsTab = () => {
@@ -349,14 +350,7 @@ const SettingsTab = () => {
                                   >
                                     <Avatar
                                       size={100}
-                                      src={
-                                        avatarUrl === 'default'
-                                          ? 'assets/img/profiles/avatar-16.jpg'
-                                          : avatarUrl.includes('bucket')
-                                            ? `http://localhost:9990/${avatarUrl}`
-                                            : avatarUrl
-                                      }
-                                      icon={<UploadOutlined />}
+                                      src={getAvatarUrl(avatarUrl)}
                                     />
                                   </Upload>
                                 </span>

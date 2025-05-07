@@ -5,6 +5,7 @@ import { all_routes } from "../../../feature-module/router/all_routes";
 import Scrollbars from "react-custom-scrollbars-2";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { format } from "date-fns";
+import { getAvatarUrl } from "@/core/utils/helper";
 
 // Import Swiper styles
 import "swiper/css";
@@ -180,13 +181,7 @@ const ChatTab = () => {
             <div className={`avatar avatar-lg ${onlineUserIds.has(friend_id) ? 'online' : 'offline'} me-2`}>
               <Avatar
                 size={32}
-                src={
-                  friend_avatar_url === 'default'
-                    ? 'assets/img/profiles/avatar-16.jpg'
-                    : friend_avatar_url.includes('bucket')
-                      ? `http://localhost:9990/${friend_avatar_url}`
-                      : friend_avatar_url
-                }
+                src={getAvatarUrl(friend_avatar_url)}
               />
             </div>
             <div className="chat-user-info">
@@ -327,13 +322,7 @@ const ChatTab = () => {
                         <div className={`avatar avatar-lg ${onlineUserIds.has(room.friend_id) ? 'online' : 'offline'} d-block`}>
                           <Avatar
                             size={32}
-                            src={
-                              room.friend_avatar_url === 'default'
-                                ? 'assets/img/profiles/avatar-16.jpg'
-                                : room.friend_avatar_url.includes('bucket')
-                                  ? `http://localhost:9990/${room.friend_avatar_url}`
-                                  : room.friend_avatar_url
-                            }
+                            src={getAvatarUrl(room.friend_avatar_url)}
                           />
                         </div>
                         <p>{room.friend_frist_name + " " + room.friend_last_name}</p>

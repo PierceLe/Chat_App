@@ -14,6 +14,7 @@ import { Avatar, Button } from "antd";
 import NewGroupModal from "@/core/modals/new-group";
 import AddGroupModal from "@/core/modals/add-group";
 import { useParams } from "react-router-dom";
+import { getAvatarUrl } from "@/core/utils/helper";
 
 const GroupTab = () => {
   const routes = all_routes;
@@ -143,13 +144,7 @@ const GroupTab = () => {
             <div className="avatar avatar-lg online me-2">
               <Avatar
                 size={32}
-                src={
-                  avatar_url === 'default'
-                    ? 'assets/img/profiles/avatar-16.jpg'
-                    : avatar_url?.includes('bucket')
-                      ? `http://localhost:9990/${avatar_url}`
-                      : avatar_url
-                }
+                src={getAvatarUrl(avatar_url)}
               />
             </div>
             <div className="chat-user-info">

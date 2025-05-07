@@ -10,6 +10,7 @@ import { UserData } from "@/core/services/contactService";
 import { getMeSelector } from "@/core/redux/selectors";
 import { wsClient } from "@/core/services/websocket";
 import { resetMe } from "@/core/redux/reducers/getMeSlice";
+import { getAvatarUrl } from "@/core/utils/helper";
 
 const Sidebar = () => {
   const userMe: UserData = useSelector(getMeSelector); 
@@ -211,13 +212,7 @@ const Sidebar = () => {
                   >
                     <Avatar
                       size={32}
-                      src={
-                        userMe.avatar_url === 'default'
-                          ? 'assets/img/profiles/avatar-16.jpg'
-                          : userMe.avatar_url.includes('bucket')
-                            ? `http://localhost:9990/${userMe.avatar_url}`
-                            : userMe.avatar_url
-                      }
+                      src={getAvatarUrl(userMe.avatar_url)}
                     />
                   </Link>
                   <div className="dropdown-menu dropdown-menu-end p-3">

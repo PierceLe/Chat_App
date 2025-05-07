@@ -22,7 +22,7 @@ export async function logout(): Promise<void> {
 export const getAllFriends = async () => {
   try {
     const res = await httpRequest.get("/friend/all");
-    return res.data["result"];
+    return res.result;
   } catch (error) {
     console.log(error);
   }
@@ -31,8 +31,8 @@ export const getAllFriends = async () => {
 export const getFriendDrafts = async () => {
   try {
     const res = await httpRequest.get("/friend/friend-draft");
-    if (res.status === 200) {
-      return res.data["result"];
+    if (res.code === 0) {
+      return res.result;
     }
     return [];
   } catch (error) {
