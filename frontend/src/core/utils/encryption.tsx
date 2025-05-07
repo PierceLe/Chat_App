@@ -36,7 +36,7 @@ export async function generateAsymmetricKeyPair(): Promise<AsymmetricKeyPair> {
     {
       name: 'RSA-OAEP',
       modulusLength: 2048,
-      publicExponent: new Uint8Array([0x01, 0x00, 0x01]), // 65537
+      publicExponent: new Uint8Array([0x01, 0x00, 0x01]),
       hash: 'SHA-256',
     },
     true,
@@ -119,21 +119,25 @@ export async function decryptSymmetricKey(encryptedKeyBase64: string, privateKey
   return arrayBufferToBase64(decryptedKey);
 }
 
-export async function encryptMessage(message: string, symmetricKeyBase64: string): Promise<string> {
+export async function encryptMessage(data: string | Uint8Array, symmetricKeyBase64: string): Promise<string> {
   const symmetricKey = await importSymmetricKey(symmetricKeyBase64);
-  const encodedMessage = new TextEncoder().encode(message);
   const iv = crypto.getRandomValues(new Uint8Array(12));
-  const encryptedMessage = await crypto.subtle.encrypt(
+  const encodedData = typeof data === 'string' ? new TextEncoder().encode(data) : data;
+
+  console.log(`Encrypting data, size: ${encodedData.length} bytes`);
+  const encryptedData = await crypto.subtle.encrypt(
     {
       name: 'AES-GCM',
       iv: iv,
     },
     symmetricKey,
-    encodedMessage
+    encodedData
   );
-  const combined = new Uint8Array(iv.length + encryptedMessage.byteLength);
+
+  const combined = new Uint8Array(iv.length + encryptedData.byteLength);
   combined.set(iv, 0);
-  combined.set(new Uint8Array(encryptedMessage), iv.length);
+  combined.set(new Uint8Array(encryptedData), iv.length);
+
   return arrayBufferToBase64(combined);
 }
 
@@ -142,6 +146,8 @@ export async function decryptMessage(encryptedMessageBase64: string, symmetricKe
   const combined = base64ToArrayBuffer(encryptedMessageBase64);
   const iv = combined.slice(0, 12);
   const ciphertext = combined.slice(12);
+
+  console.log(`Decrypting ciphertext, size: ${ciphertext.length} bytes`);
   const decryptedMessage = await crypto.subtle.decrypt(
     {
       name: 'AES-GCM',
@@ -175,7 +181,7 @@ export async function encryptPrivateKey(privateKeyBase64: string, pin: string): 
     ['encrypt']
   );
 
-  const iv = crypto.getRandomValues(new Uint8Array(12)); // IV 12 byte
+  const iv = crypto.getRandomValues(new Uint8Array(12));
   const encodedPrivateKey = new TextEncoder().encode(privateKeyBase64);
   const encryptedPrivateKey = await crypto.subtle.encrypt(
     {
