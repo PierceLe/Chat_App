@@ -54,8 +54,8 @@ export const createRoom = async (
       encrypted_group_key
     });
     console.log("createRoom: ", res)
-    if (res.status === 200) {
-      return res.data["result"];
+    if (res.code === 0) {
+      return res.result;
     }
     return null;
   } catch (error) {
@@ -79,8 +79,8 @@ export const getAllGroupChatMany = async (
       room_type: room_type,
       user_id: user_id,
     });
-    if (res.status === 200) {
-      return res.data["result"]["items"];
+    if (res.code === 0) {
+      return res.result.items;
     }
     return [];
   } catch (error) {
@@ -132,8 +132,8 @@ export const getAllGroupChatOne = async (
       friend_name: friend_name,
       user_id: user_id,
     });
-    if (res.status === 200) {
-      return res.data["result"]["items"];
+    if (res.code === 0) {
+      return res.result.items;
     }
     return [];
   } catch (error) {
@@ -145,8 +145,8 @@ export const getAllGroupChatOne = async (
 export const getRoomById = async (room_id: string) => {
   try {
     const res = await httpRequest.get("/room", {params: {room_id: room_id}});
-  if (res.status === 200) {
-    return res.data["result"];
+  if (res.code === 0) {
+    return res.result;
   }
   } catch (error) {
     console.log(error);
@@ -157,8 +157,8 @@ export const getRoomById = async (room_id: string) => {
 export const getAllUsersInRoom = async (room_id: string) => {
   try {
     const res = await httpRequest.get("/room/user", {params: {room_id: room_id}});
-  if (res.status === 200) {
-    return res.data["result"];
+  if (res.code === 0) {
+    return res.result;
   }
   } catch (error) {
     console.log(error);
@@ -169,8 +169,8 @@ export const getAllUsersInRoom = async (room_id: string) => {
 export const getEncryptedGroupKey = async (room_id: string) => {
   try {
     const res = await httpRequest.get("/room/group-key", {params: {room_id: room_id}});
-  if (res.status === 200) {
-    return res.data["result"];
+  if (res.code === 0) {
+    return res.result;
   }
   } catch (error) {
     console.log(error);

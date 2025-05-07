@@ -53,8 +53,8 @@ export interface DateRangeRequest {
 export const getAllEvents = async () => {
   try {
     const res = await httpRequest.get("/timetable/all");
-    if (res.status === 200) {
-      return res.data.result;
+    if (res.code === 0) {
+      return res.result;
     }
     return [];
   } catch (error) {
@@ -66,8 +66,8 @@ export const getAllEvents = async () => {
 export const getEventById = async (eventId: string) => {
   try {
     const res = await httpRequest.get(`/timetable/detail/${eventId}`);
-    if (res.status === 200) {
-      return res.data.result;
+    if (res.code === 0) {
+      return res.result;
     }
     return null;
   } catch (error) {
@@ -84,8 +84,8 @@ export const getEventsByDateRange = async (startDate: Date, endDate: Date) => {
     };
     
     const res = await httpRequest.post("/timetable/by-date-range", request);
-    if (res.status === 200) {
-      return res.data.result;
+    if (res.code === 0) {
+      return res.result;
     }
     return [];
   } catch (error) {
@@ -97,8 +97,8 @@ export const getEventsByDateRange = async (startDate: Date, endDate: Date) => {
 export const createEvent = async (event: CreateEventRequest) => {
   try {
     const res = await httpRequest.post("/timetable/create", event);
-    if (res.status === 200) {
-      return res.data.result;
+    if (res.code === 0) {
+      return res.result;
     }
     return null;
   } catch (error) {
@@ -110,8 +110,8 @@ export const createEvent = async (event: CreateEventRequest) => {
 export const updateEvent = async (event: UpdateEventRequest) => {
   try {
     const res = await httpRequest.put("/timetable/update", event);
-    if (res.status === 200) {
-      return res.data.result;
+    if (res.code === 0) {
+      return res.result;
     }
     return null;
   } catch (error) {
@@ -123,7 +123,7 @@ export const updateEvent = async (event: UpdateEventRequest) => {
 export const deleteEvent = async (eventId: string) => {
   try {
     const res = await httpRequest.delete(`/timetable/${eventId}`);
-    if (res.status === 200) {
+    if (res.code === 0) {
       return true;
     }
     return false;

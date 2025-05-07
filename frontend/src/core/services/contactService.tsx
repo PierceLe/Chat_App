@@ -24,8 +24,9 @@ export interface UserData {
 export const getAllFriends = async () => {
   try {
     const res = await httpRequest.get("/friend/all");
-    if (res.status === 200) {
-      return res.data["result"];
+    console.log("getAllFriends: ", res)
+    if (res.code === 0) {
+      return res.result;
     }
     return [];
   } catch (error) {
@@ -37,8 +38,8 @@ export const getAllFriends = async () => {
 export const getFriendDrafts = async () => {
   try {
     const res = await httpRequest.get("/friend/friend-draft");
-    if (res.status === 200) {
-      return res.data["result"];
+    if (res.code === 0) {
+      return res.result;
     }
     return [];
   } catch (error) {

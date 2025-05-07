@@ -30,8 +30,8 @@ export const getAllMessInRoom = async (room_id: string) => {
         room_id: room_id,
       },
     });
-    if (res.status === 200) {
-      return res.data["result"];
+    if (res.code === 0) {
+      return res.result;
     }
     return [];
   } catch (error) {
@@ -46,8 +46,8 @@ export const getMoreMessInRoom = async (room_id: string, created_at: Date) => {
       room_id,
       created_at
     });
-    if (res.status === 200) {
-      return res.data["result"];
+    if (res.code === 0) {
+      return res.result;
     }
     return [];
   } catch (error) {
@@ -59,8 +59,8 @@ export const getMoreMessInRoom = async (room_id: string, created_at: Date) => {
 export const getOnlineUserIds = async () => {
   try {
     const res = await httpRequest.get("/chat/online-user");
-    if (res.status === 200) {
-      return res.data["result"];
+    if (res.code === 0) {
+      return res.result;
     }
     return [];
   } catch (error) {

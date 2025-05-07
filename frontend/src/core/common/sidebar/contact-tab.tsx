@@ -72,7 +72,7 @@ const ContactTab = () => {
     console.log("ACCEPT: ", user_id);
     const res: any = await acceptFriend(user_id, is_accept);
     console.log("ACCEPT: ", res);
-    if (res.status === 200) {
+    if (res.code === 0) {
       fetchApiGetFriend();
       fetchApiGetFriendDraft();
     }
