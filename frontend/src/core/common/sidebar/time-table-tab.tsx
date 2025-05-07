@@ -5,6 +5,7 @@ import Scrollbars from "react-custom-scrollbars-2";
 import { useEffect, useState } from "react";
 import { getAllFriends } from "../../services/contactService";
 import { UserData } from "../../services/contactService";
+import { getAvatarUrl } from "@/core/utils/helper";
 
 const TimeTableTab = () => {
   const routes = all_routes;
@@ -61,7 +62,7 @@ const TimeTableTab = () => {
                         <div className="avatar avatar-lg me-2">
                           {friend.avatar_url ? (
                             <img
-                              src={`http://localhost:9990/${friend.avatar_url}`}
+                              src={getAvatarUrl(friend.avatar_url)}
                               className="rounded-circle"
                               alt={`${friend.first_name} ${friend.last_name}`}
                             />
