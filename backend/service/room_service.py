@@ -237,7 +237,17 @@ class RoomService():
                     friend_frist_name = item.friend_frist_name,
                     friend_last_name = item.friend_last_name,
                     friend_avatar_url = item.friend_avatar_url,
-                    last_sender = item[1] if item[1] is not None else None
+                    last_sender = item[1] if item[1] is not None else UserResponse(
+                        user_id = "",
+                        email = "",
+                        first_name = "",
+                        last_name = "",
+                        avatar_url = "",
+                        is_verified = True,
+                        method = E_Login_Method.NORMAL,
+                        public_key = None,
+                        biography = None
+                    )
                 ) for item in result["items"]],
             total=result["total"],
             page=result["page"],

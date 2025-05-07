@@ -253,10 +253,16 @@ const Chat = () => {
         console.error("Failed to upload file:", result.error);
         return;
       }
-
+      let contentMessage
+      try {
+        contentMessage = await encryptMessage(result.filePath, groupKey)
+      } catch (error) {
+        contentMessage = result.filePath
+      }
+    
       const messageData: SendMessageData = {
         room_id,
-        content: "result.filePath",
+        content: contentMessage,
         file_url: result.filePath,
         message_type: 1,
       };
@@ -366,9 +372,15 @@ const Chat = () => {
       if (data.action === "chat" && data.data.room_id === room_id && groupKey) {
         try {
           const encryptedMessage = data.data.content;
-          const decryptedContent = encryptedMessage
+          let decryptedContent;
+          if (data.data.message_type === 0){
+            decryptedContent = encryptedMessage
             ? await decryptMessage(encryptedMessage, groupKey)
             : "";
+          } else{
+            decryptedContent = encryptedMessage
+          }
+          
           const message: MessageData = {
             ...data.data,
             content: decryptedContent,
@@ -424,33 +436,16 @@ const Chat = () => {
             <div className="chat-info">
             <div className="message-content">
               {file_url ? (
-                file_url.match(/\.(jpg|jpeg|png|gif)$/i) ? (
-                  <a
-                    href="#"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      handleDownloadFile(file_url);
-                    }}
-                  >
-                    <img
-                      src={`http://localhost:9990/${file_url}`}
-                      alt="File"
-                      style={{ maxWidth: "200px", borderRadius: "8px" }}
-                    />
-                    {isDownloading === file_url && <span>Downloading...</span>}
-                  </a>
-                ) : (
-                  <a
-                    href="#"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      handleDownloadFile(file_url);
-                    }}
-                  >
-                    Download File
-                    {isDownloading === file_url && <span>Downloading...</span>}
-                  </a>
-                )
+                <a
+                href="#"
+                onClick={(e) => {
+                  e.preventDefault();
+                  handleDownloadFile(file_url);
+                }}
+              >
+                {file_url.split("/").pop()}
+                {isDownloading === file_url && <span>Downloading...</span>}
+              </a>
               ) : (
                 content
               )}
@@ -490,33 +485,16 @@ const Chat = () => {
             <div className="chat-info">
             <div className="message-content">
               {file_url ? (
-                file_url.match(/\.(jpg|jpeg|png|gif)$/i) ? (
-                  <a
-                    href="#"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      handleDownloadFile(file_url);
-                    }}
-                  >
-                    <img
-                      src={`http://localhost:9990/${file_url}`}
-                      alt="File"
-                      style={{ maxWidth: "200px", borderRadius: "8px" }}
-                    />
-                    {isDownloading === file_url && <span>Downloading...</span>}
-                  </a>
-                ) : (
-                  <a
-                    href="#"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      handleDownloadFile(file_url);
-                    }}
-                  >
-                    Download File
-                    {isDownloading === file_url && <span>Downloading...</span>}
-                  </a>
-                )
+                <a
+                href="#"
+                onClick={(e) => {
+                  e.preventDefault();
+                  handleDownloadFile(file_url);
+                }}
+              >
+                {file_url.split("/").pop()}
+                {isDownloading === file_url && <span>Downloading...</span>}
+              </a>
               ) : (
                 content
               )}

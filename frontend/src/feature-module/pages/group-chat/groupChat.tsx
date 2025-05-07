@@ -17,6 +17,7 @@ import { getRoomById, RoomData, getAllUsersInRoom, getEncryptedGroupKey } from "
 import { format } from "date-fns";
 import { decryptMessage, decryptSymmetricKey, encryptMessage } from "@/core/utils/encryption";
 import { getAvatarUrl } from "@/core/utils/helper";
+import { downloadAndDecryptFile, uploadFile } from "@/core/utils/file";
 
 const GroupChat = () => {
   const [showSearch, setShowSearch] = useState<boolean>(false);
@@ -29,11 +30,14 @@ const GroupChat = () => {
   const [roomData, setRoomData] = useState<RoomData | undefined>();
   const [listUserInRoom, setListUserInRoom] = useState<UserData[]>([]);
   const [groupKey, setGroupKey] = useState<string>("");
+  const [isUploading, setIsUploading] = useState(false);
+  const [isDownloading, setIsDownloading] = useState<string | null>(null);
 
   const me: UserData = useSelector(getMeSelector);
   const { room_id } = useParams<RouteParams>();
   const scrollbarsRef = useRef<Scrollbars>(null);
   const routes = all_routes;
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const toggleEmoji = (groupId: number): void => {
     setShowEmoji((prev) => ({
@@ -197,6 +201,84 @@ const GroupChat = () => {
     }
   };
 
+  const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>): Promise<void> => {
+      if (!room_id || !groupKey) {
+        console.error("Missing room_id or groupKey");
+        return;
+      }
+  
+      const file = event.target.files?.[0];
+      if (!file) {
+        console.warn("No file selected");
+        return;
+      }
+  
+      setIsUploading(true);
+      try {
+        const fileType = file.type.startsWith("image/") ? "image" : "document";
+  
+        const result = await uploadFile(file, fileType, groupKey);
+        if (!result.filePath) {
+          console.error("Failed to upload file:", result.error);
+          return;
+        }
+        let contentMessage
+        try {
+          contentMessage = await encryptMessage(result.filePath, groupKey)
+        } catch (error) {
+          contentMessage = result.filePath
+        }
+      
+        const messageData: SendMessageData = {
+          room_id,
+          content: contentMessage,
+          file_url: result.filePath,
+          message_type: 1,
+        };
+  
+        console.log("Sending file message:", messageData);
+        wsClient.send({
+          action: "chat",
+          data: messageData,
+        });
+  
+        if (fileInputRef.current) {
+          fileInputRef.current.value = "";
+        }
+      } catch (error) {
+        console.error("Error handling file upload:", error);
+      } finally {
+        setIsUploading(false);
+      }
+    };
+  
+    const handleDownloadFile = async (filePath: string): Promise<void> => {
+      if (!groupKey) {
+        console.error("Missing groupKey for decryption");
+        return;
+      }
+  
+      setIsDownloading(filePath);
+      try {
+        const result = await downloadAndDecryptFile(filePath, groupKey);
+        if (!result) {
+          console.error("Failed to download and decrypt file");
+          return;
+        }
+  
+        const link = document.createElement("a");
+        link.href = result.downloadUrl;
+        link.download = result.filename;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      } catch (error) {
+        console.error("Error handling file download:", error);
+      } finally {
+        setIsDownloading(null);
+      }
+    };
+
   useEffect(() => {
     const initialize = async () => {
       console.log("room_id: ", room_id)
@@ -319,10 +401,21 @@ const GroupChat = () => {
                 </span>
               </h6>
             </div>
-            <div className="chat-info">
-              <div className="message-content">
-                {content}
-              </div>
+            <div className="message-content">
+              {file_url ? (
+                <a
+                href="#"
+                onClick={(e) => {
+                  e.preventDefault();
+                  handleDownloadFile(file_url);
+                }}
+              >
+                {file_url.split("/").pop()}
+                {isDownloading === file_url && <span>Downloading...</span>}
+              </a>
+              ) : (
+                content
+              )}
             </div>
           </div>
         </div>
@@ -355,7 +448,20 @@ const GroupChat = () => {
             </div>
             <div className="chat-info">
               <div className="message-content">
-                {content}
+                {file_url ? (
+                  <a
+                  href="#"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    handleDownloadFile(file_url);
+                  }}
+                >
+                  {file_url.split("/").pop()}
+                  {isDownloading === file_url && <span>Downloading...</span>}
+                </a>
+                ) : (
+                  content
+                )}
               </div>
             </div>
           </div>
@@ -593,6 +699,8 @@ const GroupChat = () => {
                     className="open-file position-relative"
                     name="files"
                     id="files"
+                    ref={fileInputRef}
+                    onChange={handleFileChange}
                   />
                 </div>
                 <div className="form-item">
