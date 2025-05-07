@@ -8,7 +8,7 @@ import pathlib
 file_router = APIRouter()
 
 @file_router.post("/upload")
-async def upload_file(type: str, file: UploadFile = File(...), file_service: FileService = Depends(FileService)):
+async def upload_file(type: str = "public", file: UploadFile = File(...), file_service: FileService = Depends(FileService)):
     path = await file_service.save_file(type, file)
     return SuccessResponse(result= "/".join(path.parts))
 

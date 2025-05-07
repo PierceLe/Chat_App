@@ -23,6 +23,7 @@ import { format } from "date-fns";
 import { wsClient } from "../../../core/services/websocket";
 import { getEncryptedGroupKey } from "@/core/services/roomService";
 import { decryptMessage, decryptSymmetricKey, encryptMessage } from "@/core/utils/encryption";
+import { downloadAndDecryptFile, uploadFile } from "@/core/utils/file";
 import { getAvatarUrl } from "@/core/utils/helper";
 
 const Chat = () => {
@@ -30,6 +31,8 @@ const Chat = () => {
   const [showSearch, setShowSearch] = useState(false);
   const [showEmoji, setShowEmoji] = useState<Record<number, boolean>>({});
   const [isLoading, setIsLoading] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
+  const [isDownloading, setIsDownloading] = useState<string | null>(null);
   const [hasMore, setHasMore] = useState(true);
   const [messages, setMessages] = useState<MessageData[]>([]);
   const [newMessage, setNewMessage] = useState<string>("");
@@ -39,6 +42,7 @@ const Chat = () => {
   const { room_id } = useParams<RouteParams>();
   const { state } = useLocation<LocationState>();
   const scrollbarsRef = useRef<Scrollbars>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const routes = all_routes;
 
   const toggleEmoji = (groupId: number): void => {
@@ -228,6 +232,78 @@ const Chat = () => {
     }
   };
 
+  const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>): Promise<void> => {
+    if (!room_id || !groupKey) {
+      console.error("Missing room_id or groupKey");
+      return;
+    }
+
+    const file = event.target.files?.[0];
+    if (!file) {
+      console.warn("No file selected");
+      return;
+    }
+
+    setIsUploading(true);
+    try {
+      const fileType = file.type.startsWith("image/") ? "image" : "document";
+
+      const result = await uploadFile(file, fileType, groupKey);
+      if (!result.filePath) {
+        console.error("Failed to upload file:", result.error);
+        return;
+      }
+
+      const messageData: SendMessageData = {
+        room_id,
+        content: "result.filePath",
+        file_url: result.filePath,
+        message_type: 1,
+      };
+
+      console.log("Sending file message:", messageData);
+      wsClient.send({
+        action: "chat",
+        data: messageData,
+      });
+
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
+    } catch (error) {
+      console.error("Error handling file upload:", error);
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+  const handleDownloadFile = async (filePath: string): Promise<void> => {
+    if (!groupKey) {
+      console.error("Missing groupKey for decryption");
+      return;
+    }
+
+    setIsDownloading(filePath);
+    try {
+      const result = await downloadAndDecryptFile(filePath, groupKey);
+      if (!result) {
+        console.error("Failed to download and decrypt file");
+        return;
+      }
+
+      const link = document.createElement("a");
+      link.href = result.downloadUrl;
+      link.download = result.filename;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } catch (error) {
+      console.error("Error handling file download:", error);
+    } finally {
+      setIsDownloading(null);
+    }
+  };
+
   useEffect(() => {
     const initialize = async () => {
       if (!room_id) return;
@@ -346,10 +422,40 @@ const Chat = () => {
               </h6>
             </div>
             <div className="chat-info">
-              <div className="message-content">
-                {content}
-              </div>
+            <div className="message-content">
+              {file_url ? (
+                file_url.match(/\.(jpg|jpeg|png|gif)$/i) ? (
+                  <a
+                    href="#"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      handleDownloadFile(file_url);
+                    }}
+                  >
+                    <img
+                      src={`http://localhost:9990/${file_url}`}
+                      alt="File"
+                      style={{ maxWidth: "200px", borderRadius: "8px" }}
+                    />
+                    {isDownloading === file_url && <span>Downloading...</span>}
+                  </a>
+                ) : (
+                  <a
+                    href="#"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      handleDownloadFile(file_url);
+                    }}
+                  >
+                    Download File
+                    {isDownloading === file_url && <span>Downloading...</span>}
+                  </a>
+                )
+              ) : (
+                content
+              )}
             </div>
+          </div>
           </div>
         </div>
       </>
@@ -382,10 +488,40 @@ const Chat = () => {
               </h6>
             </div>
             <div className="chat-info">
-              <div className="message-content">
-                {content}
-              </div>
+            <div className="message-content">
+              {file_url ? (
+                file_url.match(/\.(jpg|jpeg|png|gif)$/i) ? (
+                  <a
+                    href="#"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      handleDownloadFile(file_url);
+                    }}
+                  >
+                    <img
+                      src={`http://localhost:9990/${file_url}`}
+                      alt="File"
+                      style={{ maxWidth: "200px", borderRadius: "8px" }}
+                    />
+                    {isDownloading === file_url && <span>Downloading...</span>}
+                  </a>
+                ) : (
+                  <a
+                    href="#"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      handleDownloadFile(file_url);
+                    }}
+                  >
+                    Download File
+                    {isDownloading === file_url && <span>Downloading...</span>}
+                  </a>
+                )
+              ) : (
+                content
+              )}
             </div>
+          </div>
           </div>
           <div className="chat-avatar">
             <Avatar
@@ -625,6 +761,8 @@ const Chat = () => {
                   className="open-file position-relative"
                   name="files"
                   id="files"
+                  ref={fileInputRef}
+                  onChange={handleFileChange}
                 />
               </div>
               <div className="form-item">
