@@ -234,7 +234,7 @@ const GroupTab = () => {
                 </div>
               </div>
               {/* Chat Search */}
-              <div className="search-wrap">
+              {/* <div className="search-wrap">
                 <form>
                   <div className="input-group">
                     <input
@@ -251,7 +251,7 @@ const GroupTab = () => {
                     </span>
                   </div>
                 </form>
-              </div>
+              </div> */}
               {/* /Chat Search */}
             </div>
             <div className="sidebar-body chat-body">

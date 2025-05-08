@@ -292,7 +292,7 @@ const ContactTab = () => {
                 </div>
               </div>
               {/* Chat Search */}
-              <div className="search-wrap">
+              {/* <div className="search-wrap">
                 <form>
                   <div className="input-group">
                     <input
@@ -307,7 +307,7 @@ const ContactTab = () => {
                     </span>
                   </div>
                 </form>
-              </div>
+              </div> */}
               {/* /Chat Search */}
             </div>
             <div className="sidebar-body chat-body">
