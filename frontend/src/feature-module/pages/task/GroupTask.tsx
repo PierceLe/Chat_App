@@ -46,7 +46,7 @@ const GroupTask = () => {
 
   const loadRoomInfo = async () => {
     try {
-      const res = await httpRequest.get(`/room/?room_id=${roomId}`);
+      const res = await httpRequest.get(`/room?room_id=${roomId}`);
       if (res.code === 0) {
         setRoom(res.result || []);
       } else {
