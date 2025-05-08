@@ -21,6 +21,7 @@ import { getContactSelector, getMeSelector, getUsersOnlineSelector } from "@/cor
 import { setUsersOnline } from "@/core/redux/reducers/getUsersOnlineSlice";
 import { setContact } from "@/core/redux/reducers/getContactSlice";
 import ContactUserDetailModal from "@/core/modals/user-detail";
+import AddContactNewModal from "@/core/modals/add-contact-new";
 
 const ContactTab = () => {
   const dispatch = useDispatch();
@@ -37,6 +38,7 @@ const ContactTab = () => {
 
   const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
   const [isModalVisible, setIsModalVisible] = useState(false);
+  const [showAddContact, setShowAddContact] = useState(false);
 
   const handleOpenUserDetail = (userId: string) => {
     setSelectedUserId(userId);
@@ -278,19 +280,17 @@ const ContactTab = () => {
         >
           <div className="slimscroll">
             <div className="chat-search-header">
-              <div className="header-title d-flex align-items-center justify-content-between">
-                <h4 className="mb-3">Contacts</h4>
-                <div className="d-flex align-items-center mb-3">
-                  <Link
-                    to="#"
-                    data-bs-toggle="modal"
-                    data-bs-target="#add-contact"
-                    className="add-icon btn btn-primary p-0 d-flex align-items-center justify-content-center fs-16 me-2"
-                  >
-                    <i className="ti ti-plus" />
-                  </Link>
-                </div>
+            <div className="header-title d-flex align-items-center justify-content-between">
+              <h4 className="mb-3">Contacts</h4>
+              <div className="d-flex align-items-center mb-3">
+                <button
+                  onClick={() => setShowAddContact(true)}
+                  className="add-icon btn btn-primary p-0 d-flex align-items-center justify-content-center fs-16 me-2"
+                >
+                  <i className="ti ti-plus" />
+                </button>
               </div>
+            </div>
               {/* Chat Search */}
               {/* <div className="search-wrap">
                 <form>
@@ -383,6 +383,10 @@ const ContactTab = () => {
         visible={isModalVisible}
         onClose={handleCloseModal}
         userId={selectedUserId}
+      />
+      <AddContactNewModal
+        visible={showAddContact}
+        onClose={() => setShowAddContact(false)}
       />
     </>
   );
