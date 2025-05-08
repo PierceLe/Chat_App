@@ -246,6 +246,7 @@ const Signin = () => {
                                 onSuccess={handleGoogleSuccess}
                                 onError={handleGoogleError}
                                 scope="openid profile email"
+                                style={{ width: '100%' }}
                               />
                             </GoogleOAuthProvider>
                             {/* <div className="text-center flex-fill">
