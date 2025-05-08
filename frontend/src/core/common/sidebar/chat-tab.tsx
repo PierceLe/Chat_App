@@ -6,6 +6,7 @@ import Scrollbars from "react-custom-scrollbars-2";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { format } from "date-fns";
 import { getAvatarUrl } from "@/core/utils/helper";
+import { decryptMessage, decryptSymmetricKey, encryptMessage } from "@/core/utils/encryption";
 
 // Import Swiper styles
 import "swiper/css";
@@ -79,10 +80,16 @@ const ChatTab = () => {
         setRooms((pre)=>{
           let isNewRoom = true;
           let newRooms = new Array<RoomChatOneData>();
-          pre.map((item) => {
+          pre.map(async (item) => {
             if (item.room_id === data.data.room_id){
+              let decryptedMessage
+              try {
+                decryptedMessage = await encryptMessage(data.data.content, item.encrypted_group_key as any)
+              } catch (error) {
+                decryptedMessage = data.data.content
+              }
               isNewRoom = false;
-              item.last_mess = data.data.content
+              item.last_mess = decryptedMessage
               item.updated_at = data.data.updated_at
             }
             newRooms.push(item)

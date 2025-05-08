@@ -258,7 +258,7 @@ const Chat = () => {
       }
       let contentMessage
       try {
-        contentMessage = await encryptMessage(result.filePath, groupKey)
+        contentMessage = await encryptMessage(result.filePath.split("/").pop() as any, groupKey)
       } catch (error) {
         contentMessage = result.filePath
       }
