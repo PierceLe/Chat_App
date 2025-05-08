@@ -137,6 +137,7 @@ export const useAuth = () => {
         localStorage.setItem("privateKey", privateKey);
         notify.success("Message sync successful");
         setShowPinRestoreModal(false);
+        window.location.reload();
       } else {
         notify.error("Error", "Message sync failed");
       }
@@ -144,7 +145,6 @@ export const useAuth = () => {
       notify.error("Error", "Message sync failed");
     } finally {
       setSubmittingPin(false);
-      window.location.reload();
     }
   };
 
