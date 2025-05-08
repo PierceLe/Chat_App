@@ -2,17 +2,33 @@ import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import type { DatePickerProps } from "antd";
 import { DatePicker } from "antd";
-import { addFriend } from "../services/contactService";
+import { addFriend, getUserByEmail, UserData } from "../services/contactService";
 import { wsClient } from "../services/websocket";
+import { useSelector } from "react-redux";
+import { getMeSelector } from "../redux/selectors";
 
 const AddContact = () => {
+  const me: UserData = useSelector(getMeSelector);
+  
+
   const handleAddContact = async () => {
+    let userIds = new Array<String>;
+    userIds.push(me.user_id);
+    const userSendFromCurrentUser = await getUserByEmail(email)
+    if (userSendFromCurrentUser){
+      userIds.push(userSendFromCurrentUser.user_id)
+    }
     await addFriend(email);
-    console.log("ADD FRIEND: ", email);
+    // wsClient.send({
+    //   action: "make-request-friend", 
+    //   data: {
+    //     to: email
+    //   }
+    // })
     wsClient.send({
-      action: "make-request-friend", 
+      action: "change-contact", 
       data: {
-        to: email
+        list_user_id: userIds
       }
     })
   };

@@ -24,7 +24,6 @@ export interface UserData {
 export const getAllFriends = async () => {
   try {
     const res = await httpRequest.get("/friend/all");
-    console.log("getAllFriends: ", res)
     if (res.code === 0) {
       return res.result;
     }
@@ -75,5 +74,35 @@ export const unFriend = async (friend_id: string) => {
     return res;
   } catch (error) {
     console.log(error);
+  }
+};
+
+export const getAllContact = async () => {
+  try {
+    const res = await httpRequest.get("/friend/all-contact");
+    if (res.code === 0) {
+      return res.result;
+    }
+    return [];
+  } catch (error) {
+    console.log(error);
+    return [];
+  }
+};
+
+export const getUserByEmail = async (email: string) => {
+  try {
+    const res = await httpRequest.get("/user/by-email", {
+      params: {
+        email
+      }
+    });
+    if (res.code === 0) {
+      return res.result;
+    }
+    return null;
+  } catch (error) {
+    console.log(error);
+    return null;
   }
 };
