@@ -46,3 +46,9 @@ class FriendDraftRepository():
             "page_size": page_size,
             "total_pages": total_pages
         }
+    
+    def get_user_received_request_add_friend_from_user_id(self, user_id:str):
+        query = self.db.query(User)
+        query = query.join(FriendDraft, and_(User.user_id == FriendDraft.friend_id, FriendDraft.user_id == user_id))
+        query = query.order_by(FriendDraft.updated_at.desc())
+        return query.all() 

@@ -8,6 +8,7 @@ frontend/.next/
 frontend/.turbo/
 frontend/.pnp/
 frontend/.pnp.js
+frontend/src/environment.tsx
 
 # Env files
 frontend/.env

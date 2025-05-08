@@ -154,7 +154,8 @@ class RoomService():
                         method = E_Login_Method.NORMAL,
                         public_key = None,
                         biography = None
-                    )
+                    ),
+                    encrypted_group_key= item.encrypted_group_key
                 )
             )
         return BasePageResponse(
@@ -247,7 +248,8 @@ class RoomService():
                         method = E_Login_Method.NORMAL,
                         public_key = None,
                         biography = None
-                    )
+                    ),
+                    encrypted_group_key= item.encrypted_group_key
                 ) for item in result["items"]],
             total=result["total"],
             page=result["page"],

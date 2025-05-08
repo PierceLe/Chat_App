@@ -45,7 +45,7 @@ async def unfriend(request: UnfriendRequest,
 @friend_router.get("/friend-draft")
 async def get_user_send_request_add_friend(friend_service: FriendService = Depends(FriendService), 
                                             current_user :User = Depends(get_current_user)):
-    result = friend_service.get_user_send_request_add_friend(current_user.user_id)
+    result = friend_service.get_user_send_request_add_friend_to_user_id(current_user.user_id)
     return SuccessResponse(result=result)
 
 @friend_router.post("/friend-draft/pagging")
@@ -67,4 +67,10 @@ async def get_friend_by_filter(request: FilterFriendRequest,
                             current_user :User = Depends(get_current_user)):
     request.user_id = current_user.user_id
     result = friend_service.get_friend_by_filter(request)
+    return SuccessResponse(result=result)
+
+@friend_router.get("/all-contact")
+async def get_all_contact(friend_service: FriendService = Depends(FriendService), 
+                        current_user :User = Depends(get_current_user)):
+    result = friend_service.get_all_contact(current_user.user_id)
     return SuccessResponse(result=result)

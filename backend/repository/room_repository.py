@@ -53,7 +53,7 @@ class RoomRepository():
                         sorts_by: Optional[List[str]],
                         sorts_dir: Optional[List[str]]
                          ):
-        query = self.db.query(Room, User)
+        query = self.db.query(Room, User, UserRoom.encrypted_group_key.label('encrypted_group_key'))
 
         if room_name is not None:
             query = query.filter(Room.room_name.ilike(f"%{room_name}%"))
@@ -120,6 +120,7 @@ class RoomRepository():
             User.first_name.label('friend_frist_name'),
             User.last_name.label('friend_last_name'),
             User.avatar_url.label('friend_avatar_url'),
+            ur1.encrypted_group_key.label('encrypted_group_key')
             )
         
         query = query.outerjoin(u1, Room.last_sender_id == u1.user_id)

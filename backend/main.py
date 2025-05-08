@@ -32,7 +32,7 @@ app.add_middleware(TokenMiddleware,)
 # Add cors
 origins = [
     "http://localhost",
-    "http://localhost:3000"
+    "http://localhost:3000",
 ]
 app.add_middleware(CORSMiddleware, 
     allow_origins=origins,  

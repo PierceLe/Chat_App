@@ -1,6 +1,7 @@
 import datetime
 from dto.request.friend.filter_friend_request import FilterFriendRequest
 from dto.response.base_page_response import BasePageResponse
+from dto.response.contact.contact_response import ContactResponse
 from dto.response.user_response import UserResponse
 from enums.enum_message import E_Message
 from exception.app_exception import AppException
@@ -62,7 +63,7 @@ class FriendService():
     def un_friend(self, user_id: str, friend_id: str):
         self.friend_reposiotry.delete_by_2_user_id(user_id, friend_id)
 
-    def get_user_send_request_add_friend(self, user_id: str) -> list[UserResponse]:
+    def get_user_send_request_add_friend_to_user_id(self, user_id: str) -> list[UserResponse]:
         users = self.friend_draft_repository.get_user_send_request_add_friend(user_id)
         return [UserResponse.fromUserModel(user) for user in users]
     
@@ -96,3 +97,18 @@ class FriendService():
             page_size=result["page_size"],
             total_pages=result["total_pages"]
         )
+
+    def get_user_received_request_add_friend_from_user_id(self, user_id: str) -> list[UserResponse]:
+        users = self.friend_draft_repository.get_user_received_request_add_friend_from_user_id(user_id)
+        return [UserResponse.fromUserModel(user) for user in users]
+
+    def get_all_contact(self, user_id: str):
+        friend = self.get_all_friends(user_id)
+        received_friend = self.get_user_send_request_add_friend_to_user_id(user_id)
+        send_friend = self.get_user_received_request_add_friend_from_user_id(user_id)
+        return ContactResponse(
+            friend=friend,
+            received_friend=received_friend,
+            send_friend=send_friend
+        )
+        
