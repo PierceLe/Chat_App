@@ -52,7 +52,24 @@ const ChatTab = () => {
 
   const fetchApiGetRoomChatOne = async (friendName: string) => {
     const result: any = await getAllGroupChatOne(friendName, me.user_id);
-    setRooms(result);
+  
+    const decryptedRooms = await Promise.all(
+      result.map(async (item: any) => {
+        try {
+          const privateKey = localStorage.getItem("privateKey");
+          const groupKey = await decryptSymmetricKey(item.encrypted_group_key, privateKey!);
+          const decryptedMessage = await decryptMessage(item.last_mess, groupKey);
+          return { ...item, last_mess: decryptedMessage };
+        } catch (error) {
+          console.error("Decryption error: ", error);
+          return item; // fallback
+        }
+      })
+    );
+    const newDecryptedRooms = decryptedRooms.sort((a, b) => {
+          return new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime();
+        });
+    setRooms(newDecryptedRooms);
   };
 
   const fetchApiGetOnlineUsers = async () => {
@@ -77,35 +94,45 @@ const ChatTab = () => {
     // fetchApiGetOnlineUsers()
     const handleMessage = async (data: any) => {
       if (data.action === "chat"){
-        setRooms((pre)=>{
-          let isNewRoom = true;
-          let newRooms = new Array<RoomChatOneData>();
-          pre.map(async (item) => {
-            if (item.room_id === data.data.room_id){
-              let decryptedMessage
-              try {
-                decryptedMessage = await encryptMessage(data.data.content, item.encrypted_group_key as any)
-              } catch (error) {
-                decryptedMessage = data.data.content
-              }
-              isNewRoom = false;
-              item.last_mess = decryptedMessage
-              item.updated_at = data.data.updated_at
-            }
-            newRooms.push(item)
-          })
-          if (isNewRoom){
-            // const newRoom: any = getRoom(data.room_id);
-            // if (newRoom){
-            //   newRooms.push(newRoom);
-            // }
-            fetchApiGetRoomChatOne(nameInput)
-          }
-          newRooms.sort((a, b) => {
-            return new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime();
-          });
-          return newRooms;
-        })
+        fetchApiGetRoomChatOne("")
+        // let isNewRoom = true;
+        // setRooms((pre)=>{
+        //   let newRooms = new Array<RoomChatOneData>();
+        //   pre.map(async (item) => {
+        //     if (item.room_id === data.data.room_id){
+        //       let decryptedMessage
+        //       try {
+        //         const privateKey = localStorage.getItem("privateKey")
+        //         const groupKey = await decryptSymmetricKey(item.encrypted_group_key as any, privateKey as any);
+        //         decryptedMessage = await decryptMessage(data.data.content, groupKey as any)
+        //         isNewRoom = false;
+        //         console.log("decryptedMessage: ", decryptedMessage, isNewRoom)
+        //         console.log("ABSKDJ")
+        //       } catch (error) {
+        //         decryptedMessage = data.data.content
+        //         console.log("fetchApiGetRoomChatOne: ", error)
+        //       }
+              
+        //       item.last_mess = decryptedMessage
+        //       item.updated_at = data.data.updated_at
+        //       console.log("item", item)
+        //     }
+        //     newRooms.push(item)
+        //   })
+        //   console.log("newRooms", newRooms)
+        //   if (isNewRoom){
+        //     // const newRoom: any = getRoom(data.room_id);
+        //     // if (newRoom){
+        //     //   newRooms.push(newRoom);
+        //     // }
+        //     fetchApiGetRoomChatOne(nameInput)
+        //   }
+        //   console.log("isNewRoom", isNewRoom)
+        //   newRooms.sort((a, b) => {
+        //     return new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime();
+        //   });
+        //   return newRooms;
+        // })
       }
       // else if (data.action === "update-status"){
       //   fetchApiGetOnlineUsers()

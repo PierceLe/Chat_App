@@ -144,6 +144,7 @@ export const useAuth = () => {
       notify.error("Error", "Message sync failed");
     } finally {
       setSubmittingPin(false);
+      window.location.reload();
     }
   };
 

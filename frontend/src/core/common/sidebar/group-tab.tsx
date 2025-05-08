@@ -15,6 +15,7 @@ import NewGroupModal from "@/core/modals/new-group";
 import AddGroupModal from "@/core/modals/add-group";
 import { useParams } from "react-router-dom";
 import { getAvatarUrl } from "@/core/utils/helper";
+import { decryptMessage, decryptSymmetricKey } from "@/core/utils/encryption";
 
 const GroupTab = () => {
   const routes = all_routes;
@@ -32,8 +33,23 @@ const GroupTab = () => {
 
   const fetchApiGetRoom = async (roomName: string) => {
     const result: any = await getAllGroupChatMany(roomName, me.user_id);
-    setRooms(result);
-    console.log("ROOMS: ", result);
+    const decryptedRooms = await Promise.all(
+    result.map(async (item: any) => {
+      try {
+        const privateKey = localStorage.getItem("privateKey");
+        const groupKey = await decryptSymmetricKey(item.encrypted_group_key, privateKey!);
+        const decryptedMessage = await decryptMessage(item.last_mess, groupKey);
+        return { ...item, last_mess: decryptedMessage };
+      } catch (error) {
+        console.error("Decryption error: ", error);
+        return item; // fallback
+      }
+    })
+  );
+  const newDecryptedRooms = decryptedRooms.sort((a, b) => {
+        return new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime();
+      });
+  setRooms(newDecryptedRooms);
   };
 
   const [isModalNewGroupOpen, setIsModalNewGroupOpen] = useState(false);
@@ -62,29 +78,30 @@ const GroupTab = () => {
     fetchApiGetRoom("");
     const handleMessage = (data: any) => {
       if (data.action === "chat"){
-        setRooms((pre) => {
-          let isNewRoom = true;
-          let newRooms = new Array<RoomData>();
-          pre.map((item) => {
-            if (item.room_id === data.data.room_id) {
-              isNewRoom = false;
-              item.last_mess = data.data.content
-              item.updated_at = data.data.updated_at
-            }
-            newRooms.push(item)
-          })
-          if (isNewRoom) {
-            // const newRoom: any = getRoom(data.room_id);
-            // if (newRoom){
-            //   newRooms.push(newRoom);
-            // }
-            fetchApiGetRoom(roomNameInput)
-          }
-          newRooms.sort((a, b) => {
-            return new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime();
-          });
-          return newRooms;
-        })
+        fetchApiGetRoom("");
+        // setRooms((pre) => {
+        //   let isNewRoom = true;
+        //   let newRooms = new Array<RoomData>();
+        //   pre.map((item) => {
+        //     if (item.room_id === data.data.room_id) {
+        //       isNewRoom = false;
+        //       item.last_mess = data.data.content
+        //       item.updated_at = data.data.updated_at
+        //     }
+        //     newRooms.push(item)
+        //   })
+        //   if (isNewRoom) {
+        //     // const newRoom: any = getRoom(data.room_id);
+        //     // if (newRoom){
+        //     //   newRooms.push(newRoom);
+        //     // }
+        //     fetchApiGetRoom(roomNameInput)
+        //   }
+        //   newRooms.sort((a, b) => {
+        //     return new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime();
+        //   });
+        //   return newRooms;
+        // })
       }
     };
     wsClient.onMessage(handleMessage);
