@@ -3,11 +3,11 @@ import ImageWithBasePath from "../imageWithBasePath";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { all_routes } from "../../../feature-module/router/all_routes";
-import { Avatar, Tooltip } from "antd";
+import { Avatar, Badge, Tooltip } from "antd";
 import { setDark } from "../../data/redux/commonSlice";
 import { logout } from "../../services/authService";
 import { UserData } from "@/core/services/contactService";
-import { getMeSelector } from "@/core/redux/selectors";
+import { getContactSelector, getMeSelector } from "@/core/redux/selectors";
 import { wsClient } from "@/core/services/websocket";
 import { resetMe } from "@/core/redux/reducers/getMeSlice";
 import { getAvatarUrl } from "@/core/utils/helper";
@@ -18,6 +18,7 @@ const Sidebar = () => {
   const location = useLocation();
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const contact: any = useSelector(getContactSelector);
   
   // Get dark mode directly from Redux state
   const isDarkMode = useSelector((state: any) => state?.common?.darkMode);
@@ -63,17 +64,6 @@ const Sidebar = () => {
                   </Link>
                 </li>
               </Tooltip>
-              <Tooltip title="Contacts" placement="right" color={"#6338F6 "}>
-                <li>
-                  <Link
-                    to="#"
-                    data-bs-toggle="tab"
-                    data-bs-target="#contact-menu"
-                  >
-                    <i className="ti ti-user-shield" />
-                  </Link>
-                </li>
-              </Tooltip>
               <Tooltip title="Group" placement="right" color={"#6338F6 "}>
                 <li>
                   <Link
@@ -88,6 +78,19 @@ const Sidebar = () => {
                   >
                     <i className="ti ti-users-group" />
                   </Link>
+                </li>
+              </Tooltip>
+              <Tooltip title="Contacts" placement="right" color="#6338F6">
+                <li>
+                  <Badge count={contact.received_friend.length} size="large" offset={[-5, 5]} showZero={false}>
+                    <Link
+                      to="#"
+                      data-bs-toggle="tab"
+                      data-bs-target="#contact-menu"
+                    >
+                      <i className="ti ti-user-shield" />
+                    </Link>
+                  </Badge>
                 </li>
               </Tooltip>
               {/* <Tooltip title="Status" placement="right" color={"#6338F6 "}>
