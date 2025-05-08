@@ -49,7 +49,6 @@ const ChatTab = () => {
   const fetchApiGetRoomChatOne = async (friendName: string) => {
     const result: any = await getAllGroupChatOne(friendName, me.user_id);
     setRooms(result);
-    console.log("ROOMS ONE: ", result);
   };
 
   const fetchApiGetOnlineUsers = async () => {
@@ -72,7 +71,7 @@ const ChatTab = () => {
   useEffect(() => {
     fetchApiGetRoomChatOne("");
     fetchApiGetOnlineUsers()
-    const handleMessage = (data: any) => {
+    const handleMessage = async (data: any) => {
       if (data.action === "chat"){
         setRooms((pre)=>{
           let isNewRoom = true;

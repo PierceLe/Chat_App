@@ -13,6 +13,7 @@ export interface RoomData {
   description: string | null;
   created_at: Date;
   updated_at: Date;
+  encrypted_group_key: string | null;
 }
 
 export interface RoomChatOneData extends RoomData {

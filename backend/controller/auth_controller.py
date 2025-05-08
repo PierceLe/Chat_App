@@ -94,6 +94,7 @@ async def forgot_password(
 @auth_router.post("/reset-password",
                   summary="Reset to new password after confirming via email")
 async def reset_password(
+        response: Response,
         reset_password_data: ResetPasswordRequest,
         auth_service: AuthService = Depends(AuthService)):
     
