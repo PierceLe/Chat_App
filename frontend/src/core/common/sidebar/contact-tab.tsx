@@ -20,6 +20,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { getContactSelector, getMeSelector, getUsersOnlineSelector } from "@/core/redux/selectors";
 import { setUsersOnline } from "@/core/redux/reducers/getUsersOnlineSlice";
 import { setContact } from "@/core/redux/reducers/getContactSlice";
+import ContactUserDetailModal from "@/core/modals/user-detail";
 
 const ContactTab = () => {
   const dispatch = useDispatch();
@@ -33,6 +34,19 @@ const ContactTab = () => {
   const contact: any = useSelector(getContactSelector);
 
   const me: UserData = useSelector(getMeSelector);
+
+  const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
+  const [isModalVisible, setIsModalVisible] = useState(false);
+
+  const handleOpenUserDetail = (userId: string) => {
+    setSelectedUserId(userId);
+    setIsModalVisible(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalVisible(false);
+    setSelectedUserId(null);
+  };
   
 
   const fetchApiGetFriend = async () => {
@@ -139,20 +153,13 @@ const ContactTab = () => {
         <div className="mb-4">
           <div className="chat-list">
             <Link
-              to=""
+              to="#"
               // data-bs-toggle="modal"
               // data-bs-target="#contact-details"
               className="chat-user-list"
               onClick={(e) => {
                 e.preventDefault();
-                openModal({
-                  user_id,
-                  email,
-                  first_name,
-                  last_name,
-                  avatar_url,
-                  is_verified: true,
-                });
+                handleOpenUserDetail(user_id);
               }}
             >
               <div className={`avatar avatar-lg me-2`}>
@@ -189,20 +196,13 @@ const ContactTab = () => {
         <div className="mb-4">
           <div className="chat-list">
             <Link
-              to="/user_id"
+              to="#"
               // data-bs-toggle="modal"
               // data-bs-target="#contact-details"
               className="chat-user-list"
               onClick={(e) => {
                 e.preventDefault();
-                openModal({
-                  user_id,
-                  email,
-                  first_name,
-                  last_name,
-                  avatar_url,
-                  is_verified: true,
-                });
+                handleOpenUserDetail(user_id);
               }}
             >
               <div className={`avatar avatar-lg me-2`}>
@@ -379,6 +379,11 @@ const ContactTab = () => {
         onUnfriend={handleUnfriend}
       />
       {/* / Chats sidebar */}
+      <ContactUserDetailModal
+        visible={isModalVisible}
+        onClose={handleCloseModal}
+        userId={selectedUserId}
+      />
     </>
   );
 };

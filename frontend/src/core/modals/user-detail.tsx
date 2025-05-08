@@ -20,7 +20,7 @@ const ContactUserDetailModal: React.FC<Props> = ({ visible, onClose, userId }) =
       const fetchUser = async () => {
         try {
           setLoading(true);
-          const res = await httpRequest.get(`/user/${userId}`);
+          const res = await httpRequest.get(`/user/by-id?user_id=${userId}`);
           if (res.code === 0) {
             setUserData(res.result);
           } else {
