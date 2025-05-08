@@ -9,6 +9,8 @@ class TokenMiddleware(BaseHTTPMiddleware):
         self.auth_service = AuthService()
 
     async def dispatch(self, request: Request, call_next):
+        if request.method == "OPTIONS":
+            return await call_next(request)
         # Ignore token check for specific APIs
         WHITE_LIST_API = ["/api/login", "/api/logout", "/api/signup", "/api/verify-email-signup", 
                 "/api/forgot-password", "/api/reset-password", "/api/check-2fa", 

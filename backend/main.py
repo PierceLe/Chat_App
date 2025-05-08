@@ -33,6 +33,8 @@ app.add_middleware(TokenMiddleware,)
 origins = [
     "http://localhost",
     "http://localhost:3000",
+    "https://chatwithpierce.com",
+    "https://chatwithpierce.com:3000"
 ]
 app.add_middleware(CORSMiddleware, 
     allow_origins=origins,  
