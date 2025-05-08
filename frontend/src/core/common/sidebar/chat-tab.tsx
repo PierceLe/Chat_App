@@ -9,9 +9,9 @@ import { getAvatarUrl } from "@/core/utils/helper";
 
 // Import Swiper styles
 import "swiper/css";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { UserData } from "../../services/contactService";
-import { getMeSelector } from "../../redux/selectors";
+import { getMeSelector, getUsersOnlineSelector } from "../../redux/selectors";
 import {
   getAllGroupChatOne,
   getRoomById,
@@ -26,6 +26,9 @@ import { useParams } from "react-router-dom";
 import { getOnlineUserIds } from "@/core/services/messageService";
 
 const ChatTab = () => {
+  const dispatch = useDispatch();
+  const usersOnline: Set<String> = useSelector(getUsersOnlineSelector);
+  
   const routes = all_routes;
   const [activeTab, setActiveTab] = useState("All Chats");
 
@@ -70,7 +73,7 @@ const ChatTab = () => {
 
   useEffect(() => {
     fetchApiGetRoomChatOne("");
-    fetchApiGetOnlineUsers()
+    // fetchApiGetOnlineUsers()
     const handleMessage = async (data: any) => {
       if (data.action === "chat"){
         setRooms((pre)=>{
@@ -97,9 +100,9 @@ const ChatTab = () => {
           return newRooms;
         })
       }
-      else if (data.action === "update-status"){
-        fetchApiGetOnlineUsers()
-      }
+      // else if (data.action === "update-status"){
+      //   fetchApiGetOnlineUsers()
+      // }
     };
     wsClient.onMessage(handleMessage);
     return () => {
@@ -177,7 +180,7 @@ const ChatTab = () => {
               backgroundColor: currentChatRoom === room_id ? 'oklch(90.1% 0.058 230.902)' : 'transparent',
             }}
           >
-            <div className={`avatar avatar-lg ${onlineUserIds.has(friend_id) ? 'online' : 'offline'} me-2`}>
+            <div className={`avatar avatar-lg ${usersOnline.has(friend_id) ? 'online' : 'offline'} me-2`}>
               <Avatar
                 size={32}
                 src={getAvatarUrl(friend_avatar_url)}
@@ -318,7 +321,7 @@ const ChatTab = () => {
                   >
                     {rooms.map((room, index) => (
                       <SwiperSlide key={index}>
-                        <div className={`avatar avatar-lg ${onlineUserIds.has(room.friend_id) ? 'online' : 'offline'} d-block`}>
+                        <div className={`avatar avatar-lg ${usersOnline.has(room.friend_id) ? 'online' : 'offline'} d-block`}>
                           <Avatar
                             size={32}
                             src={getAvatarUrl(room.friend_avatar_url)}

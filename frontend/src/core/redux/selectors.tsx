@@ -7,3 +7,7 @@ export const roomDescriptionSelector = (state: any) =>
 export const roomMemberIdsSelector = (state: any) =>
   state.createRoom.member_ids;
 export const getMeSelector = (state: any) => state.getMe.user;
+
+export const getUsersOnlineSelector = (state: any) => state.getUsersOnline.usersOnline;
+
+export const getContactSelector = (state: any) => state.getContact;

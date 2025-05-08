@@ -18,7 +18,7 @@ import {
 } from "../../../core/services/messageService";
 import { UserData } from "../../../core/services/contactService";
 import { useSelector } from "react-redux";
-import { getMeSelector } from "../../../core/redux/selectors";
+import { getMeSelector, getUsersOnlineSelector } from "../../../core/redux/selectors";
 import { format } from "date-fns";
 import { wsClient } from "../../../core/services/websocket";
 import { getEncryptedGroupKey } from "@/core/services/roomService";
@@ -39,6 +39,9 @@ const Chat = () => {
   const [groupKey, setGroupKey] = useState<string>("");
 
   const me: UserData = useSelector(getMeSelector);
+  const usersOnline: Set<String> = useSelector(getUsersOnlineSelector);
+  
+
   const { room_id } = useParams<RouteParams>();
   const { state } = useLocation<LocationState>();
   const scrollbarsRef = useRef<Scrollbars>(null);
@@ -533,7 +536,7 @@ const Chat = () => {
                     <i className="fas fa-arrow-left" />
                   </Link>
                 </div>
-                <div className="avatar avatar-lg online flex-shrink-0">
+                <div className={`avatar avatar-lg ${usersOnline.has(state.friend_id)? 'online': 'offline'} flex-shrink-0`}>
                   {state && (
                     <Avatar
                       size={32}

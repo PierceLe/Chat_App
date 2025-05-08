@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import Scrollbars from "react-custom-scrollbars-2";
 import {
   acceptFriend,
+  getAllContact,
   getAllFriends,
   getFriendDrafts,
   unFriend,
@@ -15,13 +16,24 @@ import { wsClient } from "@/core/services/websocket";
 import { getOnlineUserIds } from "@/core/services/messageService";
 import { Avatar } from "antd";
 import { getAvatarUrl } from "@/core/utils/helper";
+import { useDispatch, useSelector } from "react-redux";
+import { getContactSelector, getMeSelector, getUsersOnlineSelector } from "@/core/redux/selectors";
+import { setUsersOnline } from "@/core/redux/reducers/getUsersOnlineSlice";
+import { setContact } from "@/core/redux/reducers/getContactSlice";
 
 const ContactTab = () => {
+  const dispatch = useDispatch();
   const [friends, setFriends] = useState(Array<UserData>);
   const [friendDrafts, setFriendDrafts] = useState(Array<UserData>);
   const [searchInput, setSearchInput] = useState("");
   const debouncedValue = useDebounce(searchInput, 500);
   const [onlineUserIds, setOnlineUserIds] = useState<Set<string>>(new Set());
+
+  const usersOnline: Set<String> = useSelector(getUsersOnlineSelector);
+  const contact: any = useSelector(getContactSelector);
+
+  const me: UserData = useSelector(getMeSelector);
+  
 
   const fetchApiGetFriend = async () => {
     const result = await getAllFriends();
@@ -37,20 +49,30 @@ const ContactTab = () => {
 
   const fetchApiGetOnlineUsers = async () => {
     const result = await getOnlineUserIds();
-    console.log("online_user_ids: ", result)
-    setOnlineUserIds(new Set(result))
+    // setOnlineUserIds(new Set(result))
+    dispatch(setUsersOnline(result));
+  }
+
+  const fetchApiGetAllContact = async () => {
+    const result = await getAllContact();
+    console.log("fetchApiGetAllContact: ", result)
+    dispatch(setContact(result))
   }
   
   useEffect(() => {
-    console.log("Contact: Rerender")
     fetchApiGetFriend()
     fetchApiGetFriendDraft()
     fetchApiGetOnlineUsers()
+    fetchApiGetAllContact()
     const handleMessage = (data: any) => {
       if (data.action === "make-request-friend") {
         fetchApiGetFriendDraft()
       } else if (data.action === "update-status") {
         fetchApiGetOnlineUsers()
+      } else if (data.action === "change-contact") {
+        fetchApiGetAllContact()
+        fetchApiGetFriendDraft()
+        fetchApiGetFriend()
       }
     }
     wsClient.onMessage(handleMessage);
@@ -62,6 +84,7 @@ const ContactTab = () => {
   useEffect(() => {
     fetchApiGetFriend();
     fetchApiGetFriendDraft();
+    fetchApiGetAllContact();
   }, [debouncedValue]);
 
   const handleChange = (e: any) => {
@@ -69,13 +92,18 @@ const ContactTab = () => {
   };
 
   const handleAccept = async (user_id: string, is_accept: boolean) => {
-    console.log("ACCEPT: ", user_id);
     const res: any = await acceptFriend(user_id, is_accept);
-    console.log("ACCEPT: ", res);
+    const userIds : Array<String> = [user_id, me.user_id]
     if (res.code === 0) {
       fetchApiGetFriend();
       fetchApiGetFriendDraft();
     }
+    wsClient.send({
+      action: "change-contact",
+      data: {
+        list_user_id: userIds
+      },
+    });
   };
 
   const [showModal, setShowModal] = useState(false); // State controlling modal
@@ -127,7 +155,7 @@ const ContactTab = () => {
                 });
               }}
             >
-              <div className={`avatar avatar-lg ${is_online ? 'online' : 'offline'} me-2`}>
+              <div className={`avatar avatar-lg me-2`}>
                 <Avatar
                   size={32}
                   src={getAvatarUrl(avatar_url)}
@@ -177,7 +205,7 @@ const ContactTab = () => {
                 });
               }}
             >
-              <div className={`avatar avatar-lg ${is_online ? 'online' : 'offline'} me-2`}>
+              <div className={`avatar avatar-lg me-2`}>
                 <Avatar
                   size={32}
                   src={getAvatarUrl(avatar_url)}
@@ -285,11 +313,30 @@ const ContactTab = () => {
             <div className="sidebar-body chat-body">
               {/* Left Chat Title */}
               <div className="d-flex justify-content-between align-items-center mb-3">
+                <h5>Send Request</h5>
+              </div>
+              {/* /Left Chat Title */}
+              <div className="chat-users-wrap">
+                {contact.send_friend.map((item) => (
+                  <OneContactTab
+                    key={item.user_id}
+                    user_id={item.user_id}
+                    email={item.email}
+                    first_name={item.first_name}
+                    last_name={item.last_name}
+                    avatar_url={item.avatar_url}
+                    is_verified={item.is_verified}
+                    is_online = {usersOnline.has(item.user_id)}
+                ></OneContactTab>
+                ))}
+              </div>
+              {/* Left Chat Title */}
+              <div className="d-flex justify-content-between align-items-center mb-3">
                 <h5>Request</h5>
               </div>
               {/* /Left Chat Title */}
               <div className="chat-users-wrap">
-                {friendDrafts.map((item) => (
+                {contact.received_friend.map((item) => (
                   <OneContactRequestTab
                     key={item.user_id}
                     user_id={item.user_id}
@@ -298,7 +345,7 @@ const ContactTab = () => {
                     last_name={item.last_name}
                     avatar_url={item.avatar_url}
                     is_verified={item.is_verified}
-                    is_online = {onlineUserIds.has(item.user_id)}
+                    is_online = {usersOnline.has(item.user_id)}
                   ></OneContactRequestTab>
                 ))}
               </div>
@@ -308,7 +355,7 @@ const ContactTab = () => {
               </div>
               {/* /Left Chat Title */}
               <div className="chat-users-wrap">
-                {friends.map((item) => (
+                {contact.friend.map((item) => (
                   <OneContactTab
                     key={item.user_id}
                     user_id={item.user_id}
@@ -317,7 +364,7 @@ const ContactTab = () => {
                     last_name={item.last_name}
                     avatar_url={item.avatar_url}
                     is_verified={item.is_verified}
-                    is_online = {onlineUserIds.has(item.user_id)}
+                    is_online = {usersOnline.has(item.user_id)}
                   ></OneContactTab>
                 ))}
               </div>
