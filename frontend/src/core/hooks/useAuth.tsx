@@ -7,7 +7,7 @@ import { setMe } from "@/core/redux/reducers/getMeSlice";
 import { UserData } from "../services/contactService";
 import { getMeSelector } from "../redux/selectors";
 
-import { Modal, Input, message } from "antd";
+import { Modal, Input, message, Button } from "antd";
 import { notify } from "../utils/notification";
 import { decryptPrivateKey, encryptPrivateKey, generateAsymmetricKeyPair } from "../utils/encryption";
 
@@ -154,10 +154,18 @@ export const useAuth = () => {
       open={showPinSetupModal}
       onOk={handleSubmitPinSetup}
       confirmLoading={submittingPin}
-      onCancel={() => {}}
-      okText="Confirm"
       closable={false}
       maskClosable={false}
+      footer={[
+        <Button
+          key="submit"
+          type="primary"
+          loading={submittingPin}
+          onClick={handleSubmitPinSetup}
+        >
+          Confirm
+        </Button>,
+      ]}
     >
       <p>You need to create a PIN code to encrypt data when using the application.</p>
       <Input.Password
@@ -179,6 +187,16 @@ export const useAuth = () => {
       okText="Restore"
       closable={false}
       maskClosable={false}
+      footer={[
+        <Button
+          key="submit"
+          type="primary"
+          loading={submittingPin}
+          onClick={handleSubmitPinRestore}
+        >
+          Restore
+        </Button>,
+      ]}
     >
       <p>Please enter pin code to synchronize data.</p>
       <Input.Password
