@@ -111,4 +111,8 @@ class FriendService():
             received_friend=received_friend,
             send_friend=send_friend
         )
+
+    def is_friend(self, current_user_id: str, friend_id: str) -> bool:
+        friends = self.get_all_friends(current_user_id)
+        return any(friend.user_id == friend_id for friend in friends)
         

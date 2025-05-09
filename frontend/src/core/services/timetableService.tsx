@@ -127,4 +127,17 @@ export const deleteEvent = async (eventId: string) => {
     console.error(`Error deleting event ${eventId}:`, error);
     return false;
   }
-}; 
+};
+
+export const getFriendEvents = async (friendId: string) => {
+  try {
+    const res = await httpRequest.get(`/timetable/friend/${friendId}`);
+    if (res.code === 0) {
+      return res.result;
+    }
+    return [];
+  } catch (error) {
+    console.error(`Error getting friend's timetable (ID: ${friendId}):`, error);
+    return [];
+  }
+};

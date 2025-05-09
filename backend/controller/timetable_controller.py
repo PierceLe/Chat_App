@@ -8,6 +8,8 @@ from utils.utils import get_current_user
 from model.user import User
 from typing import Optional
 
+from service.friend_service import FriendService
+
 timetable_router = APIRouter()
 
 @timetable_router.post("/create")
@@ -95,4 +97,22 @@ async def delete_event(
     if not result:
         raise HTTPException(status_code=404, detail="Event not found")
         
-    return SuccessResponse(result=True) 
+    return SuccessResponse(result=True)
+
+
+@timetable_router.get("/friend/{friend_id}")
+async def get_friend_timetable(
+        friend_id: str,
+        timetable_service: TimetableEventService = Depends(TimetableEventService),
+        friend_service: FriendService = Depends(FriendService),
+        current_user: User = Depends(get_current_user)
+):
+    """
+    Get all events for a specific friend
+    """
+    # Verify friendship
+    if not friend_service.is_friend(current_user.user_id, friend_id):
+        raise HTTPException(status_code=403, detail="Not authorized to view this friend's timetable.")
+
+    events = timetable_service.get_all_events(friend_id)
+    return SuccessResponse(result=events)
