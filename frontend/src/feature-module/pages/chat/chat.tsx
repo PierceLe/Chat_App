@@ -437,22 +437,75 @@ const Chat = () => {
               </h6>
             </div>
             <div className="chat-info">
-            <div className="message-content">
-              {file_url ? (
-                <a
-                href="#"
-                onClick={(e) => {
-                  e.preventDefault();
-                  handleDownloadFile(file_url);
+            {file_url ? (
+              <div
+              className="file-item d-flex"
+              style={{
+                backgroundColor: 'oklch(96.7% 0.003 264.542)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'flex-start',
+                width: '100%',
+                maxWidth: "500px",
+                marginLeft: 'auto',
+                padding: '12px 14px',
+                borderRadius: '12px 12px 0 12px',
+                cursor: 'pointer',
+                marginBottom: '6px',
+                transition: 'background 0.2s ease',
+              }}
+              onClick={() => handleDownloadFile(file_url)}
+            >
+              <div
+                className="file-icon"
+                style={{
+                  fontSize: '24px',
+                  marginRight: '10px',
+                  color: '#6338f6',
+                  flexShrink: 0,
                 }}
               >
-                {file_url.split("/").pop()}
-                {isDownloading === file_url && <span>Downloading...</span>}
-              </a>
-              ) : (
-                content
-              )}
+                📄
+              </div>
+              <div
+                className="file-info"
+                style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  overflow: 'hidden',
+                }}
+              >
+                <span
+                  className="file-name"
+                  style={{
+                    fontWeight: 500,
+                    color: '#333',
+                    wordBreak: 'break-word',
+                    maxWidth: '220px',
+                  }}
+                >
+                  {file_url.split("/").pop()}
+                </span>
+                {isDownloading === file_url && (
+                  <span
+                    className="file-status"
+                    style={{
+                      fontSize: '12px',
+                      color: '#999',
+                      marginTop: '2px',
+                    }}
+                  >
+                    Downloading...
+                  </span>
+                )}
+              </div>
             </div>
+            
+              ) : (
+              <div className="message-content">
+                {content}
+              </div>
+              )}
           </div>
           </div>
         </div>
@@ -486,22 +539,75 @@ const Chat = () => {
               </h6>
             </div>
             <div className="chat-info">
-            <div className="message-content">
-              {file_url ? (
-                <a
-                href="#"
-                onClick={(e) => {
-                  e.preventDefault();
-                  handleDownloadFile(file_url);
+            {file_url ? (
+              <div
+              className="file-item d-flex"
+              style={{
+                backgroundColor: 'oklch(96.7% 0.003 264.542)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'flex-start',
+                width: '100%',
+                maxWidth: "500px",
+                marginLeft: 'auto',
+                padding: '12px 14px',
+                borderRadius: '12px 12px 0 12px',
+                cursor: 'pointer',
+                marginBottom: '6px',
+                transition: 'background 0.2s ease',
+              }}
+              onClick={() => handleDownloadFile(file_url)}
+            >
+              <div
+                className="file-icon"
+                style={{
+                  fontSize: '24px',
+                  marginRight: '10px',
+                  color: '#6338f6',
+                  flexShrink: 0,
                 }}
               >
-                {file_url.split("/").pop()}
-                {isDownloading === file_url && <span>Downloading...</span>}
-              </a>
-              ) : (
-                content
-              )}
+                📄
+              </div>
+              <div
+                className="file-info"
+                style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  overflow: 'hidden',
+                }}
+              >
+                <span
+                  className="file-name"
+                  style={{
+                    fontWeight: 500,
+                    color: '#333',
+                    wordBreak: 'break-word',
+                    maxWidth: '220px',
+                  }}
+                >
+                  {file_url.split("/").pop()}
+                </span>
+                {isDownloading === file_url && (
+                  <span
+                    className="file-status"
+                    style={{
+                      fontSize: '12px',
+                      color: '#999',
+                      marginTop: '2px',
+                    }}
+                  >
+                    Downloading...
+                  </span>
+                )}
+              </div>
             </div>
+            
+              ) : (
+              <div className="message-content">
+                {content}
+              </div>
+              )}
           </div>
           </div>
           <div className="chat-avatar">
@@ -518,19 +624,14 @@ const Chat = () => {
   if (!room_id) {
     return (
       <div
+        className="no-chat-selected d-flex justify-content-center align-items-center text-center"
         style={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
           height: "100%",
           width: "100%",
           minHeight: "300px",
           padding: "20px",
           fontSize: "18px",
-          color: "#666",
-          backgroundColor: "#f9f9f9",
           borderRadius: "8px",
-          textAlign: "center",
         }}
       >
         Please select the conversation you want to chat with.
