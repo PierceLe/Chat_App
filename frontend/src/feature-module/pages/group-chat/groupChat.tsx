@@ -1274,6 +1274,7 @@ const GroupChat = () => {
                       const response = await httpRequest.put(
                           '/room/meta',
                           {
+                            room_name:roomData?.room_name,
                             avatar_url: avatarUrl,
                           },
                           {
