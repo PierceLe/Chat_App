@@ -32,7 +32,7 @@ const Signin = () => {
       try {
         const user = await getMe();
         if (user) {
-          navigate(routes.index);
+          navigate(routes.chat);
         }
       } catch (error) {
         console.log("Not logged in");
@@ -89,7 +89,7 @@ const Signin = () => {
         if (res.login_type === "0") {
           // Login successful without 2FA
           notify.success("Login Successfully !")
-          navigate(routes.index);
+          navigate(routes.chat);
         } else {
           setTokenLogin2FA(res.token)
           setIs2FAModalVisible(true);
@@ -127,7 +127,7 @@ const Signin = () => {
 
       if (res.code === 0) {
         notify.success("2FA Verified Successfully!");
-        navigate(routes.index);
+        navigate(routes.chat);
         setIs2FAModalVisible(false);
       } else {
         setMessageError2FA(res.error_message)
@@ -153,7 +153,7 @@ const Signin = () => {
       }
       
       notify.success("Login Successfully !")
-      navigate(routes.index);
+      navigate(routes.chat);
     } catch (err) {
       console.error("Google login failed", err);
     }

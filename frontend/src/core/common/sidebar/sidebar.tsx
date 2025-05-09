@@ -19,6 +19,23 @@ const Sidebar = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const contact: any = useSelector(getContactSelector);
+
+  const getActiveRoute = () => {
+    if (location.pathname.includes(routes.chat)) {
+      return 'chat';
+    } else if (location.pathname.includes(routes.groupChat)) {
+      return 'group';
+    } else if (location.pathname.includes(routes.contact)) {
+      return 'contact';
+    } else if (location.pathname.includes(routes.settings)) {
+      return 'settings';
+    } else if (location.pathname.includes(routes.timetable)) {
+      return 'timetable';
+    }
+    return '';
+  };
+
+  const activeRoute = getActiveRoute();
   
   // Get dark mode directly from Redux state
   const isDarkMode = useSelector((state: any) => state?.common?.darkMode);
@@ -50,15 +67,8 @@ const Sidebar = () => {
               <Tooltip title="Chat" placement="right" color={"#6338F6 "}>
                 <li>
                   <Link
-                    to={routes.index}
-                    className={
-                      location.pathname.includes(routes.index) ||
-                      location.pathname.includes(routes.chat)
-                        ? "active"
-                        : ""
-                    }
-                    data-bs-toggle="tab"
-                    data-bs-target="#chat-menu"
+                    to={routes.chat}
+                    className={activeRoute === 'chat' ? 'active' : ''}
                   >
                     <i className="ti ti-message-2-heart" />
                   </Link>
@@ -67,14 +77,8 @@ const Sidebar = () => {
               <Tooltip title="Group" placement="right" color={"#6338F6 "}>
                 <li>
                   <Link
-                    to="#"
-                    className={
-                      location.pathname.includes(routes.groupChat)
-                        ? "active"
-                        : ""
-                    }
-                    data-bs-toggle="tab"
-                    data-bs-target="#group-menu"
+                    to={routes.groupChat}
+                    className={activeRoute === 'group' ? 'active' : ''}
                   >
                     <i className="ti ti-users-group" />
                   </Link>
@@ -84,86 +88,19 @@ const Sidebar = () => {
                 <li>
                   <Badge count={contact.received_friend.length} size="large" offset={[-5, 5]} showZero={false}>
                     <Link
-                      to="#"
-                      data-bs-toggle="tab"
-                      data-bs-target="#contact-menu"
+                      to={routes.contact}
+                      className={activeRoute === 'contact' ? 'active' : ''}
                     >
                       <i className="ti ti-user-shield" />
                     </Link>
                   </Badge>
                 </li>
               </Tooltip>
-              {/* <Tooltip title="Status" placement="right" color={"#6338F6 "}>
-                <li>           
-                  <Link
-                    onClick={() => navigate(routes.status)}
-                    to={routes.status}
-                    data-bs-toggle="tab"
-                    data-bs-target="#status-menu"
-                    className={
-                      location.pathname.includes(routes.status) ||
-                      location.pathname.includes(routes.myStatus) ||
-                      location.pathname.includes(routes.userStatus)
-                        ? "active"
-                        : ""
-                    }
-                  >
-                    <i className="ti ti-circle-dot" />
-                  </Link>
-                </li>
-              </Tooltip> */}
-              {/* <Tooltip title="Calls" placement="right" color={"#6338F6 "}>
-                <li>
-                  <Link
-                    to="#"
-                    className={
-                      location.pathname.includes(routes.allCalls)
-                        ? "active"
-                        : ""
-                    }
-                    data-bs-toggle="tab"
-                    data-bs-target="#call-menu"
-                  >
-                    <i className="ti ti-phone-call" />
-                  </Link>
-                </li>
-              </Tooltip> */}
-              {/* <Tooltip title="Profile" placement="right" color={"#6338F6 "}>
-                <li>
-                  <Link
-                    to="#"
-                    data-bs-toggle="tab"
-                    data-bs-target="#profile-menu"
-                  >
-                    <i className="ti ti-user-circle" />
-                  </Link>
-                </li>
-              </Tooltip> */}
-              {/* <Tooltip title="Tasks" placement="right" color={"#6338F6 "}>
-                <li>
-                  <Link
-                    to="#"
-                    className={
-                      location.pathname.includes(routes.tasks) ? "active" : ""
-                    }
-                    data-bs-toggle="tab"
-                    data-bs-target="#tasks"
-                  >
-                    <i className="ti ti-receipt" />
-                  </Link>
-                </li>
-              </Tooltip> */}
               <Tooltip title="Timetable" placement="right" color={"#6338F6 "}>
                 <li>
                   <Link
-                    to="#"
-                    className={
-                      location.pathname.includes(routes.timetable)
-                        ? "active"
-                        : ""
-                    }
-                    data-bs-toggle="tab"
-                    data-bs-target="#timetable"
+                    to={routes.timetable}
+                    className={activeRoute === 'timetable' ? 'active' : ''}
                   >
                     <i className="ti ti-calendar" />
                   </Link>
@@ -172,9 +109,8 @@ const Sidebar = () => {
               <Tooltip title="Settings" placement="right" color={"#6338F6 "}>
                 <li>
                   <Link
-                    to="#"
-                    data-bs-toggle="tab"
-                    data-bs-target="#setting-menu"
+                    to={routes.settings}
+                    className={activeRoute === 'settings' ? 'active' : ''}
                   >
                     <i className="ti ti-settings" />
                   </Link>
