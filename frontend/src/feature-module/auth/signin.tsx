@@ -240,28 +240,28 @@ const Signin = () => {
                           <div className="login-or mb-3">
                             <span className="span-or">Or sign in with </span>
                           </div>
-                          <div style={{ width: '100%', boxSizing: 'border-box', display: 'flex', justifyContent: 'center' }}>
+                          <div style={{ width: '100%', boxSizing: 'border-box' }}>
                             <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
-                              <GoogleLogin
-                                onSuccess={handleGoogleSuccess}
-                                onError={handleGoogleError}
-                                scope="openid profile email"
-                                render={renderProps => (
-                                  <button
-                                    onClick={renderProps.onClick}
-                                    disabled={renderProps.disabled}
-                                    className="btn btn-outline-primary w-100 d-flex align-items-center justify-content-center"
-                                    style={{ height: '40px' }}
-                                  >
-                                    <img
-                                      src="assets/img/icons/google.svg"
-                                      alt="Google"
-                                      style={{ width: '20px', marginRight: '10px' }}
-                                    />
-                                    Sign in with Google
-                                  </button>
-                                )}
-                              />
+                            <GoogleLogin
+                              onSuccess={handleGoogleSuccess}
+                              onError={handleGoogleError}
+                              scope="openid profile email"
+                              render={renderProps => (
+                                <button
+                                  onClick={renderProps.onClick}
+                                  disabled={renderProps.disabled}
+                                  className="btn btn-outline-primary w-100 d-flex align-items-center justify-content-center"
+                                  style={{ height: '40px' }}
+                                >
+                                  <img
+                                    src="assets/img/icons/google.svg"
+                                    alt="Google"
+                                    style={{ width: '20px', marginRight: '10px' }}
+                                  />
+                                  Sign in with Google
+                                </button>
+                              )}
+/>
                             </GoogleOAuthProvider>
                             {/* <div className="text-center flex-fill">
                               <Link
