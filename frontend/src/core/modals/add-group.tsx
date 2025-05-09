@@ -10,8 +10,9 @@ import {
 import { createRoom } from "../services/roomService";
 import { wsClient } from "../services/websocket";
 import { UploadOutlined } from '@ant-design/icons';
-import { encryptSymmetricKey, generateSymmetricKey } from "../utils/encryption";
+import { encryptMessage, encryptSymmetricKey, generateSymmetricKey } from "../utils/encryption";
 import { getAvatarUrl } from "../utils/helper";
+import { SendMessageData } from "../services/messageService";
 
 interface Props {
   open: boolean;
@@ -89,6 +90,20 @@ const AddGroupModal: React.FC<Props> = ({ open, onClose, onBack }) => {
         },
       });
 
+      const encryptedContent = await encryptMessage(`Group ${roomName} created`, groupKey);
+
+      const messageData: SendMessageData = {
+        room_id,
+        content: encryptedContent,
+        file_url: null,
+        message_type: 5,
+      };
+
+      wsClient.send({
+        action: "chat",
+        data: messageData,
+      });
+
       // Dispatch custom event to notify ChatTab
       const event = new Event("chatGroupCreated");
       window.dispatchEvent(event);
@@ -121,7 +136,7 @@ const AddGroupModal: React.FC<Props> = ({ open, onClose, onBack }) => {
                 avatar={<Avatar
                   size={30}
                   src={getAvatarUrl(user.avatar_url)}
-                    icon={<UploadOutlined />}
+                  icon={<UploadOutlined />}
                 />}
                 title={`${user.first_name} ${user.last_name}`}
                 description={user.email}
