@@ -6,11 +6,16 @@ import { useEffect, useState } from "react";
 import { getAllFriends } from "../../services/contactService";
 import { UserData } from "../../services/contactService";
 import { getAvatarUrl } from "@/core/utils/helper";
+import { useSelector } from "react-redux";
+import { getContactSelector } from "@/core/redux/selectors";
 
 const TimeTableTab = () => {
   const routes = all_routes;
   const [friends, setFriends] = useState<UserData[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
+
+  const contact: any = useSelector(getContactSelector);
+
 
   useEffect(() => {
     const fetchFriends = async () => {
@@ -22,6 +27,8 @@ const TimeTableTab = () => {
 
     fetchFriends();
   }, []);
+
+
 
   return (
     <div className="sidebar-content active slimscroll">
@@ -51,9 +58,9 @@ const TimeTableTab = () => {
                       <span className="visually-hidden">Loading...</span>
                     </div>
                   </div>
-                ) : friends.length > 0 ? (
+                ) : contact.friend.length > 0 ? (
                   <div className="chat-list">
-                    {friends.map((friend) => (
+                    {contact.friend.map((friend) => (
                       <Link 
                         key={friend.user_id}
                         to={`${routes.timetable}?userId=${friend.user_id}`} 

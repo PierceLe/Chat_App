@@ -61,7 +61,7 @@ async def websocket_endpoint(websocket: WebSocket, access_token=Cookie(...)):
             elif action == "make-request-friend":
                 await make_request_friend(data_json, current_user)
             elif action == "change-contact":
-                await change_contact(data_json)
+                await relay_message(data_json)
 
     except Exception as e:
         print(f"Error: {e}")
@@ -223,7 +223,7 @@ async def update_status(is_online: bool, user_id: str):
     )
     await boardcast(res.json())
 
-async def change_contact(data_json):
+async def relay_message(data_json):
     """
     data_json: {
         "action": "change-contact",
