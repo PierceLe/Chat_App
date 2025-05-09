@@ -1,3 +1,4 @@
+from repository.friend_repository import FriendRepository
 from repository.user_repository import UserRepository
 from dto.request.auth.user_create_request import UserCreateRequest
 from dto.request.auth.user_update_request import UserUpdateRequest
@@ -16,6 +17,7 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 class UserService():
     def __init__(self):
         self.user_repository = UserRepository()
+        self.friend_repository = FriendRepository()
 
     def check_user_exist_by_email(self, email: str, only_verified=True):
         return self.user_repository.check_user_exist_by_email(
@@ -144,3 +146,13 @@ class UserService():
         else:
             raise AppException(ErrorCode.PIN_INVALID)
 
+    def get_user_query_email_and_not_in_list(
+            self,
+            user_id: str,
+            email: str
+            ) -> list[UserResponse]:
+        friend_users = self.friend_repository.get_all_friends(user_id)
+        list_user_id_non_query = [friend_user.user_id for friend_user in friend_users]
+        list_user_id_non_query.append(user_id)
+        users = self.user_repository.query_by_email_not_in_list(list_user_id_non_query, email)
+        return [UserResponse.fromUserModel(user) for user in users]

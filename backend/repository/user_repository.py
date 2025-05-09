@@ -1,3 +1,4 @@
+from sqlalchemy import and_
 from sqlalchemy.orm import Session
 from database import SessionLocal
 from model.user import User
@@ -173,3 +174,11 @@ class UserRepository:
                 db.refresh(db_user)
                 return True
             return False
+        
+    def query_by_email_not_in_list(self, list_user_id: list[str], email: str):
+        with SessionLocal() as db:
+            query = db.query(User)
+            if email:
+                query = query.filter(and_(~User.user_id.in_(list_user_id), User.email.ilike(f"%{email}%")))
+            return query.all()
+
