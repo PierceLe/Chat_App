@@ -25,7 +25,7 @@ const NotFound = () => {
       </p>
 
       {/* Link to home page */}
-      <Link to={route.index} className="btn btn-primary">
+      <Link to={route.chat} className="btn btn-primary">
         Back to home page
       </Link>
     </div>

@@ -476,6 +476,28 @@ const GroupChat = () => {
     )
   }
 
+  if (!room_id) {
+    return (
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          height: "100%",
+          width: "100%",
+          minHeight: "300px",
+          padding: "20px",
+          fontSize: "18px",
+          color: "#666",
+          backgroundColor: "#f9f9f9",
+          borderRadius: "8px",
+          textAlign: "center",
+        }}
+      >
+        Please select the conversation you want to chat with.
+      </div>
+    );
+  }
 
   return (
     <>
