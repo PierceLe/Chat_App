@@ -21,7 +21,6 @@ const ChatSidebar = () => {
         <div className="tab-content">
           <div
             className={`tab-pane fade ${
-              location.pathname.includes(routes.index) ||
               location.pathname.includes(routes.chat)
                 ? "active show"
                 : ""
@@ -30,8 +29,14 @@ const ChatSidebar = () => {
           >
             <ChatTab />
           </div>
-          {/* Contact */}
-          <div className="tab-pane fade" id="contact-menu">
+          <div
+            className={`tab-pane fade ${
+              location.pathname.includes(routes.contact)
+                ? "active show"
+                : ""
+            }`}
+            id="contact-menu"
+          >
             <ContactTab />
           </div>
           {/* /Contact */}
@@ -61,13 +66,27 @@ const ChatSidebar = () => {
           </div>
           {/* /Calls */}
           {/* Settings */}
-          <div className="tab-pane fade" id="setting-menu">
+          <div
+            className={`tab-pane fade ${
+              location.pathname.includes(routes.settings)
+                ? "active show"
+                : ""
+            }`}
+            id="settings-menu"
+          >
             <SettingsTab />
           </div>
           <div className="tab-pane fade" id="tasks">
             <TaskTab />
           </div>
-          <div className="tab-pane fade" id="timetable">
+          <div
+            className={`tab-pane fade ${
+              location.pathname.includes(routes.timetable)
+                ? "active show"
+                : ""
+            }`}
+            id="timetable-menu"
+          >
             <TimeTableTab />
           </div>
           {/* /Settings */}

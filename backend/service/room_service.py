@@ -4,6 +4,7 @@ from dto.request.room.update_room_request import UpdateRoomRequest
 from dto.response.base_page_response import BasePageResponse
 from dto.response.room.room_one_response import RoomChatOneResponse
 from dto.response.user_response import UserResponse
+from enums.enum_login_method import E_Login_Method
 from enums.enum_message import E_Message
 from model.room import Room
 from model.user_room import UserRoom
@@ -26,7 +27,9 @@ class RoomService():
                     room_type: E_Room_Type,
                     avatar_url: str,
                     description: str,
-                    member_ids: list[str]
+                    member_ids: list[str],
+                    encrypted_group_keys: list[str],
+                    encrypted_group_key: str
                     ) -> RoomResponse:
         room_id = None
         if room_type == E_Room_Type.ONE:
@@ -36,7 +39,9 @@ class RoomService():
                 room_type,
                 avatar_url,
                 description,
-                member_ids
+                member_ids,
+                encrypted_group_keys,
+                encrypted_group_key
             )
         else:
             room_id = self.create_room_many(
@@ -45,7 +50,9 @@ class RoomService():
                 room_type,
                 avatar_url,
                 description,
-                member_ids
+                member_ids,
+                encrypted_group_keys,
+                encrypted_group_key
             )
 
         return room_id
@@ -137,7 +144,18 @@ class RoomService():
                     description = item.Room.description,
                     created_at = item.Room.created_at,
                     updated_at = item.Room.updated_at,
-                    last_sender = UserResponse.from_orm(item.User) if item.User is not None else None
+                    last_sender = UserResponse.fromUserModel(item.User) if item.User is not None else UserResponse(
+                        user_id = "",
+                        email = "",
+                        first_name = "",
+                        last_name = "",
+                        avatar_url = "",
+                        is_verified = True,
+                        method = E_Login_Method.NORMAL,
+                        public_key = None,
+                        biography = None
+                    ),
+                    encrypted_group_key= item.encrypted_group_key
                 )
             )
         return BasePageResponse(
@@ -148,7 +166,7 @@ class RoomService():
             total_pages=result["total_pages"]
         )
 
-    def add_user_to_room(self, current_user_id: str, list_friend_user_id: list[str], room_id: str):
+    def add_user_to_room(self, current_user_id: str, list_friend_user_id: list[str], room_id: str, list_friend_encrypted_group_key: list[str]):
         room = self.room_repository.get_room_by_room_id(room_id)
         if room is None:
             raise AppException(ErrorCode.ROOM_NOT_FOUND)
@@ -158,9 +176,9 @@ class RoomService():
         if room.room_type == E_Room_Type.ONE:
             list_friend_user_id = list_friend_user_id[:1]
 
-        for friend_user_id in list_friend_user_id:
+        for friend_user_id, friend_encrypted_group_key in zip(list_friend_user_id, list_friend_encrypted_group_key) :
             if not self.user_room_repository.check_exist_by_user_id_and_room_id(friend_user_id, room_id):
-                self.user_room_repository.create_user_room(friend_user_id, room_id)
+                self.user_room_repository.create_user_room(friend_user_id, room_id, friend_encrypted_group_key)
         return True
 
     def remove_user_from_room(self, current_user_id: str, list_user_id: list[str], room_id: str):
@@ -220,7 +238,18 @@ class RoomService():
                     friend_frist_name = item.friend_frist_name,
                     friend_last_name = item.friend_last_name,
                     friend_avatar_url = item.friend_avatar_url,
-                    last_sender = item[1] if item[1] is not None else None
+                    last_sender = item[1] if item[1] is not None else UserResponse(
+                        user_id = "",
+                        email = "",
+                        first_name = "",
+                        last_name = "",
+                        avatar_url = "",
+                        is_verified = True,
+                        method = E_Login_Method.NORMAL,
+                        public_key = None,
+                        biography = None
+                    ),
+                    encrypted_group_key= item.encrypted_group_key
                 ) for item in result["items"]],
             total=result["total"],
             page=result["page"],
@@ -234,7 +263,10 @@ class RoomService():
                     room_type: E_Room_Type,
                     avatar_url: str,
                     description: str,
-                    member_ids: list[str]):
+                    member_ids: list[str],
+                    encrypted_group_keys: list[str],
+                    encrypted_group_key: str
+                    ):
         if len(member_ids) >= 1:
             friend_id = member_ids[0]
             if not self.room_repository.is_exits_chat_one_one(creator_id, friend_id):
@@ -245,9 +277,11 @@ class RoomService():
                     avatar_url=avatar_url,
                     description=description
                 )
-                list_user_room = [UserRoom(user_id = creator_id, room_id = room.room_id)]
-                for member_id in member_ids[:1]:
-                    list_user_room.append(UserRoom(user_id = member_id, room_id = room.room_id))
+                list_user_room = [UserRoom(user_id = creator_id, room_id = room.room_id, encrypted_group_key = encrypted_group_key)]
+                for member_id, member_encrypted_group_key  in zip(member_ids, encrypted_group_keys):
+                    if member_id != creator_id:
+                        list_user_room.append(UserRoom(user_id = member_id, room_id = room.room_id, encrypted_group_key = member_encrypted_group_key))
+                        break
                 self.user_room_repository.save_all(list_user_room)
                 return room.room_id
         return None
@@ -258,7 +292,9 @@ class RoomService():
                     room_type: E_Room_Type,
                     avatar_url: str,
                     description: str,
-                    member_ids: list[str]
+                    member_ids: list[str],
+                    encrypted_group_keys: list[str],
+                    encrypted_group_key: str
                     ):
         room = self.room_repository.create_room(
             room_name=room_name,
@@ -268,8 +304,19 @@ class RoomService():
             description=description
         )
         
-        list_user_room = [UserRoom(user_id = creator_id, room_id = room.room_id)]
-        for member_id in member_ids:
-            list_user_room.append(UserRoom(user_id = member_id, room_id = room.room_id))
+        visited = set()
+
+        list_user_room = [UserRoom(user_id = creator_id, room_id = room.room_id, encrypted_group_key = encrypted_group_key)]
+        visited.add(creator_id)
+        for member_id, member_encrypted_group_key in zip(member_ids, encrypted_group_keys):
+            if member_id not in visited:
+                list_user_room.append(UserRoom(user_id = member_id, room_id = room.room_id, encrypted_group_key = member_encrypted_group_key))
+                visited.add(member_id)
         self.user_room_repository.save_all(list_user_room)
         return room.room_id
+    
+    def get_encrypted_group_key_by_room_id(self, user_id: str, room_id: str) -> str:
+        user_room_db = self.user_room_repository.get_user_room_by_user_id_and_room_id(user_id, room_id)
+        if user_room_db is None:
+            raise AppException(ErrorCode.ROOM_NOT_FOUND)
+        return user_room_db.encrypted_group_key

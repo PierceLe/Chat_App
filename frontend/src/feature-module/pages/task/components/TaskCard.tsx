@@ -8,6 +8,7 @@ import withReactContent from 'sweetalert2-react-content';
 import httpRequest from '@/core/api/baseAxios';
 import { notify } from '@/core/utils/notification';
 import { formatDate } from './helper'
+import { getAvatarUrl } from '@/core/utils/helper';
 
 interface TaskCardProps {
   task: Task;
@@ -103,11 +104,7 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, users, loadTasks }) => {
         <div style={{ display: 'flex', alignItems: 'center', marginTop: 4 }}>
           <Avatar
             size={25}
-            src={
-              assignedUser.avatar_url === 'default'
-                ? 'assets/img/profiles/avatar-16.jpg'
-                : `http://localhost:9990/${assignedUser.avatar_url}`
-            }
+            src={getAvatarUrl(assignedUser.avatar_url)}
           />
           <div className='d-flex w-100 justify-content-between'>
             <span style={{ fontSize: '0.9em', marginLeft: '4px' }}>{`${assignedUser.first_name} ${assignedUser.last_name}`}</span>

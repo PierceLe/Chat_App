@@ -10,9 +10,9 @@ CREATE TABLE user (
     two_factor_secret VARCHAR(255),
     method VARCHAR(255),
     salt VARCHAR(500),
-    pin VARCHAR(500),
-    public_key VARCHAR(500),
-    encrypted_private_key VARCHAR(500),
+    pin                   text         null,
+    public_key text         null,
+    encrypted_private_key text         null,
     biography VARCHAR(500),
     INDEX idx_user_email (email),
     INDEX idx_user_id (user_id)
@@ -48,7 +48,7 @@ create table user_room
     id                  varchar(36)  not null,
     user_id             varchar(36)  not null,
     room_id             varchar(36)  not null,
-    encrypted_group_key varchar(500) null
+    encrypted_group_key text        null
 );
 
 CREATE TABLE friend_draft (
@@ -76,7 +76,7 @@ CREATE TABLE message (
     sender_id VARCHAR(36) NOT NULL,
     room_id VARCHAR(36) NOT NULL,
     message_type VARCHAR(500) NOT NULL,
-    content VARCHAR(2000),
+    content      text         null,
     file_url VARCHAR(500),
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -95,4 +95,23 @@ CREATE TABLE task (
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (room_id) REFERENCES room(room_id),
     INDEX idx_task_id (task_id)
+);
+
+CREATE TABLE timetable_event (
+    event_id VARCHAR(36) NOT NULL PRIMARY KEY,
+    user_id VARCHAR(36) NOT NULL,
+    title VARCHAR(100) NOT NULL,
+    description VARCHAR(500),
+    start_time DATETIME NOT NULL,
+    end_time DATETIME NOT NULL,
+    location VARCHAR(200),
+    color VARCHAR(50),
+    is_recurring BOOLEAN DEFAULT FALSE,
+    recurrence_pattern VARCHAR(100),
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES user(user_id),
+    INDEX idx_timetable_event_id (event_id),
+    INDEX idx_timetable_user_id (user_id),
+    INDEX idx_timetable_start_time (start_time)
 );

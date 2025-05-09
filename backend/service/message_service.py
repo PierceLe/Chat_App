@@ -40,14 +40,7 @@ class MessageService():
                 file_url = mess_db.file_url,
                 created_at = mess_db.created_at,
                 updated_at = mess_db.updated_at,
-                sender = UserResponse(
-                    user_id= user_db.user_id,
-                    email= user_db.email,
-                    first_name= user_db.first_name,
-                    last_name= user_db.last_name,
-                    avatar_url= user_db.avatar_url,
-                    is_verified= user_db.is_verified
-                )))
+                sender = UserResponse.fromUserModel(user_db)))
         return res
 
     def get_more_mess_in_room(self, room_id: str, created_at: datetime.datetime, limit: int):
@@ -65,12 +58,5 @@ class MessageService():
                 file_url = mess_db.file_url,
                 created_at = mess_db.created_at,
                 updated_at = mess_db.updated_at,
-                sender = UserResponse(
-                    user_id= user_db.user_id,
-                    email= user_db.email,
-                    first_name= user_db.first_name,
-                    last_name= user_db.last_name,
-                    avatar_url= user_db.avatar_url,
-                    is_verified= user_db.is_verified
-                )))
+                sender = UserResponse.fromUserModel(user_db)))
         return res

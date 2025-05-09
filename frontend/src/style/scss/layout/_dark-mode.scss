@@ -1137,4 +1137,139 @@
   .border-bottom {
     border-bottom: 1px solid #222224 !important;
   }
+
+  /* Table and Timetable specific dark mode styles */
+  .table {
+    color: $dark-gray-900;
+    border-color: $dark-transparent-dark;
+    
+    thead {
+      th {
+        background-color: rgba($dark-light, 0.5);
+        color: $dark-gray-900;
+        border-color: $dark-transparent-dark;
+      }
+    }
+    
+    tbody {
+      tr {
+        border-color: $dark-transparent-dark;
+        
+        &:hover {
+          background-color: rgba($dark-light, 0.2);
+        }
+        
+        td {
+          border-color: $dark-transparent-dark;
+          color: $dark-gray-900;
+        }
+      }
+    }
+    
+    &.table-bordered {
+      border-color: $dark-transparent-dark;
+      
+      th, td {
+        border-color: $dark-transparent-dark;
+      }
+    }
+    
+    &.table-striped tbody tr:nth-of-type(odd) {
+      background-color: rgba($dark-light, 0.1);
+    }
+    
+    &.table-hover tbody tr:hover {
+      background-color: rgba($dark-light, 0.2);
+    }
+  }
+  
+  /* Timetable specific styles */
+  .table-responsive {
+    border-color: $dark-transparent-dark;
+  }
+  
+  .chat-body.chat-page-group {
+    background-color: $dark-color;
+  }
+  
+  .bg-light {
+    background-color: $dark-light !important;
+    color: $dark-gray-900;
+  }
+  
+  .table-light {
+    background-color: rgba($dark-light, 0.5);
+    color: $dark-gray-900;
+  }
+  
+  /* Event cards in timetable */
+  .rounded.shadow {
+    background-color: $primary;
+    color: white;
+    border: 2px solid rgba(255, 255, 255, 0.1);
+    
+    &:hover {
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5) !important;
+    }
+  }
+  
+  /* Badge styling */
+  .badge.bg-light {
+    background-color: $dark-light !important;
+    color: $dark-gray-900;
+  }
+  
+  /* Modal styles for event editing */
+  .modal-dialog {
+    .modal-content {
+      background-color: $dark-color;
+      border-color: $dark-transparent-dark;
+      
+      .modal-header, .modal-footer {
+        border-color: $dark-transparent-dark;
+      }
+      
+      .form-control, .form-select {
+        background-color: $dark-color;
+        border-color: $dark-transparent-dark;
+        color: $dark-gray-900;
+        
+        &:focus {
+          background-color: $dark-color;
+          border-color: $primary;
+          color: $dark-gray-900;
+        }
+      }
+      
+      .text-muted {
+        color: $gray-500 !important;
+      }
+      
+      .card {
+        background-color: $dark-light;
+        border-color: $dark-transparent-dark;
+      }
+    }
+  }
+  
+  /* Button styles */
+  .btn-outline-secondary {
+    color: $dark-gray-900;
+    border-color: $dark-transparent-dark;
+    
+    &:hover, &:focus, &:active {
+      background-color: $dark-light;
+      color: $primary;
+    }
+  }
+  
+  .btn-secondary {
+    background-color: $dark-light;
+    border-color: $dark-transparent-dark;
+    
+    &:hover, &:focus, &:active {
+      background-color: darken($dark-light, 5%);
+      border-color: $dark-transparent-dark;
+    }
+  }
 }

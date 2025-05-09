@@ -1,6 +1,7 @@
 import datetime
 from dto.request.friend.filter_friend_request import FilterFriendRequest
 from dto.response.base_page_response import BasePageResponse
+from dto.response.contact.contact_response import ContactResponse
 from dto.response.user_response import UserResponse
 from enums.enum_message import E_Message
 from exception.app_exception import AppException
@@ -62,14 +63,14 @@ class FriendService():
     def un_friend(self, user_id: str, friend_id: str):
         self.friend_reposiotry.delete_by_2_user_id(user_id, friend_id)
 
-    def get_user_send_request_add_friend(self, user_id: str) -> list[UserResponse]:
+    def get_user_send_request_add_friend_to_user_id(self, user_id: str) -> list[UserResponse]:
         users = self.friend_draft_repository.get_user_send_request_add_friend(user_id)
-        return [UserResponse.from_orm(user) for user in users]
+        return [UserResponse.fromUserModel(user) for user in users]
     
     def get_user_send_request_add_friend_pagging(self, user_id: str, page: int, page_size: int) -> BasePageResponse:
         result = self.friend_draft_repository.get_user_send_request_add_friend_pagging(user_id, page, page_size)
         return BasePageResponse(
-            items=[UserResponse.from_orm(item) for item in result["items"]],
+            items=[UserResponse.fromUserModel(item) for item in result["items"]],
             total=result["total"],
             page=result["page"],
             page_size=result["page_size"],
@@ -78,7 +79,7 @@ class FriendService():
     
     def get_all_friends(self, user_id: str) -> list[UserResponse]:
         users = self.friend_reposiotry.get_all_friends(user_id)
-        return [UserResponse.from_orm(user) for user in users]
+        return [UserResponse.fromUserModel(user) for user in users]
     
     def get_friend_by_filter(self, request: FilterFriendRequest):
         result = self.friend_reposiotry.get_friend_pagging_and_filter(
@@ -90,9 +91,28 @@ class FriendService():
             sorts_dir= request.sorts_dir
         )
         return BasePageResponse(
-            items=[UserResponse.from_orm(item) for item in result["items"]],
+            items=[UserResponse.fromUserModel(item) for item in result["items"]],
             total=result["total"],
             page=result["page"],
             page_size=result["page_size"],
             total_pages=result["total_pages"]
         )
+
+    def get_user_received_request_add_friend_from_user_id(self, user_id: str) -> list[UserResponse]:
+        users = self.friend_draft_repository.get_user_received_request_add_friend_from_user_id(user_id)
+        return [UserResponse.fromUserModel(user) for user in users]
+
+    def get_all_contact(self, user_id: str):
+        friend = self.get_all_friends(user_id)
+        received_friend = self.get_user_send_request_add_friend_to_user_id(user_id)
+        send_friend = self.get_user_received_request_add_friend_from_user_id(user_id)
+        return ContactResponse(
+            friend=friend,
+            received_friend=received_friend,
+            send_friend=send_friend
+        )
+
+    def is_friend(self, current_user_id: str, friend_id: str) -> bool:
+        friends = self.get_all_friends(current_user_id)
+        return any(friend.user_id == friend_id for friend in friends)
+        

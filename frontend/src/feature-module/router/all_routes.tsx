@@ -12,6 +12,8 @@ export const all_routes = {
   index: "/index",
   chat: "/chat",
   groupChat: "/group-chat",
+  contact: "/contact",
+  settings: "/settings",
   allCalls: "/all-calls",
   status: "/status",
   myStatus: "/my-status",

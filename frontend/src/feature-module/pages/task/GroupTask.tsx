@@ -12,6 +12,7 @@ import { useSelector } from 'react-redux';
 import { getMeSelector } from '@/core/redux/selectors';
 import { RoomData } from '@/core/services/roomService';
 import { PlusOutlined, CommentOutlined } from '@ant-design/icons';
+import { getAvatarUrl } from '@/core/utils/helper';
 
 const GroupTask = () => {
   const { roomId } = useParams<{ room_id: string }>();
@@ -45,7 +46,7 @@ const GroupTask = () => {
 
   const loadRoomInfo = async () => {
     try {
-      const res = await httpRequest.get(`/room/?room_id=${roomId}`);
+      const res = await httpRequest.get(`/room?room_id=${roomId}`);
       if (res.code === 0) {
         setRoom(res.result || []);
       } else {
@@ -232,11 +233,7 @@ const GroupTask = () => {
                   <div>
                   <Avatar
                     size={25}
-                    src={
-                      user.avatar_url === 'default'
-                        ? 'assets/img/profiles/avatar-16.jpg'
-                        : `http://localhost:9990/${user.avatar_url}`
-                    }
+                    src={getAvatarUrl(user.avatar_url)}
                   />
                   <span style={{marginLeft: '5px'}}>{user.first_name} {user.last_name}</span>
                   </div>

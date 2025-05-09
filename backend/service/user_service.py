@@ -1,6 +1,8 @@
+from repository.friend_repository import FriendRepository
 from repository.user_repository import UserRepository
 from dto.request.auth.user_create_request import UserCreateRequest
 from dto.request.auth.user_update_request import UserUpdateRequest
+from dto.request.auth.user_bio_update_request import UserBioUpdateRequest
 from dto.response.user_response import UserResponse
 from dto.response.user_full_response import UserFullResponse
 from fastapi import Depends
@@ -15,6 +17,7 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 class UserService():
     def __init__(self):
         self.user_repository = UserRepository()
+        self.friend_repository = FriendRepository()
 
     def check_user_exist_by_email(self, email: str, only_verified=True):
         return self.user_repository.check_user_exist_by_email(
@@ -71,34 +74,9 @@ class UserService():
             return None
         
         if get_full_info:
-            return UserFullResponse(
-                user_id=user.user_id,
-                email=user.email,
-                first_name=user.first_name,
-                last_name=user.last_name,
-                avatar_url=user.avatar_url,
-                is_verified=user.is_verified,
-                use_2fa_login=user.use_2fa_login,
-                two_factor_secret=user.two_factor_secret,
-                method=user.method,
-                salt=user.salt,
-                pin=user.pin,
-                public_key=user.public_key,
-                encrypted_private_key=user.encrypted_private_key,
-                biography=user.biography
-            )
+            return UserFullResponse.fromUserModel(user)
         else:
-            return UserResponse(
-                user_id=user.user_id,
-                email=user.email,
-                first_name=user.first_name,
-                last_name=user.last_name,
-                avatar_url=user.avatar_url,
-                is_verified=user.is_verified,
-                method=user.method,
-                public_key=user.public_key,
-                biography=user.biography
-            )
+            return UserResponse.fromUserModel(user)
 
     def get_user_by_email(
             self,
@@ -114,51 +92,11 @@ class UserService():
             return None
 
         if get_full_info:
-            return UserFullResponse(
-                user_id=user.user_id,
-                email=user.email,
-                first_name=user.first_name,
-                last_name=user.last_name,
-                avatar_url=user.avatar_url,
-                is_verified=user.is_verified,
-                use_2fa_login=user.use_2fa_login,
-                two_factor_secret=user.two_factor_secret,
-                method=user.method,
-                salt=user.salt,
-                pin=user.pin,
-                public_key=user.public_key,
-                encrypted_private_key=user.encrypted_private_key,
-                biography=user.biography
-            )
+            return UserFullResponse.fromUserModel(user)
         else:
             if get_use_2fa_login :
-                return UserFullResponse(
-                user_id=user.user_id,
-                email=user.email,
-                first_name=user.first_name,
-                last_name=user.last_name,
-                avatar_url=user.avatar_url,
-                is_verified=user.is_verified,
-                use_2fa_login=user.use_2fa_login,
-                two_factor_secret=None,
-                method=user.method,
-                salt=user.salt,
-                pin=user.pin,
-                public_key=user.public_key,
-                encrypted_private_key=user.encrypted_private_key,
-                biography=user.biography
-            )
-            return UserResponse(
-                user_id=user.user_id,
-                email=user.email,
-                first_name=user.first_name,
-                last_name=user.last_name,
-                avatar_url=user.avatar_url,
-                is_verified=user.is_verified,
-                method=user.method,
-                public_key=user.public_key,
-                biography=user.biography
-            )
+                return UserFullResponse.fromUserModel(user)
+            return UserResponse.fromUserModel(user)
 
     def get_password(self, user_id: str):
         user = self.user_repository.get_user_by_id(user_id)
@@ -186,8 +124,35 @@ class UserService():
     def update_user_info(self, user_id: str, user_update: UserUpdateRequest):
         return self.user_repository.update_user_info(
             user_id, user_update)
+
+    def update_user_bio(self, user_id: str, user_update: UserBioUpdateRequest):
+        return self.user_repository.update_user_bio(
+            user_id, user_update)
     
     def disable_2fa(self, user_id: str):
         return self.user_repository.disable_2fa(user_id)
     
+    def create_pin(self, user_id: str, pin: str, public_key: str, encrypted_private_key: str):
+        pin_hashed = pwd_context.hash(pin)
+        return self.user_repository.create_pin(user_id, pin_hashed, public_key, encrypted_private_key)
+    
+    def restore_priave_key(self, user_id: str, pin: str):
+        user_db = self.user_repository.get_user_by_id(user_id)
+        if user_db.pin is not None and pwd_context.verify(pin, user_db.pin):
+            return {
+                "public_key": user_db.public_key,
+                "encrypted_private_key": user_db.encrypted_private_key
+            }
+        else:
+            raise AppException(ErrorCode.PIN_INVALID)
 
+    def get_user_query_email_and_not_in_list(
+            self,
+            user_id: str,
+            email: str
+            ) -> list[UserResponse]:
+        friend_users = self.friend_repository.get_all_friends(user_id)
+        list_user_id_non_query = [friend_user.user_id for friend_user in friend_users]
+        list_user_id_non_query.append(user_id)
+        users = self.user_repository.query_by_email_not_in_list(list_user_id_non_query, email)
+        return [UserResponse.fromUserModel(user) for user in users]

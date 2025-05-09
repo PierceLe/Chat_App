@@ -1,4 +1,5 @@
 from pydantic import BaseModel
+from enums.enum_login_method import E_Login_Method
 from model.user import User
 
 # Get Full Info of user (include use_2fa_login and two_factor_secret)
@@ -13,7 +14,7 @@ class UserFullResponse(BaseModel):
     is_verified: bool
     use_2fa_login: bool
     two_factor_secret: str | None
-    method: str
+    method: E_Login_Method
     salt: str | None
     pin: str | None
     public_key: str | None
@@ -27,10 +28,12 @@ class UserFullResponse(BaseModel):
                    first_name = user_model.first_name,
                    last_name = user_model.last_name,
                    avatar_url = user_model.avatar_url,
+                   is_verified = user_model.is_verified,
                    use_2fa_login = user_model.use_2fa_login,
                    two_factor_secret = user_model.two_factor_secret,
                    method = user_model.method,
                    salt = user_model.salt,
+                   pin = "1" if user_model.pin is not None else None,
                    public_key = user_model.public_key,
                    encrypted_private_key = user_model.encrypted_private_key,
                    biography = user_model.biography

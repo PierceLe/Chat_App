@@ -14,12 +14,14 @@ import { Avatar, Button } from "antd";
 import NewGroupModal from "@/core/modals/new-group";
 import AddGroupModal from "@/core/modals/add-group";
 import { useParams } from "react-router-dom";
+import { getAvatarUrl } from "@/core/utils/helper";
+import { decryptMessage, decryptSymmetricKey } from "@/core/utils/encryption";
 
 const GroupTab = () => {
   const routes = all_routes;
 
   const me: UserData = useSelector(getMeSelector);
-
+  
   const [rooms, setRooms] = useState(Array<RoomData>);
   const [roomNameInput, setRoomNameInput] = useState("");
 
@@ -31,8 +33,23 @@ const GroupTab = () => {
 
   const fetchApiGetRoom = async (roomName: string) => {
     const result: any = await getAllGroupChatMany(roomName, me.user_id);
-    setRooms(result);
-    console.log("ROOMS: ", result);
+    const decryptedRooms = await Promise.all(
+    result.map(async (item: any) => {
+      try {
+        const privateKey = localStorage.getItem("privateKey");
+        const groupKey = await decryptSymmetricKey(item.encrypted_group_key, privateKey!);
+        const decryptedMessage = await decryptMessage(item.last_mess, groupKey);
+        return { ...item, last_mess: decryptedMessage };
+      } catch (error) {
+        console.error("Decryption error: ", error);
+        return item; // fallback
+      }
+    })
+  );
+  const newDecryptedRooms = decryptedRooms.sort((a, b) => {
+        return new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime();
+      });
+  setRooms(newDecryptedRooms);
   };
 
   const [isModalNewGroupOpen, setIsModalNewGroupOpen] = useState(false);
@@ -45,8 +62,8 @@ const GroupTab = () => {
   const handleCloseAddGroup = () => setIsModalAddGroupOpen(false);
 
   const handleNext = () => {
-    handleCloseNewGroup(); // đóng modal hiện tại
-    handleOpenAddGroup();  // mở modal tiếp theo
+    handleCloseNewGroup(); // close current modal
+    handleOpenAddGroup();  // open next modal
   };
 
   const selectCurrentChatRoom = async(room_id: string) => {
@@ -61,29 +78,30 @@ const GroupTab = () => {
     fetchApiGetRoom("");
     const handleMessage = (data: any) => {
       if (data.action === "chat"){
-        setRooms((pre) => {
-          let isNewRoom = true;
-          let newRooms = new Array<RoomData>();
-          pre.map((item) => {
-            if (item.room_id === data.data.room_id) {
-              isNewRoom = false;
-              item.last_mess = data.data.content
-              item.updated_at = data.data.updated_at
-            }
-            newRooms.push(item)
-          })
-          if (isNewRoom) {
-            // const newRoom: any = getRoom(data.room_id);
-            // if (newRoom){
-            //   newRooms.push(newRoom);
-            // }
-            fetchApiGetRoom(roomNameInput)
-          }
-          newRooms.sort((a, b) => {
-            return new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime();
-          });
-          return newRooms;
-        })
+        fetchApiGetRoom("");
+        // setRooms((pre) => {
+        //   let isNewRoom = true;
+        //   let newRooms = new Array<RoomData>();
+        //   pre.map((item) => {
+        //     if (item.room_id === data.data.room_id) {
+        //       isNewRoom = false;
+        //       item.last_mess = data.data.content
+        //       item.updated_at = data.data.updated_at
+        //     }
+        //     newRooms.push(item)
+        //   })
+        //   if (isNewRoom) {
+        //     // const newRoom: any = getRoom(data.room_id);
+        //     // if (newRoom){
+        //     //   newRooms.push(newRoom);
+        //     // }
+        //     fetchApiGetRoom(roomNameInput)
+        //   }
+        //   newRooms.sort((a, b) => {
+        //     return new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime();
+        //   });
+        //   return newRooms;
+        // })
       }
     };
     wsClient.onMessage(handleMessage);
@@ -124,6 +142,10 @@ const GroupTab = () => {
     description,
     created_at,
     updated_at,
+    // last_sender_user_id,
+    // last_sender_first_name,
+    // las_sender_last_name,
+    // last_sender_avatar_url
   }: RoomData) => {
     return (
       <>
@@ -139,16 +161,16 @@ const GroupTab = () => {
             <div className="avatar avatar-lg online me-2">
               <Avatar
                 size={32}
-                src={
-                  avatar_url === 'default'
-                    ? 'assets/img/profiles/avatar-16.jpg'
-                    : `http://localhost:9990/${avatar_url}`
-                }
+                src={getAvatarUrl(avatar_url)}
               />
             </div>
             <div className="chat-user-info">
               <div className="chat-user-msg">
                 <h6>{room_name}</h6>
+                {/* <div className="d-flex">
+                  <span style={{fontWeight: 'bold'}}>{last_sender_user_id === me.user_id ? "You: " : `${last_sender_first_name}: `}</span>
+                  <p style={{marginLeft: '5px'}}>{last_mess}</p>
+                </div> */}
                 <p>{last_mess ?? ""}</p>
               </div>
               <div className="chat-user-time">
@@ -161,43 +183,6 @@ const GroupTab = () => {
               </div>
             </div>
           </Link>
-          <div className="chat-dropdown">
-            <Link className="#" to="#" data-bs-toggle="dropdown">
-              <i className="ti ti-dots-vertical" />
-            </Link>
-            <ul className="dropdown-menu dropdown-menu-end p-3">
-              <li>
-                <Link className="dropdown-item" to="#">
-                  <i className="ti ti-box-align-right me-2" />
-                  Archive Group
-                </Link>
-              </li>
-              <li>
-                <Link className="dropdown-item" to="#">
-                  <i className="ti ti-volume-off me-2" />
-                  Mute Notification
-                </Link>
-              </li>
-              <li>
-                <Link className="dropdown-item" to="#">
-                  <i className="ti ti-logout-2 me-2" />
-                  Exit Group
-                </Link>
-              </li>
-              <li>
-                <Link className="dropdown-item" to="#">
-                  <i className="ti ti-pinned me-2" />
-                  Pin Group
-                </Link>
-              </li>
-              <li>
-                <Link className="dropdown-item" to="#">
-                  <i className="ti ti-square-check me-2" />
-                  Mark as Unread
-                </Link>
-              </li>
-            </ul>
-          </div>
         </div>
       </>
     );
@@ -266,7 +251,7 @@ const GroupTab = () => {
                 </div>
               </div>
               {/* Chat Search */}
-              <div className="search-wrap">
+              {/* <div className="search-wrap">
                 <form>
                   <div className="input-group">
                     <input
@@ -283,7 +268,7 @@ const GroupTab = () => {
                     </span>
                   </div>
                 </form>
-              </div>
+              </div> */}
               {/* /Chat Search */}
             </div>
             <div className="sidebar-body chat-body">
@@ -305,6 +290,10 @@ const GroupTab = () => {
                     description={item.description}
                     created_at={item.created_at}
                     updated_at={item.updated_at}
+                    // last_sender_user_id={item.last_sender.user_id}
+                    // last_sender_first_name={item.last_sender.first_name}
+                    // las_sender_last_name={item.last_sender.last_name}
+                    // last_sender_avatar_url={item.last_sender.avatar_url}
                   ></OneChatGroup>
                 ))}
               </div>

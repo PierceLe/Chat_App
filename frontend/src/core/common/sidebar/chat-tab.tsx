@@ -5,12 +5,14 @@ import { all_routes } from "../../../feature-module/router/all_routes";
 import Scrollbars from "react-custom-scrollbars-2";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { format } from "date-fns";
+import { getAvatarUrl } from "@/core/utils/helper";
+import { decryptMessage, decryptSymmetricKey, encryptMessage } from "@/core/utils/encryption";
 
 // Import Swiper styles
 import "swiper/css";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { UserData } from "../../services/contactService";
-import { getMeSelector } from "../../redux/selectors";
+import { getMeSelector, getUsersOnlineSelector } from "../../redux/selectors";
 import {
   getAllGroupChatOne,
   getRoomById,
@@ -25,6 +27,9 @@ import { useParams } from "react-router-dom";
 import { getOnlineUserIds } from "@/core/services/messageService";
 
 const ChatTab = () => {
+  const dispatch = useDispatch();
+  const usersOnline: Set<String> = useSelector(getUsersOnlineSelector);
+  
   const routes = all_routes;
   const [activeTab, setActiveTab] = useState("All Chats");
 
@@ -47,8 +52,24 @@ const ChatTab = () => {
 
   const fetchApiGetRoomChatOne = async (friendName: string) => {
     const result: any = await getAllGroupChatOne(friendName, me.user_id);
-    setRooms(result);
-    console.log("ROOMS ONE: ", result);
+  
+    const decryptedRooms = await Promise.all(
+      result.map(async (item: any) => {
+        try {
+          const privateKey = localStorage.getItem("privateKey");
+          const groupKey = await decryptSymmetricKey(item.encrypted_group_key, privateKey!);
+          const decryptedMessage = await decryptMessage(item.last_mess, groupKey);
+          return { ...item, last_mess: decryptedMessage };
+        } catch (error) {
+          console.error("Decryption error: ", error);
+          return item; // fallback
+        }
+      })
+    );
+    const newDecryptedRooms = decryptedRooms.sort((a, b) => {
+          return new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime();
+        });
+    setRooms(newDecryptedRooms);
   };
 
   const fetchApiGetOnlineUsers = async () => {
@@ -70,36 +91,52 @@ const ChatTab = () => {
 
   useEffect(() => {
     fetchApiGetRoomChatOne("");
-    fetchApiGetOnlineUsers()
-    const handleMessage = (data: any) => {
+    // fetchApiGetOnlineUsers()
+    const handleMessage = async (data: any) => {
       if (data.action === "chat"){
-        setRooms((pre)=>{
-          let isNewRoom = true;
-          let newRooms = new Array<RoomChatOneData>();
-          pre.map((item) => {
-            if (item.room_id === data.data.room_id){
-              isNewRoom = false;
-              item.last_mess = data.data.content
-              item.updated_at = data.data.updated_at
-            }
-            newRooms.push(item)
-          })
-          if (isNewRoom){
-            // const newRoom: any = getRoom(data.room_id);
-            // if (newRoom){
-            //   newRooms.push(newRoom);
-            // }
-            fetchApiGetRoomChatOne(nameInput)
-          }
-          newRooms.sort((a, b) => {
-            return new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime();
-          });
-          return newRooms;
-        })
+        fetchApiGetRoomChatOne("")
+        // let isNewRoom = true;
+        // setRooms((pre)=>{
+        //   let newRooms = new Array<RoomChatOneData>();
+        //   pre.map(async (item) => {
+        //     if (item.room_id === data.data.room_id){
+        //       let decryptedMessage
+        //       try {
+        //         const privateKey = localStorage.getItem("privateKey")
+        //         const groupKey = await decryptSymmetricKey(item.encrypted_group_key as any, privateKey as any);
+        //         decryptedMessage = await decryptMessage(data.data.content, groupKey as any)
+        //         isNewRoom = false;
+        //         console.log("decryptedMessage: ", decryptedMessage, isNewRoom)
+        //         console.log("ABSKDJ")
+        //       } catch (error) {
+        //         decryptedMessage = data.data.content
+        //         console.log("fetchApiGetRoomChatOne: ", error)
+        //       }
+              
+        //       item.last_mess = decryptedMessage
+        //       item.updated_at = data.data.updated_at
+        //       console.log("item", item)
+        //     }
+        //     newRooms.push(item)
+        //   })
+        //   console.log("newRooms", newRooms)
+        //   if (isNewRoom){
+        //     // const newRoom: any = getRoom(data.room_id);
+        //     // if (newRoom){
+        //     //   newRooms.push(newRoom);
+        //     // }
+        //     fetchApiGetRoomChatOne(nameInput)
+        //   }
+        //   console.log("isNewRoom", isNewRoom)
+        //   newRooms.sort((a, b) => {
+        //     return new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime();
+        //   });
+        //   return newRooms;
+        // })
       }
-      else if (data.action === "update-status"){
-        fetchApiGetOnlineUsers()
-      }
+      // else if (data.action === "update-status"){
+      //   fetchApiGetOnlineUsers()
+      // }
     };
     wsClient.onMessage(handleMessage);
     return () => {
@@ -153,6 +190,10 @@ const ChatTab = () => {
     friend_frist_name,
     friend_last_name,
     friend_avatar_url,
+    // last_sender_user_id,
+    // last_sender_first_name,
+    // las_sender_last_name,
+    // last_sender_avatar_url,
   }: RoomChatOneData) => {
     const data: FriendData = {
       friend_id,
@@ -173,19 +214,19 @@ const ChatTab = () => {
               backgroundColor: currentChatRoom === room_id ? 'oklch(90.1% 0.058 230.902)' : 'transparent',
             }}
           >
-            <div className={`avatar avatar-lg ${onlineUserIds.has(friend_id) ? 'online' : 'offline'} me-2`}>
+            <div className={`avatar avatar-lg ${usersOnline.has(friend_id) ? 'online' : 'offline'} me-2`}>
               <Avatar
                 size={32}
-                src={
-                  friend_avatar_url === 'default'
-                    ? 'assets/img/profiles/avatar-16.jpg'
-                    : `http://localhost:9990/${friend_avatar_url}`
-                }
+                src={getAvatarUrl(friend_avatar_url)}
               />
             </div>
             <div className="chat-user-info">
               <div className="chat-user-msg">
                 <h6>{friend_frist_name + " " + friend_last_name}</h6>
+                {/* <div className="d-flex">
+                  <span style={{fontWeight: 'bold'}}>{last_sender_user_id === me.user_id ? "You: " : ''}</span>
+                  <p style={{marginLeft: '5px'}}>{last_mess}</p>
+                </div> */}
                 <p>{last_mess}</p>
               </div>
               <div className="chat-user-time">
@@ -197,48 +238,6 @@ const ChatTab = () => {
               </div>
             </div>
           </Link>
-          <div className="chat-dropdown">
-            <Link className="#" to="#" data-bs-toggle="dropdown">
-              <i className="ti ti-dots-vertical" />
-            </Link>
-            <ul className="dropdown-menu dropdown-menu-end p-3">
-              <li>
-                <Link className="dropdown-item" to="#">
-                  <i className="ti ti-box-align-right me-2" />
-                  Archive Chat
-                </Link>
-              </li>
-              <li>
-                <Link className="dropdown-item" to="#">
-                  <i className="ti ti-heart me-2" />
-                  Mark as Favourite
-                </Link>
-              </li>
-              <li>
-                <Link className="dropdown-item" to="#">
-                  <i className="ti ti-check me-2" />
-                  Mark as Unread
-                </Link>
-              </li>
-              <li>
-                <Link className="dropdown-item" to="#">
-                  <i className="ti ti-pinned me-2" />
-                  Pin Chats
-                </Link>
-              </li>
-              <li>
-                <Link
-                  className="dropdown-item"
-                  to="#"
-                  data-bs-toggle="modal"
-                  data-bs-target="#delete-chat"
-                >
-                  <i className="ti ti-trash me-2" />
-                  Delete
-                </Link>
-              </li>
-            </ul>
-          </div>
         </div>
       </>
     );
@@ -297,7 +296,7 @@ const ChatTab = () => {
                 </div>
               </div>
               {/* Chat Search */}
-              <div className="search-wrap">
+              {/* <div className="search-wrap">
                 <form>
                   <div className="input-group">
                     <input
@@ -314,7 +313,7 @@ const ChatTab = () => {
                     </span>
                   </div>
                 </form>
-              </div>
+              </div> */}
               {/* /Chat Search */}
             </div>
             {/* Online Contacts */}
@@ -356,14 +355,10 @@ const ChatTab = () => {
                   >
                     {rooms.map((room, index) => (
                       <SwiperSlide key={index}>
-                        <div className={`avatar avatar-lg ${onlineUserIds.has(room.friend_id) ? 'online' : 'offline'} d-block`}>
+                        <div className={`avatar avatar-lg ${usersOnline.has(room.friend_id) ? 'online' : 'offline'} d-block`}>
                           <Avatar
                             size={32}
-                            src={
-                              room.friend_avatar_url === 'default'
-                                ? 'assets/img/profiles/avatar-16.jpg'
-                                : `http://localhost:9990/${room.friend_avatar_url}`
-                            }
+                            src={getAvatarUrl(room.friend_avatar_url)}
                           />
                         </div>
                         <p>{room.friend_frist_name + " " + room.friend_last_name}</p>
@@ -383,92 +378,6 @@ const ChatTab = () => {
               {/* Left Chat Title */}
               <div className="d-flex justify-content-between align-items-center mb-3">
                 <h5 className="chat-title">{activeTab}</h5>
-                <div className="dropdown">
-                  <Link
-                    to="#"
-                    className="text-default fs-16"
-                    data-bs-toggle="dropdown"
-                    aria-expanded="false"
-                  >
-                    <i className="ti ti-filter" />
-                  </Link>
-                  <ul
-                    className=" dropdown-menu dropdown-menu-end p-3"
-                    id="innerTab"
-                    role="tablist"
-                  >
-                    <li role="presentation">
-                      <Link
-                        className="dropdown-item active"
-                        id="all-chats-tab"
-                        data-bs-toggle="tab"
-                        to="#all-chats"
-                        role="tab"
-                        aria-controls="all-chats"
-                        aria-selected="true"
-                        onClick={() => setActiveTab("All Chats")}
-                      >
-                        All Chats
-                      </Link>
-                    </li>
-                    <li role="presentation">
-                      <Link
-                        className="dropdown-item"
-                        id="favourites-chat-tab"
-                        data-bs-toggle="tab"
-                        to="#favourites-chat"
-                        role="tab"
-                        aria-controls="favourites-chat"
-                        aria-selected="false"
-                        onClick={() => setActiveTab("Favourite Chats")}
-                      >
-                        Favourite Chats
-                      </Link>
-                    </li>
-                    <li role="presentation">
-                      <Link
-                        className="dropdown-item"
-                        id="pinned-chats-tab"
-                        data-bs-toggle="tab"
-                        to="#pinned-chats"
-                        role="tab"
-                        aria-controls="pinned-chats"
-                        aria-selected="false"
-                        onClick={() => setActiveTab("Pinned Chats")}
-                      >
-                        Pinned Chats
-                      </Link>
-                    </li>
-                    <li role="presentation">
-                      <Link
-                        className="dropdown-item"
-                        id="archive-chats-tab"
-                        data-bs-toggle="tab"
-                        to="#archive-chats"
-                        role="tab"
-                        aria-controls="archive-chats"
-                        aria-selected="false"
-                        onClick={() => setActiveTab("Archive Chats")}
-                      >
-                        Archive Chats
-                      </Link>
-                    </li>
-                    <li role="presentation">
-                      <Link
-                        className="dropdown-item"
-                        id="trash-chats-tab"
-                        data-bs-toggle="tab"
-                        to="#trash-chats"
-                        role="tab"
-                        aria-controls="trash-chats"
-                        aria-selected="false"
-                        onClick={() => setActiveTab("Trash")}
-                      >
-                        Trash
-                      </Link>
-                    </li>
-                  </ul>
-                </div>
               </div>
               {/* /Left Chat Title */}
               <div className="tab-content" id="innerTabContent">
@@ -496,6 +405,10 @@ const ChatTab = () => {
                         description={item.description}
                         created_at={item.created_at}
                         updated_at={item.updated_at}
+                        // last_sender_user_id={item.last_sender.user_id}
+                        // last_sender_first_name={item.last_sender.first_name}
+                        // las_sender_last_name={item.last_sender.last_name}
+                        // last_sender_avatar_url={item.last_sender.avatar_url}
                       ></OneChatOneGroup>
                     ))}
                   </div>

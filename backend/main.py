@@ -9,6 +9,7 @@ from controller.friend_controller import friend_router
 from controller.chat_controller import chat_router
 from controller.file_controller import file_router
 from controller.task_controller import task_router
+from controller.timetable_controller import timetable_router
 from exception.app_exception import AppException
 from exception.global_exception_handler import app_exception_handler, http_exception_handler
 from middleware.token_middleware import TokenMiddleware
@@ -31,7 +32,9 @@ app.add_middleware(TokenMiddleware,)
 # Add cors
 origins = [
     "http://localhost",
-    "http://localhost:3000"
+    "http://localhost:3000",
+    "https://chatwithpierce.com",
+    "https://chatwithpierce.com:3000"
 ]
 app.add_middleware(CORSMiddleware, 
     allow_origins=origins,  
@@ -40,15 +43,16 @@ app.add_middleware(CORSMiddleware,
     allow_headers=["*"])
 
 # Add Router
-app.include_router(auth_router, tags=["Auth"])
-app.include_router(user_router, prefix="/user", tags=["User"])
-app.include_router(room_router, prefix="/room", tags=["Room"])
-app.include_router(friend_router, prefix="/friend", tags=["Friend"])
-app.include_router(chat_router, prefix="/chat", tags=["Chat WebSocket"])
-app.include_router(task_router, prefix="/task", tags=["Task"])
-app.include_router(file_router, prefix="/file", tags=["File"])
+app.include_router(auth_router, prefix="/api", tags=["Auth"])
+app.include_router(user_router, prefix="/api/user", tags=["User"])
+app.include_router(room_router, prefix="/api/room", tags=["Room"])
+app.include_router(friend_router, prefix="/api/friend", tags=["Friend"])
+app.include_router(chat_router, prefix="/api/chat", tags=["Chat WebSocket"])
+app.include_router(task_router, prefix="/api/task", tags=["Task"])
+app.include_router(file_router, prefix="/api/file", tags=["File"])
+app.include_router(timetable_router, prefix="/api/timetable", tags=["Timetable"])
 
-app.mount("/bucket", StaticFiles(directory="bucket"), name="bucket")
+app.mount("/api/bucket", StaticFiles(directory="bucket"), name="bucket")
 
 
 if __name__ == "__main__":

@@ -16,6 +16,6 @@ class RoomResponse(BaseModel):
     created_at: datetime
     updated_at: datetime
     last_sender: Optional[UserResponse] = None
-
+    encrypted_group_key: Optional[str] = None
     class Config:
         from_attributes = True

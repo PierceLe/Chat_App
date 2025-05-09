@@ -1,9 +1,6 @@
 import axios from "axios";
 
-const httpRequest = axios.create({
-  baseURL: "http://localhost:9990",
-  withCredentials: true,
-});
+import httpRequest from "../api/baseAxios";
 
 axios.defaults.withCredentials = true;
 
@@ -27,8 +24,8 @@ export interface UserData {
 export const getAllFriends = async () => {
   try {
     const res = await httpRequest.get("/friend/all");
-    if (res.status === 200) {
-      return res.data["result"];
+    if (res.code === 0) {
+      return res.result;
     }
     return [];
   } catch (error) {
@@ -40,8 +37,8 @@ export const getAllFriends = async () => {
 export const getFriendDrafts = async () => {
   try {
     const res = await httpRequest.get("/friend/friend-draft");
-    if (res.status === 200) {
-      return res.data["result"];
+    if (res.code === 0) {
+      return res.result;
     }
     return [];
   } catch (error) {
@@ -77,5 +74,35 @@ export const unFriend = async (friend_id: string) => {
     return res;
   } catch (error) {
     console.log(error);
+  }
+};
+
+export const getAllContact = async () => {
+  try {
+    const res = await httpRequest.get("/friend/all-contact");
+    if (res.code === 0) {
+      return res.result;
+    }
+    return [];
+  } catch (error) {
+    console.log(error);
+    return [];
+  }
+};
+
+export const getUserByEmail = async (email: string) => {
+  try {
+    const res = await httpRequest.get("/user/by-email", {
+      params: {
+        email
+      }
+    });
+    if (res.code === 0) {
+      return res.result;
+    }
+    return null;
+  } catch (error) {
+    console.log(error);
+    return null;
   }
 };

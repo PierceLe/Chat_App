@@ -7,16 +7,19 @@ import CommonModals from "../core/modals/common-modals";
 import { useAuth } from "../core/hooks/useAuth";
 
 const ProtectedFeature = () => {
-  const { loading, isAuthenticated } = useAuth();
-  const themeDark = useSelector((state: any) => state?.darkMode);
+  const { loading, isAuthenticated, PinSetupModal, PinRestoreModal } = useAuth();
+  const isDarkMode = useSelector((state: any) => state?.common?.darkMode);
+
   if (loading) {
-    return <div>Loading...</div>; // Hoặc spinner loading
+    return <div>Loading...</div>;
   }
+
   if (!isAuthenticated) {
     return null;
   }
+
   return (
-    <div className={themeDark ? "darkmode" : ""}>
+    <div className={isDarkMode ? "darkmode" : ""}>
       <div className="main-wrapper" style={{ visibility: "visible" }}>
         <div className="content main_content">
           <Sidebar />
@@ -24,9 +27,12 @@ const ProtectedFeature = () => {
           <Outlet />
         </div>
         <CommonModals />
+        {PinSetupModal}
+        {PinRestoreModal}
       </div>
     </div>
   );
 };
+
 
 export default ProtectedFeature;

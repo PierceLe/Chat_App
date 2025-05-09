@@ -1,9 +1,5 @@
 import axios from "axios";
-
-const httpRequest = axios.create({
-  baseURL: "http://localhost:9990",
-  withCredentials: true,
-});
+import httpRequest from "../api/baseAxios";
 
 axios.defaults.withCredentials = true;
 
@@ -17,6 +13,7 @@ export interface RoomData {
   description: string | null;
   created_at: Date;
   updated_at: Date;
+  encrypted_group_key: string | null;
 }
 
 export interface RoomChatOneData extends RoomData {
@@ -25,7 +22,18 @@ export interface RoomChatOneData extends RoomData {
   friend_frist_name: string;
   friend_last_name: string;
   friend_avatar_url: string;
+  // last_sender_user_id: string;
+  // last_sender_first_name: string;
+  // las_sender_last_name: string;
+  // last_sender_avatar_url: string;
 }
+
+// export interface RoomChatGroupData extends RoomData {
+//   last_sender_user_id: string;
+//   last_sender_first_name: string;
+//   las_sender_last_name: string;
+//   last_sender_avatar_url: string;
+// }
 
 export const createRoom = async (
   room_name: string,
@@ -33,6 +41,8 @@ export const createRoom = async (
   avatar_url: string | null,
   description: string | null,
   member_ids: string[] = [],
+  encrypted_group_keys: string[] = [],
+  encrypted_group_key: string
 ) => {
   try {
     const res = await httpRequest.post("/room", {
@@ -41,10 +51,12 @@ export const createRoom = async (
       avatar_url,
       description,
       member_ids,
+      encrypted_group_keys,
+      encrypted_group_key
     });
     console.log("createRoom: ", res)
-    if (res.status === 200) {
-      return res.data["result"];
+    if (res.code === 0) {
+      return res.result;
     }
     return null;
   } catch (error) {
@@ -68,8 +80,8 @@ export const getAllGroupChatMany = async (
       room_type: room_type,
       user_id: user_id,
     });
-    if (res.status === 200) {
-      return res.data["result"]["items"];
+    if (res.code === 0) {
+      return res.result.items;
     }
     return [];
   } catch (error) {
@@ -121,8 +133,8 @@ export const getAllGroupChatOne = async (
       friend_name: friend_name,
       user_id: user_id,
     });
-    if (res.status === 200) {
-      return res.data["result"]["items"];
+    if (res.code === 0) {
+      return res.result.items;
     }
     return [];
   } catch (error) {
@@ -134,8 +146,8 @@ export const getAllGroupChatOne = async (
 export const getRoomById = async (room_id: string) => {
   try {
     const res = await httpRequest.get("/room", {params: {room_id: room_id}});
-  if (res.status === 200) {
-    return res.data["result"];
+  if (res.code === 0) {
+    return res.result;
   }
   } catch (error) {
     console.log(error);
@@ -146,8 +158,20 @@ export const getRoomById = async (room_id: string) => {
 export const getAllUsersInRoom = async (room_id: string) => {
   try {
     const res = await httpRequest.get("/room/user", {params: {room_id: room_id}});
-  if (res.status === 200) {
-    return res.data["result"];
+  if (res.code === 0) {
+    return res.result;
+  }
+  } catch (error) {
+    console.log(error);
+    return null;
+  }
+}
+
+export const getEncryptedGroupKey = async (room_id: string) => {
+  try {
+    const res = await httpRequest.get("/room/group-key", {params: {room_id: room_id}});
+  if (res.code === 0) {
+    return res.result;
   }
   } catch (error) {
     console.log(error);

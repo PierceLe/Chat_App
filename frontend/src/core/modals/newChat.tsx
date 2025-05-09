@@ -3,6 +3,8 @@ import { Modal, Avatar, Button } from "antd";
 import { getAllFriends, UserData } from "../services/contactService";
 import { createRoom } from "../services/roomService";
 import { wsClient } from "../services/websocket";
+import { encryptSymmetricKey, generateSymmetricKey } from "../utils/encryption";
+import { getAvatarUrl } from "../utils/helper";
 
 const NewChat = ({ isModalVisible, onClose }: { isModalVisible: boolean; onClose: () => void }) => {
   const [friends, setFriends] = useState<Array<UserData>>([]);
@@ -28,25 +30,52 @@ const NewChat = ({ isModalVisible, onClose }: { isModalVisible: boolean; onClose
   };
 
   const handleCreateRoom = async () => {
-    if (selectedUserId) {
-      const room_id: any = await createRoom("Chat 1-1", 1, "", "chat 1-1", [selectedUserId]);
-      console.log("room_id: ", room_id);
+    if (!selectedUserId) return;
+
+    try {
+      const groupKey = await generateSymmetricKey();
+
+      const myPublicKey = localStorage.getItem("publicKey");
+      if (!myPublicKey) {
+        console.error("Missing publicKey in localStorage");
+        return;
+      }
+
+      const selectedFriend = friends.find((friend) => friend.user_id === selectedUserId);
+      if (!selectedFriend || !selectedFriend.public_key) {
+        console.error(`No public key for user ${selectedUserId}`);
+        return;
+      }
+
+      const encryptedGroupKey = await encryptSymmetricKey(groupKey, myPublicKey);
+      const memberEncryptedKey = await encryptSymmetricKey(groupKey, selectedFriend.public_key);
+
+      const room_id = await createRoom(
+        "Chat 1-1",
+        1,
+        "",
+        "chat 1-1",
+        [selectedUserId],
+        [memberEncryptedKey], 
+        encryptedGroupKey
+      );
+
       if (room_id) {
         wsClient.send({
           action: "join",
           data: {
             user_ids: [selectedUserId],
-            room_id: room_id,
+            room_id,
           },
         });
+
+        const event = new Event("chatCreated");
+        window.dispatchEvent(event);
+
+        onClose();
       }
-
-      // Dispatch custom event to notify ChatTab
-      const event = new Event("chatCreated");
-      window.dispatchEvent(event);
-
-      // Close the modal after creating the chat room
-      onClose();
+    } catch (error) {
+      console.error("Error creating chat room:", error);
     }
   };
 
@@ -63,11 +92,7 @@ const NewChat = ({ isModalVisible, onClose }: { isModalVisible: boolean; onClose
           <div className="avatar avatar-lg">
             <Avatar
               size={32}
-              src={
-                avatar_url === "default"
-                  ? "assets/img/profiles/avatar-16.jpg"
-                  : `http://localhost:9990/${avatar_url}`
-              }
+              src={getAvatarUrl(avatar_url)}
             />
           </div>
           <div className="ms-2">

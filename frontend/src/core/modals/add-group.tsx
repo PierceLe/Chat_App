@@ -10,6 +10,8 @@ import {
 import { createRoom } from "../services/roomService";
 import { wsClient } from "../services/websocket";
 import { UploadOutlined } from '@ant-design/icons';
+import { encryptSymmetricKey, generateSymmetricKey } from "../utils/encryption";
+import { getAvatarUrl } from "../utils/helper";
 
 interface Props {
   open: boolean;
@@ -19,50 +21,70 @@ interface Props {
 
 const AddGroupModal: React.FC<Props> = ({ open, onClose, onBack }) => {
   const [friends, setFriends] = useState<UserData[]>([]);
-  const [usersSelected, setUsersSelected] = useState<Set<string>>(new Set());
+  const [usersSelected, setUsersSelected] = useState<Map<string, UserData>>(new Map());
 
   const roomName = useSelector(roomNameSelector);
   const roomDescription = useSelector(roomDescriptionSelector);
   const roomAvatarUrl = useSelector(roomAvatarUrlSelector)
-
-  useEffect(() => {
-    fetchApiGetFriend();
-  }, []);
 
   const fetchApiGetFriend = async () => {
     const result = await getAllFriends();
     setFriends(result);
   };
 
-  const handleCheckboxChange = (user_id: string, checked: boolean) => {
+  const handleCheckboxChange = (user: UserData, checked: boolean) => {
     setUsersSelected((prev) => {
-      const newSelected = new Set(prev);
-      if (checked) newSelected.add(user_id);
-      else newSelected.delete(user_id);
-      return newSelected;
+      const newMap = new Map(prev);
+      if (checked) {
+        newMap.set(user.user_id, user);
+      }
+      else newMap.delete(user.user_id);
+      return newMap;
     });
   };
 
   useEffect(() => {
     if (open) {
-      setUsersSelected(new Set());
+      fetchApiGetFriend();
+      setUsersSelected(new Map());
     }
   }, [open]);
 
   const handleCreateRoom = async () => {
+    const userIds: string[] = [];
+    const encryptedGroupKeys: string[] = [];
+    const groupKey = await generateSymmetricKey()
+
+    const encryptedGroupKey = await encryptSymmetricKey(groupKey, localStorage.getItem("publicKey") as any)
+
+    for (const [userId, userData] of usersSelected.entries()) {
+      if (userData.public_key) {
+        try {
+          userIds.push(userId);
+          const memberEncryptedKey = await encryptSymmetricKey(groupKey, userData.public_key);
+          encryptedGroupKeys.push(memberEncryptedKey);
+        } catch (error) {
+          console.error(`Error encrypting key for user ${userId}:`, error);
+        }
+      } else {
+        console.warn(`No public key for user ${userId}`);
+      }
+    }
     const room_id = await createRoom(
       roomName,
       2,
       roomAvatarUrl,
       roomDescription,
-      Array.from(usersSelected)
+      userIds,
+      encryptedGroupKeys,
+      encryptedGroupKey
     );
 
     if (room_id) {
       wsClient.send({
         action: "join",
         data: {
-          user_ids: Array.from(usersSelected),
+          user_ids: Array.from(usersSelected.keys()),
           room_id,
         },
       });
@@ -98,12 +120,8 @@ const AddGroupModal: React.FC<Props> = ({ open, onClose, onBack }) => {
                 className="d-flex align-items-center"
                 avatar={<Avatar
                   size={30}
-                  src={
-                    user.avatar_url === 'default1'
-                      ? 'assets/img/profiles/avatar-16.jpg'
-                      : `http://localhost:9990/${user.avatar_url}`
-                  }
-                  icon={<UploadOutlined />}
+                  src={getAvatarUrl(user.avatar_url)}
+                    icon={<UploadOutlined />}
                 />}
                 title={`${user.first_name} ${user.last_name}`}
                 description={user.email}
@@ -111,7 +129,7 @@ const AddGroupModal: React.FC<Props> = ({ open, onClose, onBack }) => {
               <Checkbox
                 checked={usersSelected.has(user.user_id)}
                 onChange={(e) =>
-                  handleCheckboxChange(user.user_id, e.target.checked)
+                  handleCheckboxChange(user, e.target.checked)
                 }
               />
             </List.Item>
@@ -127,7 +145,7 @@ const AddGroupModal: React.FC<Props> = ({ open, onClose, onBack }) => {
           type="primary"
           onClick={handleCreateRoom}
           style={{ flex: 1 }}
-          disabled={usersSelected.size < 2}
+          disabled={usersSelected.size < 1}
         >
           Start Group
         </Button>

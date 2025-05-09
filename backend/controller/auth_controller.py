@@ -94,6 +94,7 @@ async def forgot_password(
 @auth_router.post("/reset-password",
                   summary="Reset to new password after confirming via email")
 async def reset_password(
+        response: Response,
         reset_password_data: ResetPasswordRequest,
         auth_service: AuthService = Depends(AuthService)):
     
@@ -152,6 +153,7 @@ async def login(response: Response, login_data: LoginRequest,
 def login_with_google(response: Response, data: GoogleLoginRequest, 
                     auth_service: AuthService = Depends(AuthService)):
     try:
+        response.delete_cookie("access_token")
         user = auth_service.login_or_create_google_user(data.token)
 
         access_token = auth_service.create_token(data={"sub": user.email})

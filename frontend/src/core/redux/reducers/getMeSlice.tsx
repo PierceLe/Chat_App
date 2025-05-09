@@ -31,9 +31,11 @@ const getMeSlice = createSlice({
     setMe: (state: UserStateInterface, actions: PayloadAction<UserData>) => {
       state.user = actions.payload;
     },
+    resetMe: () => initialState
+    
   },
 });
 
-export const { setMe } = getMeSlice.actions;
+export const { setMe, resetMe } = getMeSlice.actions;
 
 export default getMeSlice;

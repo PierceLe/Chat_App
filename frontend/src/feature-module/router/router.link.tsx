@@ -34,14 +34,32 @@ export const protectedRoutes = [
     title: "Chat",
   },
   {
+    path: `${route.chat}`,
+    element: <Chat />,
+    route: Route,
+    title: "Chat",
+  },
+  {
     path: `${route.chat}/:room_id`,
     element: <Chat />,
     route: Route,
     title: "Chat",
   },
   {
+    path: `${route.groupChat}`,
+    element: <GroupChat />,
+    route: Route,
+    title: "Group",
+  },
+  {
     path: `${route.groupChat}/:room_id`,
     element: <GroupChat />,
+    route: Route,
+    title: "Group",
+  },
+  {
+    path: `${route.contact}`,
+    element: <StartChat />,
     route: Route,
     title: "Group",
   },
@@ -78,6 +96,12 @@ export const protectedRoutes = [
   {
     path: route.timetable,
     element: <TimeTable />,
+    route: Route,
+    title: "Timetable",
+  },
+  {
+    path: route.settings,
+    element: <StartChat />,
     route: Route,
     title: "Timetable",
   },

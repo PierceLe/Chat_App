@@ -1,7 +1,9 @@
+from sqlalchemy import and_
 from sqlalchemy.orm import Session
 from database import SessionLocal
 from model.user import User
 from dto.request.auth.user_update_request import UserUpdateRequest
+from dto.request.auth.user_bio_update_request import UserBioUpdateRequest
 from enums.enum_login_method import E_Login_Method
 
 class UserRepository:
@@ -119,6 +121,18 @@ class UserRepository:
                 db.refresh(db_user)
                 return True
             return False
+    
+    def update_user_bio(self, user_id: str, user_update: UserBioUpdateRequest) -> bool:
+        with SessionLocal() as db:
+            db_user = db.query(User).filter(User.user_id == user_id).first()
+            if db_user:
+                update_data = user_update.dict(exclude_unset=True)
+                for key, value in update_data.items():
+                    setattr(db_user, key, value)
+                db.commit()
+                db.refresh(db_user)
+                return True
+            return False
 
     def delete_user(self, user_id: str) -> bool:
         with SessionLocal() as db:
@@ -148,3 +162,23 @@ class UserRepository:
                 db.refresh(db_user)
                 return True
             return False
+
+    def create_pin(self, user_id: str, pin: str, public_key: str, encrypted_private_key: str):
+        with SessionLocal() as db:
+            db_user = db.query(User).filter(User.user_id == user_id).first()
+            if db_user:
+                db_user.pin = pin
+                db_user.public_key = public_key
+                db_user.encrypted_private_key = encrypted_private_key
+                db.commit()
+                db.refresh(db_user)
+                return True
+            return False
+        
+    def query_by_email_not_in_list(self, list_user_id: list[str], email: str):
+        with SessionLocal() as db:
+            query = db.query(User)
+            if email:
+                query = query.filter(and_(~User.user_id.in_(list_user_id), User.email.ilike(f"%{email}%")))
+            return query.all()
+

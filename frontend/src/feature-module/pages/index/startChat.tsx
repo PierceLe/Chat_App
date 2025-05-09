@@ -29,8 +29,8 @@ const StartChat = () => {
               />
             </h6>
           </div>
-          <p>Choose a person or group to start chat with them.</p>
-          <Link
+          {/* <p>Choose a person or group to start chat with them.</p> */}
+          {/* <Link
             to="#"
             className="btn btn-primary"
             data-bs-toggle="modal"
@@ -38,7 +38,7 @@ const StartChat = () => {
           >
             <i className="ti ti-location me-2" />
             Invite Contacts
-          </Link>
+          </Link> */}
         </div>
       </div>
       {/* /Chat */}

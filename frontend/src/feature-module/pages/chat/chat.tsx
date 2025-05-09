@@ -18,150 +18,392 @@ import {
 } from "../../../core/services/messageService";
 import { UserData } from "../../../core/services/contactService";
 import { useSelector } from "react-redux";
-import { getMeSelector } from "../../../core/redux/selectors";
+import { getMeSelector, getUsersOnlineSelector } from "../../../core/redux/selectors";
 import { format } from "date-fns";
 import { wsClient } from "../../../core/services/websocket";
+import { getEncryptedGroupKey } from "@/core/services/roomService";
+import { decryptMessage, decryptSymmetricKey, encryptMessage } from "@/core/utils/encryption";
+import { downloadAndDecryptFile, uploadFile } from "@/core/utils/file";
+import { getAvatarUrl } from "@/core/utils/helper";
 
 const Chat = () => {
-  const [open1, setOpen1] = useState(false);
   const [showReply, setShowReply] = useState(false);
   const [showSearch, setShowSearch] = useState(false);
   const [showEmoji, setShowEmoji] = useState<Record<number, boolean>>({});
-  const toggleEmoji = (groupId: number) => {
+  const [isLoading, setIsLoading] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
+  const [isDownloading, setIsDownloading] = useState<string | null>(null);
+  const [hasMore, setHasMore] = useState(true);
+  const [messages, setMessages] = useState<MessageData[]>([]);
+  const [newMessage, setNewMessage] = useState<string>("");
+  const [groupKey, setGroupKey] = useState<string>("");
+
+  const me: UserData = useSelector(getMeSelector);
+  const usersOnline: Set<String> = useSelector(getUsersOnlineSelector);
+  
+
+  const { room_id } = useParams<RouteParams>();
+  const { state } = useLocation<LocationState>();
+  const scrollbarsRef = useRef<Scrollbars>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const routes = all_routes;
+
+  const toggleEmoji = (groupId: number): void => {
     setShowEmoji((prev) => ({
       ...prev,
-      [groupId]: !prev[groupId], // Toggle the state for this specific group
+      [groupId]: !prev[groupId],
     }));
   };
 
-
-  const [isLoading, setIsLoading] = useState(false);
-  const [hasMore, setHasMore] = useState(true);
-
-  const toggleSearch = () => {
+  const toggleSearch = (): void => {
     setShowSearch(!showSearch);
   };
-  useEffect(() => {
-    document.querySelectorAll(".chat-user-list").forEach(function (element) {
-      element.addEventListener("click", function () {
-        if (window.innerWidth <= 992) {
-          const showChat = document.querySelector(".chat-messages");
-          if (showChat) {
-            showChat.classList.add("show");
-          }
-        }
-      });
-    });
-    document.querySelectorAll(".chat-close").forEach(function (element) {
-      element.addEventListener("click", function () {
-        if (window.innerWidth <= 992) {
-          const hideChat = document.querySelector(".chat-messages");
-          if (hideChat) {
-            hideChat.classList.remove("show");
-          }
-        }
-      });
-    });
-  }, []);
 
-  const me: UserData = useSelector(getMeSelector);
-
-  const [messages, setMessages] = useState(Array<MessageData>);
-
-  const [newMessage, setNewMessage] = useState<string>("");
-
-  const fetchApiGetMessInRoom = async (room_id: any) => {
-    const result: Array<MessageData> = await getMoreMessInRoom(room_id, new Date());
-    setMessages(result);
+  const fetchApiGetGroupKey = async (roomId: string): Promise<string | null> => {
+    try {
+      const encryptedGroupKey = await getEncryptedGroupKey(roomId);
+      const privateKey = localStorage.getItem("privateKey");
+      if (!privateKey || !encryptedGroupKey) {
+        console.error("Missing privateKey or encryptedGroupKey");
+        return null;
+      }
+      const groupKey = await decryptSymmetricKey(encryptedGroupKey, privateKey);
+      setGroupKey(groupKey);
+      return groupKey;
+    } catch (error) {
+      console.error("Error fetching group key:", error);
+      return null;
+    }
   };
 
-  const fetchApiGetMoreMessInRoom = async (room_id: string) => {
+  const fetchApiGetMessInRoom = async (roomId: string, groupKey: string): Promise<void> => {
     try {
-      if (messages.length > 0){
-        const lastMess = messages[0]
-        setIsLoading(true)
-        const result = await getMoreMessInRoom(room_id, lastMess.created_at)
-        console.log("fetchApiGetMoreMessInRoom: ", result)
-        if (result.length === 0){
-          setHasMore(false)
-        } else {
-          setMessages((pre)=>[...result, ...pre])
-        }
+      if (!roomId) {
+        console.error("Invalid roomId: roomId is empty or undefined");
+        return;
+      }
+      console.log(`Fetching messages for roomId: ${roomId}`);
+      const result: MessageData[] = await getMoreMessInRoom(roomId, new Date());
+      if (!Array.isArray(result)) {
+        console.error("Invalid response from getMoreMessInRoom: result is not an array", result);
+        return;
+      }
+      console.log(`Received ${result.length} messages`);
+      if (groupKey) {
+        console.log("Using groupKey for decryption:", groupKey);
+        const decryptedMessages = await Promise.all(
+          result.map(async (msg) => {
+            try {
+              if (!msg.content) {
+                console.warn(`Message ${msg.id} has no content, skipping decryption`);
+                return { ...msg, content: "" };
+              }
+              console.log(`Decrypting message ${msg.id} with content:`, msg.content);
+              const decryptedContent = await decryptMessage(msg.content, groupKey);
+              return { ...msg, content: decryptedContent };
+            } catch (decryptError) {
+              console.error(`Error decrypting message ${msg.id}:`, decryptError);
+              return { ...msg, content: "" };
+            }
+          })
+        );
+        console.log("Decrypted messages:", decryptedMessages);
+        setMessages(decryptedMessages);
+      } else {
+        console.warn("No groupKey available, using raw messages");
+        setMessages(result);
       }
     } catch (error) {
-      console.log(error)
-    } finally {
-      setIsLoading(false)
+      console.error("Error fetching messages:", {
+        message: error.message,
+        stack: error.stack,
+        roomId,
+      });
     }
-  }
+  };
 
-  const handleScroll = (values: any) => {
+  const fetchApiGetMoreMessInRoom = async (roomId: string): Promise<void> => {
+    try {
+      if (!roomId) {
+        console.error("Invalid roomId: roomId is empty or undefined");
+        return;
+      }
+      if (!groupKey) {
+        console.warn("No groupKey available, cannot decrypt messages");
+        return;
+      }
+      if (messages.length === 0) {
+        console.warn("No messages available to fetch more");
+        return;
+      }
+
+      const lastMess = messages[0];
+      if (!lastMess.created_at) {
+        console.error("Invalid lastMess.created_at:", lastMess);
+        return;
+      }
+
+      setIsLoading(true);
+      console.log(`Fetching more messages for roomId: ${roomId}, before: ${lastMess.created_at.toISOString()}`);
+      const result = await getMoreMessInRoom(roomId, lastMess.created_at);
+
+      if (!Array.isArray(result)) {
+        console.error("Invalid response from getMoreMessInRoom: result is not an array", result);
+        return;
+      }
+      console.log(`Received ${result.length} more messages`);
+
+      if (result.length === 0) {
+        console.log("No more messages to fetch");
+        setHasMore(false);
+        return;
+      }
+
+      const decryptedMessages = await Promise.all(
+        result.map(async (msg: MessageData) => {
+          try {
+            if (!msg.content) {
+              console.warn(`Message ${msg.id} has no content, skipping decryption`);
+              return { ...msg, content: "" };
+            }
+            console.log(`Decrypting message ${msg.id} with content:`, msg.content);
+            const decryptedContent = await decryptMessage(msg.content, groupKey);
+            return { ...msg, content: decryptedContent };
+          } catch (decryptError) {
+            console.error(`Error decrypting message ${msg.id}:`, decryptError);
+            return { ...msg, content: "" };
+          }
+        })
+      );
+
+      console.log("Decrypted more messages:", decryptedMessages);
+      setMessages((prev) => [...decryptedMessages, ...prev]);
+    } catch (error) {
+      console.error("Error fetching more messages:", {
+        message: error.message,
+        stack: error.stack,
+        roomId,
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleScroll = (values: { scrollTop: number }): void => {
     if (scrollbarsRef.current) {
       const { scrollTop } = values;
-      console.log(scrollTop, isLoading, hasMore)
-      if (scrollTop === 0  && !isLoading && hasMore && room_id) {
+      if (scrollTop === 0 && !isLoading && hasMore && room_id) {
         fetchApiGetMoreMessInRoom(room_id);
       }
     }
-  }; 
+  };
 
-  const { room_id } = useParams();
+  const handleSendMessage = async (e: React.FormEvent): Promise<void> => {
+    e.preventDefault();
+    if (!newMessage.trim() || !room_id || !groupKey) return;
 
-  const { state } = useLocation();
+    try {
+      const encryptedContent = await encryptMessage(newMessage, groupKey);
+      const messageData: SendMessageData = {
+        room_id,
+        content: encryptedContent,
+        file_url: null,
+        message_type: 0,
+      };
 
-  useEffect(() => {
-    console.log("ME: ", me)
-    fetchApiGetMessInRoom(room_id);
-    console.log("messages: ", messages);
+      wsClient.send({
+        action: "chat",
+        data: messageData,
+      });
 
-    const handleMessage = (data: any) => {
-      console.log("data: ", data);
-      if (data.action === "chat" && data.data.room_id === room_id) {
-        setMessages((prev) => [...prev, data.data]);
-      }
-    };
-    wsClient.onMessage(handleMessage);
-    return () => {
-      wsClient.offMessage(handleMessage);
-    };
-  }, [room_id]);
+      setNewMessage("");
+      scrollToBottom();
+    } catch (error) {
+      console.error("Error encrypting message:", error);
+    }
+  };
 
-  const scrollbarsRef = useRef<Scrollbars>(null);
-  const scrollToBottom = () => {
+  const scrollToBottom = (): void => {
     if (scrollbarsRef.current) {
       const scrollView = scrollbarsRef.current.getScrollTop();
       const scrollHeight = scrollbarsRef.current.getScrollHeight();
       const clientHeight = scrollbarsRef.current.getClientHeight();
-      const isAtBottom = scrollHeight - scrollView <= clientHeight + 600; // Khoảng cách 100px
+      const isAtBottom = scrollHeight - scrollView <= clientHeight + 600;
       if (isAtBottom) {
         scrollbarsRef.current.scrollToBottom();
       }
     }
   };
 
+  const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>): Promise<void> => {
+    if (!room_id || !groupKey) {
+      console.error("Missing room_id or groupKey");
+      return;
+    }
+
+    const file = event.target.files?.[0];
+    if (!file) {
+      console.warn("No file selected");
+      return;
+    }
+
+    setIsUploading(true);
+    try {
+      const fileType = file.type.startsWith("image/") ? "image" : "document";
+
+      const result = await uploadFile(file, fileType, groupKey);
+      if (!result.filePath) {
+        console.error("Failed to upload file:", result.error);
+        return;
+      }
+      let contentMessage
+      try {
+        contentMessage = await encryptMessage(result.filePath.split("/").pop() as any, groupKey)
+      } catch (error) {
+        contentMessage = result.filePath
+      }
+    
+      const messageData: SendMessageData = {
+        room_id,
+        content: contentMessage,
+        file_url: result.filePath,
+        message_type: 1,
+      };
+
+      console.log("Sending file message:", messageData);
+      wsClient.send({
+        action: "chat",
+        data: messageData,
+      });
+
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
+    } catch (error) {
+      console.error("Error handling file upload:", error);
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+  const handleDownloadFile = async (filePath: string): Promise<void> => {
+    if (!groupKey) {
+      console.error("Missing groupKey for decryption");
+      return;
+    }
+
+    setIsDownloading(filePath);
+    try {
+      const result = await downloadAndDecryptFile(filePath, groupKey);
+      if (!result) {
+        console.error("Failed to download and decrypt file");
+        return;
+      }
+
+      const link = document.createElement("a");
+      link.href = result.downloadUrl;
+      link.download = result.filename;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } catch (error) {
+      console.error("Error handling file download:", error);
+    } finally {
+      setIsDownloading(null);
+    }
+  };
+
+  useEffect(() => {
+    const initialize = async () => {
+      if (!room_id) return;
+
+      setMessages([]);
+      setGroupKey("");
+      setHasMore(true);
+
+      const userListElements = document.querySelectorAll(".chat-user-list");
+      const handleUserListClick = () => {
+        if (window.innerWidth <= 992) {
+          const showChat = document.querySelector(".chat-messages");
+          if (showChat) {
+            showChat.classList.add("show");
+          }
+        }
+      };
+      userListElements.forEach((element) => {
+        element.addEventListener("click", handleUserListClick);
+      });
+
+      const closeElements = document.querySelectorAll(".chat-close");
+      const handleCloseClick = () => {
+        if (window.innerWidth <= 992) {
+          const hideChat = document.querySelector(".chat-messages");
+          if (hideChat) {
+            hideChat.classList.remove("show");
+          }
+        }
+      };
+      closeElements.forEach((element) => {
+        element.addEventListener("click", handleCloseClick);
+      });
+
+      const groupKey = await fetchApiGetGroupKey(room_id);
+      if (!groupKey) {
+        console.error("Failed to fetch groupKey, skipping further initialization");
+        return;
+      }
+
+      await fetchApiGetMessInRoom(room_id, groupKey);
+
+      return () => {
+        userListElements.forEach((element) => {
+          element.removeEventListener("click", handleUserListClick);
+        });
+        closeElements.forEach((element) => {
+          element.removeEventListener("click", handleCloseClick);
+        });
+      };
+    };
+
+    initialize();
+  }, [room_id]);
+
+  useEffect(() => {
+    if (!room_id) return;
+
+    const handleMessage = async (data: any): Promise<void> => {
+      if (data.action === "chat" && data.data.room_id === room_id && groupKey) {
+        try {
+          const encryptedMessage = data.data.content;
+          let decryptedContent;
+          if (data.data.message_type === 0){
+            decryptedContent = encryptedMessage
+            ? await decryptMessage(encryptedMessage, groupKey)
+            : "";
+          } else{
+            decryptedContent = encryptedMessage
+          }
+          
+          const message: MessageData = {
+            ...data.data,
+            content: decryptedContent,
+          };
+          setMessages((prev) => [...prev, message]);
+        } catch (error) {
+          console.error("Error decrypting message:", error);
+        }
+      }
+    };
+
+    wsClient.onMessage(handleMessage);
+    return () => {
+      wsClient.offMessage(handleMessage);
+    };
+  }, [room_id, groupKey]);
+
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
-
-  const handleSendMessage = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!newMessage.trim() || !room_id) return;
-
-    const messageData: SendMessageData = {
-      room_id,
-      content: newMessage,
-      file_url: null,
-      message_type: 0,
-    };
-
-    wsClient.send({
-      action: "chat",
-      data : messageData
-      });
-
-    setNewMessage("");
-    scrollToBottom();
-  };
 
   const OneMessageInLeft = ({
     id,
@@ -178,11 +420,7 @@ const Chat = () => {
           <div className="chat-avatar">
             <Avatar
               size={32}
-              src={
-                sender.avatar_url === 'default'
-                  ? 'assets/img/profiles/avatar-16.jpg'
-                  : `http://localhost:9990/${sender.avatar_url}`
-              }
+              src={getAvatarUrl(sender.avatar_url)}
             />
           </div>
           <div className="chat-content">
@@ -199,74 +437,76 @@ const Chat = () => {
               </h6>
             </div>
             <div className="chat-info">
+            {file_url ? (
+              <div
+              className="file-item d-flex"
+              style={{
+                backgroundColor: 'oklch(96.7% 0.003 264.542)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'flex-start',
+                width: '100%',
+                maxWidth: "500px",
+                marginLeft: 'auto',
+                padding: '12px 14px',
+                borderRadius: '12px 12px 0 12px',
+                cursor: 'pointer',
+                marginBottom: '6px',
+                transition: 'background 0.2s ease',
+              }}
+              onClick={() => handleDownloadFile(file_url)}
+            >
+              <div
+                className="file-icon"
+                style={{
+                  fontSize: '24px',
+                  marginRight: '10px',
+                  color: '#6338f6',
+                  flexShrink: 0,
+                }}
+              >
+                📄
+              </div>
+              <div
+                className="file-info"
+                style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  overflow: 'hidden',
+                }}
+              >
+                <span
+                  className="file-name"
+                  style={{
+                    fontWeight: 500,
+                    color: '#333',
+                    wordBreak: 'break-word',
+                    maxWidth: '220px',
+                  }}
+                >
+                  {file_url.split("/").pop()}
+                </span>
+                {isDownloading === file_url && (
+                  <span
+                    className="file-status"
+                    style={{
+                      fontSize: '12px',
+                      color: '#999',
+                      marginTop: '2px',
+                    }}
+                  >
+                    Downloading...
+                  </span>
+                )}
+              </div>
+            </div>
+            
+              ) : (
               <div className="message-content">
                 {content}
               </div>
-              <div className="chat-actions">
-                <Link className="#" to="#" data-bs-toggle="dropdown">
-                  <i className="ti ti-dots-vertical" />
-                </Link>
-                <ul className="dropdown-menu dropdown-menu-end p-3">
-                  <li>
-                    <Link
-                      className="dropdown-item"
-                      onClick={() => setShowReply(true)}
-                      to="#"
-                    >
-                      <i className="ti ti-arrow-back-up me-2" />
-                      Reply
-                    </Link>
-                  </li>
-                  <li>
-                    <Link className="dropdown-item" to="#">
-                      <i className="ti ti-arrow-forward-up-double me-2" />
-                      Forward
-                    </Link>
-                  </li>
-                  <li>
-                    <Link className="dropdown-item" to="#">
-                      <i className="ti ti-file-export me-2" />
-                      Copy
-                    </Link>
-                  </li>
-                  <li>
-                    <Link className="dropdown-item" to="#">
-                      <i className="ti ti-heart me-2" />
-                      Mark as Favourite
-                    </Link>
-                  </li>
-                  <li>
-                    <Link
-                      className="dropdown-item"
-                      to="#"
-                      data-bs-toggle="modal"
-                      data-bs-target="#message-delete"
-                    >
-                      <i className="ti ti-trash me-2" />
-                      Delete
-                    </Link>
-                  </li>
-                  <li>
-                    <Link className="dropdown-item" to="#">
-                      <i className="ti ti-check me-2" />
-                      Mark as Unread
-                    </Link>
-                  </li>
-                  <li>
-                    <Link className="dropdown-item" to="#">
-                      <i className="ti ti-box-align-right me-2" />
-                      Archeive Chat
-                    </Link>
-                  </li>
-                  <li>
-                    <Link className="dropdown-item" to="#">
-                      <i className="ti ti-pinned me-2" />
-                      Pin Chat
-                    </Link>
-                  </li>
-                </ul>
-              </div>
-            </div>
+              )}
+          </div>
           </div>
         </div>
       </>
@@ -299,89 +539,106 @@ const Chat = () => {
               </h6>
             </div>
             <div className="chat-info">
-              <div className="chat-actions">
-                <Link className="#" to="#" data-bs-toggle="dropdown">
-                  <i className="ti ti-dots-vertical" />
-                </Link>
-                <ul className="dropdown-menu dropdown-menu-end p-3">
-                  <li>
-                    <Link
-                      className="dropdown-item"
-                      onClick={() => setShowReply(true)}
-                      to="#"
-                    >
-                      <i className="ti ti-arrow-back-up me-2" />
-                      Reply
-                    </Link>
-                  </li>
-                  <li>
-                    <Link className="dropdown-item" to="#">
-                      <i className="ti ti-arrow-forward-up-double me-2" />
-                      Forward
-                    </Link>
-                  </li>
-                  <li>
-                    <Link className="dropdown-item" to="#">
-                      <i className="ti ti-file-export me-2" />
-                      Copy
-                    </Link>
-                  </li>
-                  <li>
-                    <Link className="dropdown-item" to="#">
-                      <i className="ti ti-heart me-2" />
-                      Mark as Favourite
-                    </Link>
-                  </li>
-                  <li>
-                    <Link
-                      className="dropdown-item"
-                      to="#"
-                      data-bs-toggle="modal"
-                      data-bs-target="#message-delete"
-                    >
-                      <i className="ti ti-trash me-2" />
-                      Delete
-                    </Link>
-                  </li>
-                  <li>
-                    <Link className="dropdown-item" to="#">
-                      <i className="ti ti-check me-2" />
-                      Mark as Unread
-                    </Link>
-                  </li>
-                  <li>
-                    <Link className="dropdown-item" to="#">
-                      <i className="ti ti-box-align-right me-2" />
-                      Archeive Chat
-                    </Link>
-                  </li>
-                  <li>
-                    <Link className="dropdown-item" to="#">
-                      <i className="ti ti-pinned me-2" />
-                      Pin Chat
-                    </Link>
-                  </li>
-                </ul>
+            {file_url ? (
+              <div
+              className="file-item d-flex"
+              style={{
+                backgroundColor: 'oklch(96.7% 0.003 264.542)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'flex-start',
+                width: '100%',
+                maxWidth: "500px",
+                marginLeft: 'auto',
+                padding: '12px 14px',
+                borderRadius: '12px 12px 0 12px',
+                cursor: 'pointer',
+                marginBottom: '6px',
+                transition: 'background 0.2s ease',
+              }}
+              onClick={() => handleDownloadFile(file_url)}
+            >
+              <div
+                className="file-icon"
+                style={{
+                  fontSize: '24px',
+                  marginRight: '10px',
+                  color: '#6338f6',
+                  flexShrink: 0,
+                }}
+              >
+                📄
               </div>
+              <div
+                className="file-info"
+                style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  overflow: 'hidden',
+                }}
+              >
+                <span
+                  className="file-name"
+                  style={{
+                    fontWeight: 500,
+                    color: '#333',
+                    wordBreak: 'break-word',
+                    maxWidth: '220px',
+                  }}
+                >
+                  {file_url.split("/").pop()}
+                </span>
+                {isDownloading === file_url && (
+                  <span
+                    className="file-status"
+                    style={{
+                      fontSize: '12px',
+                      color: '#999',
+                      marginTop: '2px',
+                    }}
+                  >
+                    Downloading...
+                  </span>
+                )}
+              </div>
+            </div>
+            
+              ) : (
               <div className="message-content">
                 {content}
               </div>
-            </div>
+              )}
+          </div>
           </div>
           <div className="chat-avatar">
             <Avatar
               size={32}
-              src={
-                me.avatar_url === 'default'
-                  ? 'assets/img/profiles/avatar-16.jpg'
-                  : `http://localhost:9990/${me.avatar_url}`
-              }
+              src={getAvatarUrl(me.avatar_url)}
             />
           </div>
         </div>
       </>
     );
   };
+
+  if (!room_id) {
+    return (
+      <div
+        className="no-chat-selected d-flex justify-content-center align-items-center text-center"
+        style={{
+          height: "100%",
+          width: "100%",
+          minHeight: "300px",
+          padding: "20px",
+          fontSize: "18px",
+          borderRadius: "8px",
+        }}
+      >
+        Please select the conversation you want to chat with.
+      </div>
+    );
+  }
+  
 
   return (
     <>
@@ -404,15 +661,11 @@ const Chat = () => {
                     <i className="fas fa-arrow-left" />
                   </Link>
                 </div>
-                <div className="avatar avatar-lg online flex-shrink-0">
+                <div className={`avatar avatar-lg ${usersOnline.has(state.friend_id)? 'online': 'offline'} flex-shrink-0`}>
                   {state && (
                     <Avatar
                       size={32}
-                      src={
-                        state.friend_avatar_url === 'default'
-                          ? 'assets/img/profiles/avatar-16.jpg'
-                          : `http://localhost:9990/${state.friend_avatar_url}`
-                      }
+                      src={getAvatarUrl(state.friend_avatar_url)}
                     />
                   )}
                 </div>
@@ -437,85 +690,10 @@ const Chat = () => {
                     </Tooltip>
                   </li>
                   <li>
-                    <Tooltip title="Video Call" placement="bottom">
-                      <Link
-                        to="#"
-                        className="btn"
-                        data-bs-toggle="modal"
-                        data-bs-target="#video-call"
-                      >
-                        <i className="ti ti-video" />
-                      </Link>
-                    </Tooltip>
-                  </li>
-                  <li>
-                    <Tooltip title="Voice Call" placement="bottom">
-                      <Link
-                        to="#"
-                        className="btn"
-                        data-bs-toggle="modal"
-                        data-bs-target="#voice_call"
-                      >
-                        <i className="ti ti-phone" />
-                      </Link>
-                    </Tooltip>
-                  </li>
-                  <li>
-                    <Tooltip title="Contact Info" placement="bottom">
-                      <Link
-                        to="#"
-                        className="btn"
-                        data-bs-toggle="offcanvas"
-                        data-bs-target="#contact-profile"
-                      >
-                        <i className="ti ti-info-circle" />
-                      </Link>
-                    </Tooltip>
-                  </li>
-                  <li>
                     <Link className="btn no-bg" to="#" data-bs-toggle="dropdown">
                       <i className="ti ti-dots-vertical" />
                     </Link>
                     <ul className="dropdown-menu dropdown-menu-end p-3">
-                      <li>
-                        <Link to={all_routes.dashboard} className="dropdown-item">
-                          <i className="ti ti-x me-2" />
-                          Close Chat
-                        </Link>
-                      </li>
-                      <li>
-                        <Link
-                          to="#"
-                          className="dropdown-item"
-                          data-bs-toggle="modal"
-                          data-bs-target="#mute-notification"
-                        >
-                          <i className="ti ti-volume-off me-2" />
-                          Mute Notification
-                        </Link>
-                      </li>
-                      <li>
-                        <Link
-                          to="#"
-                          className="dropdown-item"
-                          data-bs-toggle="modal"
-                          data-bs-target="#disappearing-messages"
-                        >
-                          <i className="ti ti-clock-hour-4 me-2" />
-                          Disappearing Message
-                        </Link>
-                      </li>
-                      <li>
-                        <Link
-                          to="#"
-                          className="dropdown-item"
-                          data-bs-toggle="modal"
-                          data-bs-target="#clear-chat"
-                        >
-                          <i className="ti ti-clear-all me-2" />
-                          Clear Message
-                        </Link>
-                      </li>
                       <li>
                         <Link
                           to="#"
@@ -536,17 +714,6 @@ const Chat = () => {
                         >
                           <i className="ti ti-thumb-down me-2" />
                           Report
-                        </Link>
-                      </li>
-                      <li>
-                        <Link
-                          to="#"
-                          className="dropdown-item"
-                          data-bs-toggle="modal"
-                          data-bs-target="#block-user"
-                        >
-                          <i className="ti ti-ban me-2" />
-                          Block
                         </Link>
                       </li>
                     </ul>
@@ -647,11 +814,7 @@ const Chat = () => {
                     {state && (
                       <Avatar
                         size={32}
-                        src={
-                          state.friend_avatar_url === 'default'
-                            ? 'assets/img/profiles/avatar-16.jpg'
-                            : `http://localhost:9990/${state.friend_avatar_url}`
-                        }
+                        src={getAvatarUrl(state.friend_avatar_url)}
                       />
                     )}
                   </div>
@@ -704,6 +867,8 @@ const Chat = () => {
                   className="open-file position-relative"
                   name="files"
                   id="files"
+                  ref={fileInputRef}
+                  onChange={handleFileChange}
                 />
               </div>
               <div className="form-item">

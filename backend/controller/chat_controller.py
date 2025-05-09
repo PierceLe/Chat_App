@@ -60,6 +60,8 @@ async def websocket_endpoint(websocket: WebSocket, access_token=Cookie(...)):
                 leave(data_json, current_user)
             elif action == "make-request-friend":
                 await make_request_friend(data_json, current_user)
+            elif action == "change-contact":
+                await relay_message(data_json)
 
     except Exception as e:
         print(f"Error: {e}")
@@ -135,14 +137,7 @@ async def chat(data_json, current_user):
         file_url=mess_db.file_url,
         created_at=mess_db.created_at,
         updated_at=mess_db.updated_at,
-        sender=UserResponse(
-            user_id=current_user.user_id,
-            email=current_user.email,
-            first_name=current_user.first_name,
-            last_name=current_user.last_name,
-            avatar_url=current_user.avatar_url,
-            is_verified=current_user.is_verified
-        )
+        sender=UserResponse.fromUserModel(current_user)
     )
     res = WebSocketResponse(
         action=data_json["action"],
@@ -227,3 +222,25 @@ async def update_status(is_online: bool, user_id: str):
         }
     )
     await boardcast(res.json())
+
+async def relay_message(data_json):
+    """
+    data_json: {
+        "action": "change-contact",
+        "data": {
+            list_user_id: ["1", "2"]
+        }
+    }
+    """
+    data = data_json["data"]
+    list_user_id = data.get("list_user_id", [])
+    res = WebSocketResponse(
+        action=data_json["action"],
+        data= data
+    )
+    try:
+        for user_id in list_user_id:
+            if user_id in map_user_connection:
+                await map_user_connection[user_id].send_text(res.json())
+    except Exception as e:
+        print(f"Error sending message: {e}")

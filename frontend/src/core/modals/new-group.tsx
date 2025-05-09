@@ -7,6 +7,7 @@ import { UploadOutlined } from '@ant-design/icons';
 import { notify } from "@/core/utils/notification";
 import httpRequest from "@/core/api/baseAxios";
 import { useEffect } from "react";
+import { getAvatarUrl } from "../utils/helper";
 
 
 interface Props {
@@ -107,11 +108,7 @@ const NewGroupModal: React.FC<Props> = ({ open, onClose, onNext }) => {
         >
           <Avatar
             size={100}
-            src={
-              avatarUrl === 'default1'
-                ? 'assets/img/profiles/avatar-16.jpg'
-                : `http://localhost:9990/${avatarUrl}`
-            }
+            src={getAvatarUrl(avatarUrl)}
             icon={<UploadOutlined />}
           />
         </Upload>
