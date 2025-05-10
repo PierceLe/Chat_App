@@ -673,7 +673,12 @@ const Chat = () => {
                   {state && (
                     <h6>{`${state.friend_frist_name} ${state.friend_last_name}`}</h6>
                   )}
-                  <span className="last-seen">Online</span>
+                  {usersOnline.has(state.friend_id) ? (
+                    <span className="last-seen">Online</span>
+                  ) : (
+                    <span className="last-seen">Offline</span>
+                  )}
+                  
                 </div>
               </div>
               <div className="chat-options">
