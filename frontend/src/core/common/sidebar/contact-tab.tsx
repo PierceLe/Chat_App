@@ -164,11 +164,54 @@ const ContactTab = () => {
                 handleOpenUserDetail(user_id);
               }}
             >
+              <div className={`avatar avatar-lg ${is_online? 'online': 'offline'} flex-shrink-0`}>
+                <Avatar
+                  size={32}
+                  src={getAvatarUrl(avatar_url)}
+                />
+              </div>
+              <div className="chat-user-info" style={{marginLeft: '7px'}}>
+                <div className="chat-user-msg">
+                  <h6>
+                    {first_name} {last_name}
+                  </h6>
+                  <p>{email}</p>
+                </div>
+              </div>
+            </Link>
+          </div>
+        </div>
+      </>
+    );
+  };
+
+  const OneContactSendTab = ({
+    user_id,
+    email,
+    first_name,
+    last_name,
+    avatar_url,
+    is_online
+  }: any) => {
+    return (
+      <>
+        <div className="mb-4">
+          <div className="chat-list">
+            <Link
+              to="#"
+              // data-bs-toggle="modal"
+              // data-bs-target="#contact-details"
+              className="chat-user-list"
+              onClick={(e) => {
+                e.preventDefault();
+                handleOpenUserDetail(user_id);
+              }}
+            >
               <div className={`avatar avatar-lg me-2`}>
                 <Avatar
                   size={32}
                   src={getAvatarUrl(avatar_url)}
-                  />
+                />
               </div>
               <div className="chat-user-info">
                 <div className="chat-user-msg">
@@ -318,7 +361,7 @@ const ContactTab = () => {
               {/* /Left Chat Title */}
               <div className="chat-users-wrap">
                 {contact.send_friend.map((item) => (
-                  <OneContactTab
+                  <OneContactSendTab
                     key={item.user_id}
                     user_id={item.user_id}
                     email={item.email}
@@ -327,7 +370,7 @@ const ContactTab = () => {
                     avatar_url={item.avatar_url}
                     is_verified={item.is_verified}
                     is_online = {usersOnline.has(item.user_id)}
-                ></OneContactTab>
+                ></OneContactSendTab>
                 ))}
               </div>
               {/* Left Chat Title */}
