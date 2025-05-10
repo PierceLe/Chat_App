@@ -15,6 +15,7 @@ import { getAllMessInRoom, getMoreMessInRoom, MessageData, SendMessageData } fro
 import { wsClient } from "@/core/services/websocket";
 import { getRoomById, RoomData, getAllUsersInRoom, getEncryptedGroupKey } from "@/core/services/roomService";
 import { format } from "date-fns";
+import { UploadOutlined, EditOutlined } from '@ant-design/icons';
 import { decryptMessage, decryptSymmetricKey, encryptMessage } from "@/core/utils/encryption";
 import { getAvatarUrl } from "@/core/utils/helper";
 import { downloadAndDecryptFile, uploadFile } from "@/core/utils/file";
@@ -1115,6 +1116,57 @@ const GroupChat = () => {
                   );
                 }}
           />
+        </Modal>
+
+        {/* Rename Group Modal */}
+        <Modal title="Rename Group"
+               open={isRenameGroupModalVisible}
+               onCancel={() => setIsRenameGroupModalVisible(false)}
+               footer={[
+                 <Button key="cancel" onClick={() => setIsRenameGroupModalVisible(false)}>
+                   Cancel
+                 </Button>,
+                 <Button key="rename" type="primary"
+                         onClick={async () => {
+                           try {
+                             if (!groupName.trim()) {
+                               notify.error('Empty name', 'Please enter a group name');
+                               return;
+                             }
+
+                             // Call API to rename group
+                             const response = await httpRequest.put('/room/meta',
+                                 { room_name: groupName },
+                                 { params: { room_id: room_id } }
+                             );
+
+                             if (response.code === 0) {
+                               notify.success('Success', 'Group renamed successfully');
+
+                               // Refresh room data and reset state
+                               await fetchApiGetRoomById(room_id as string);
+                               setGroupName('');
+                               setIsRenameGroupModalVisible(false);
+                             } else {
+                               const errorMessage = response?.error_message || 'Failed to rename group';
+                               notify.error('Error', errorMessage);
+                             }
+                           } catch (error: any) {
+                             console.error(error);
+                             notify.error('Failed to rename group', 'Please try again later');
+                           }
+                         }}
+                 >
+                   Rename
+                 </Button>,
+               ]}
+        >
+          <div style={{ marginBottom: 16 }}>
+            <Input placeholder="New group name"
+                   value={groupName}
+                   onChange={(e) => setGroupName(e.target.value)}
+                   prefix={<EditOutlined />} />
+          </div>
         </Modal>
 
         <CommonGroupModal />
