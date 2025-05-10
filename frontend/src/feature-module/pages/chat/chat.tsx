@@ -758,39 +758,48 @@ const Chat = () => {
               onScrollFrame={handleScroll}
             >
               <div className="chat-body chat-page-group ">
-                <div className="messages">
-                  {messages.map((item) => {
-                    if (item.sender.user_id === me.user_id) {
+              {messages.map((item) => {
+                    if (item.message_type === 5) {
                       return (
-                        <OneMessageInRight
-                          key={item.id}
-                          id={item.id}
-                          room_id={item.room_id}
-                          message_type={item.message_type}
-                          content={item.content}
-                          file_url={item.file_url}
-                          created_at={item.created_at}
-                          updated_at={item.updated_at}
-                          sender={item.sender}
-                        ></OneMessageInRight>
+                        <div key={item.id} className="d-flex justify-content-center">
+                          <p><i className="fas fa-bullhorn me-2" style={{ color: 'oklch(60.9% 0.126 221.723)' }}></i>{item.content}</p>
+                        </div>
+                      );
+                    }
+                    else if (item.sender.user_id === me.user_id) {
+                      return (
+                        <div className="messages">
+                          <OneMessageInRight
+                              key={item.id}
+                              id={item.id}
+                              room_id={item.room_id}
+                              message_type={item.message_type}
+                              content={item.content}
+                              file_url={item.file_url}
+                              created_at={item.created_at}
+                              updated_at={item.updated_at}
+                              sender={item.sender}
+                          ></OneMessageInRight>
+                        </div>
                       );
                     } else {
                       return (
-                        <OneMessageInLeft
-                          key={item.id}
-                          id={item.id}
-                          room_id={item.room_id}
-                          message_type={item.message_type}
-                          content={item.content}
-                          file_url={item.file_url}
-                          created_at={item.created_at}
-                          updated_at={item.updated_at}
-                          sender={item.sender}
-                        ></OneMessageInLeft>
+                        <div className="messages">
+                          <OneMessageInLeft
+                              key={item.id}
+                              id={item.id}
+                              room_id={item.room_id}
+                              message_type={item.message_type}
+                              content={item.content}
+                              file_url={item.file_url}
+                              created_at={item.created_at}
+                              updated_at={item.updated_at}
+                              sender={item.sender}
+                          ></OneMessageInLeft>
+                        </div>
                       );
                     }
                   })}
-                </div>
               </div>
             </Scrollbars>
           </div>

@@ -13,7 +13,7 @@ import {
 import useDebounce from "../../hooks/useDebounce";
 import ContactDetailsCustom from "../../modals/contact-details-custom";
 import { wsClient } from "@/core/services/websocket";
-import { getOnlineUserIds } from "@/core/services/messageService";
+import { getOnlineUserIds, SendMessageData } from "@/core/services/messageService";
 import { Avatar } from "antd";
 import { getAvatarUrl } from "@/core/utils/helper";
 import { useDispatch, useSelector } from "react-redux";
@@ -22,6 +22,9 @@ import { setUsersOnline } from "@/core/redux/reducers/getUsersOnlineSlice";
 import { setContact } from "@/core/redux/reducers/getContactSlice";
 import ContactUserDetailModal from "@/core/modals/user-detail";
 import AddContactNewModal from "@/core/modals/add-contact-new";
+import { encryptMessage, encryptSymmetricKey, generateSymmetricKey } from "@/core/utils/encryption";
+import { createRoom } from "@/core/services/roomService";
+import httpRequest from "@/core/api/baseAxios";
 
 const ContactTab = () => {
   const dispatch = useDispatch();
@@ -111,8 +114,10 @@ const ContactTab = () => {
     const res: any = await acceptFriend(user_id, is_accept);
     const userIds : Array<String> = [user_id, me.user_id]
     if (res.code === 0) {
-      fetchApiGetFriend();
-      fetchApiGetFriendDraft();
+      await Promise.all([
+        fetchApiGetFriend(),
+        fetchApiGetFriendDraft()
+      ]);
     }
     wsClient.send({
       action: "change-contact",
@@ -120,6 +125,64 @@ const ContactTab = () => {
         list_user_id: userIds
       },
     });
+
+    await new Promise(resolve => setTimeout(resolve, 500));
+    const resGetFriendsAgain = await httpRequest.get("/friend/all");
+    const friendsAfterAccept = resGetFriendsAgain.result
+
+    // Call API create Room 1-1
+    const groupKey = await generateSymmetricKey();
+
+    const myPublicKey = localStorage.getItem("publicKey");
+    if (!myPublicKey) {
+      console.error("Missing publicKey in localStorage");
+      return; 
+    }
+
+    console.log('friendsAfterAccept', friendsAfterAccept)
+    const selectedFriend = friendsAfterAccept.find((friend) => friend.user_id === user_id);
+    console.log('selectedFriend add friend', selectedFriend)
+    if (!selectedFriend || !selectedFriend.public_key) {
+      console.error(`No public key for user ${selectedFriend?.user_id}`);
+      return;
+    }
+
+    const encryptedGroupKey = await encryptSymmetricKey(groupKey, myPublicKey);
+    const memberEncryptedKey = await encryptSymmetricKey(groupKey, selectedFriend.public_key);
+
+    const room_id = await createRoom(
+      "Chat 1-1",
+      1,
+      "",
+      "chat 1-1",
+      [selectedFriend.user_id],
+      [memberEncryptedKey], 
+      encryptedGroupKey
+    );
+
+    if (room_id) {
+      wsClient.send({
+        action: "join",
+        data: {
+          user_ids: [selectedFriend.user_id],
+          room_id,
+        },
+      });
+
+      const encryptedMessageRemoved = await encryptMessage(`You have become friends.`, groupKey);
+
+      const messageData: SendMessageData = {
+        room_id,
+        content: encryptedMessageRemoved,
+        file_url: null,
+        message_type: 5,
+      };
+
+      wsClient.send({
+        action: "chat",
+        data: messageData,
+      });
+    }
   };
 
   const [showModal, setShowModal] = useState(false); // State controlling modal
