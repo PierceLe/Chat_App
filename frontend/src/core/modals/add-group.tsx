@@ -5,7 +5,8 @@ import { useSelector } from "react-redux";
 import {
   roomDescriptionSelector,
   roomNameSelector,
-  roomAvatarUrlSelector
+  roomAvatarUrlSelector,
+  getMeSelector
 } from "../redux/selectors";
 import { createRoom } from "../services/roomService";
 import { wsClient } from "../services/websocket";
@@ -27,6 +28,7 @@ const AddGroupModal: React.FC<Props> = ({ open, onClose, onBack }) => {
   const roomName = useSelector(roomNameSelector);
   const roomDescription = useSelector(roomDescriptionSelector);
   const roomAvatarUrl = useSelector(roomAvatarUrlSelector)
+  const userMe: UserData = useSelector(getMeSelector);
 
   const fetchApiGetFriend = async () => {
     const result = await getAllFriends();
@@ -90,7 +92,7 @@ const AddGroupModal: React.FC<Props> = ({ open, onClose, onBack }) => {
         },
       });
 
-      const encryptedContent = await encryptMessage(`Group ${roomName} created`, groupKey);
+      const encryptedContent = await encryptMessage(`@${userMe.email} created this group`, groupKey);
 
       const messageData: SendMessageData = {
         room_id,
