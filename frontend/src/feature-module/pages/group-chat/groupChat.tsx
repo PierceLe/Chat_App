@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import ImageWithBasePath from "../../../core/common/imageWithBasePath";
 import Lightbox from "yet-another-react-lightbox";
 import "yet-another-react-lightbox/styles.css";
@@ -15,7 +15,7 @@ import { getAllMessInRoom, getMoreMessInRoom, MessageData, SendMessageData } fro
 import { wsClient } from "@/core/services/websocket";
 import { getRoomById, RoomData, getAllUsersInRoom, getEncryptedGroupKey } from "@/core/services/roomService";
 import { format } from "date-fns";
-import { UploadOutlined, EditOutlined } from '@ant-design/icons';
+import { UploadOutlined, EditOutlined, ExclamationCircleOutlined } from '@ant-design/icons';
 import { decryptMessage, decryptSymmetricKey, encryptMessage, encryptSymmetricKey } from "@/core/utils/encryption";
 import { getAvatarUrl } from "@/core/utils/helper";
 import { downloadAndDecryptFile, uploadFile } from "@/core/utils/file";
@@ -40,17 +40,20 @@ const GroupChat = () => {
   const [isRemoveMemberModalVisible, setIsRemoveMemberModalVisible] = useState(false);
   const [isRenameGroupModalVisible, setIsRenameGroupModalVisible] = useState(false);
   const [isChangeAvatarModalVisible, setIsChangeAvatarModalVisible] = useState(false);
+  const [isDeleteGroupModalVisible, setIsDeleteGroupModalVisible] = useState(false);
   const [avatarUrl, setAvatarUrl] = useState('');
   const [groupName, setGroupName] = useState('');
   const [availableFriends, setAvailableFriends] = useState<UserData[]>([]);
   const [selectedMembersToAdd, setSelectedMembersToAdd] = useState<Set<string>>(new Set());
   const [selectedMembersToRemove, setSelectedMembersToRemove] = useState<Set<string>>(new Set());
+  const [isDeletingGroup, setIsDeletingGroup] = useState(false);
 
   const me: UserData = useSelector(getMeSelector);
   const { room_id } = useParams<RouteParams>();
   const scrollbarsRef = useRef<Scrollbars>(null);
   const routes = all_routes;
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const navigate = useNavigate();
 
   const toggleEmoji = (groupId: number): void => {
     setShowEmoji((prev) => ({
@@ -733,8 +736,7 @@ const GroupChat = () => {
                           <Link
                               to="#"
                               className="dropdown-item"
-                              data-bs-toggle="modal"
-                              data-bs-target="#delete-chat"
+                              onClick={() => setIsDeleteGroupModalVisible(true)}
                           >
                             <i className="ti ti-trash me-2" />
                             Delete Group
@@ -781,42 +783,42 @@ const GroupChat = () => {
                   {messages.map((item) => {
                     if (item.message_type === 5) {
                       return (
-                        <div key={item.id} className="d-flex justify-content-center">
-                          <p><i className="fas fa-bullhorn me-2" style={{ color: 'oklch(60.9% 0.126 221.723)' }}></i>{item.content}</p>
-                        </div>
+                          <div key={item.id} className="d-flex justify-content-center">
+                            <p><i className="fas fa-bullhorn me-2" style={{ color: 'oklch(60.9% 0.126 221.723)' }}></i>{item.content}</p>
+                          </div>
                       );
                     }
                     else if (item.sender.user_id === me.user_id) {
                       return (
-                        <div className="messages">
-                          <OneMessageInRight
-                              key={item.id}
-                              id={item.id}
-                              room_id={item.room_id}
-                              message_type={item.message_type}
-                              content={item.content}
-                              file_url={item.file_url}
-                              created_at={item.created_at}
-                              updated_at={item.updated_at}
-                              sender={item.sender}
-                          ></OneMessageInRight>
-                        </div>
+                          <div className="messages">
+                            <OneMessageInRight
+                                key={item.id}
+                                id={item.id}
+                                room_id={item.room_id}
+                                message_type={item.message_type}
+                                content={item.content}
+                                file_url={item.file_url}
+                                created_at={item.created_at}
+                                updated_at={item.updated_at}
+                                sender={item.sender}
+                            ></OneMessageInRight>
+                          </div>
                       );
                     } else {
                       return (
-                        <div className="messages">
-                          <OneMessageInLeft
-                              key={item.id}
-                              id={item.id}
-                              room_id={item.room_id}
-                              message_type={item.message_type}
-                              content={item.content}
-                              file_url={item.file_url}
-                              created_at={item.created_at}
-                              updated_at={item.updated_at}
-                              sender={item.sender}
-                          ></OneMessageInLeft>
-                        </div>
+                          <div className="messages">
+                            <OneMessageInLeft
+                                key={item.id}
+                                id={item.id}
+                                room_id={item.room_id}
+                                message_type={item.message_type}
+                                content={item.content}
+                                file_url={item.file_url}
+                                created_at={item.created_at}
+                                updated_at={item.updated_at}
+                                sender={item.sender}
+                            ></OneMessageInLeft>
+                          </div>
                       );
                     }
                   })}
@@ -957,55 +959,55 @@ const GroupChat = () => {
                                return;
                              }
 
-                              const listUserIdAdded = Array.from(selectedMembersToAdd)
-                              console.log('selectedMembersToAdd', selectedMembersToAdd)
-                              const listPublicKeyAdded = listUserIdAdded.map(userId => {
-                                const friend = availableFriends.find(f => f.user_id === userId);
-                                return friend ? friend.public_key : null;
-                              });
-                              // Encrypted groupKey by publickey of added user
-                              const listEncryptedGroupKeyAdded = await Promise.all(
-                                listPublicKeyAdded.map(item => encryptSymmetricKey(groupKey, item as any))
-                              );
-                              
-                              const encryptedGroupKey = await httpRequest.get('/room/group-key', {params: {room_id: room_id}});
-                              const response = await httpRequest.post('/room/add',
-                                  {
-                                    room_id: room_id,
-                                    list_user_id: listUserIdAdded,
-                                    list_encrypted_group_key: listEncryptedGroupKeyAdded,
-                                  }
-                              );
+                             const listUserIdAdded = Array.from(selectedMembersToAdd)
+                             console.log('selectedMembersToAdd', selectedMembersToAdd)
+                             const listPublicKeyAdded = listUserIdAdded.map(userId => {
+                               const friend = availableFriends.find(f => f.user_id === userId);
+                               return friend ? friend.public_key : null;
+                             });
+                             // Encrypted groupKey by publickey of added user
+                             const listEncryptedGroupKeyAdded = await Promise.all(
+                                 listPublicKeyAdded.map(item => encryptSymmetricKey(groupKey, item as any))
+                             );
 
-                              if (response.code === 0) {
-                                notify.success('Success', 'Members added successfully');
+                             const encryptedGroupKey = await httpRequest.get('/room/group-key', {params: {room_id: room_id}});
+                             const response = await httpRequest.post('/room/add',
+                                 {
+                                   room_id: room_id,
+                                   list_user_id: listUserIdAdded,
+                                   list_encrypted_group_key: listEncryptedGroupKeyAdded,
+                                 }
+                             );
 
-                                wsClient.send({
-                                  action: "join",
-                                  data: {
-                                    user_ids: Array.from(listUserIdAdded),
-                                    room_id,
-                                  },
-                                });
+                             if (response.code === 0) {
+                               notify.success('Success', 'Members added successfully');
 
-                                const listEmailAdded = listUserIdAdded.map(userId => {
-                                  const friend = availableFriends.find(f => f.user_id === userId);
-                                  return friend ? '@' + friend.email : null;
-                                });
-                                const encryptedContentAdded = await encryptMessage(`@${me.email} added ${listEmailAdded.join(', ')}`, groupKey);
-                                console.log('encryptedContentAdded', encryptedContentAdded)
+                               wsClient.send({
+                                 action: "join",
+                                 data: {
+                                   user_ids: Array.from(listUserIdAdded),
+                                   room_id,
+                                 },
+                               });
 
-                                const messageData: SendMessageData = {
-                                  room_id,
-                                  content: encryptedContentAdded,
-                                  file_url: null,
-                                  message_type: 5,
-                                };
+                               const listEmailAdded = listUserIdAdded.map(userId => {
+                                 const friend = availableFriends.find(f => f.user_id === userId);
+                                 return friend ? '@' + friend.email : null;
+                               });
+                               const encryptedContentAdded = await encryptMessage(`@${me.email} added ${listEmailAdded.join(', ')}`, groupKey);
+                               console.log('encryptedContentAdded', encryptedContentAdded)
 
-                                wsClient.send({
-                                  action: "chat",
-                                  data: messageData,
-                                });
+                               const messageData: SendMessageData = {
+                                 room_id,
+                                 content: encryptedContentAdded,
+                                 file_url: null,
+                                 message_type: 5,
+                               };
+
+                               wsClient.send({
+                                 action: "chat",
+                                 data: messageData,
+                               });
 
                                await fetchApiGetAllUserInRoom(
                                    room_id as string
@@ -1346,6 +1348,53 @@ const GroupChat = () => {
                   </div>
               )}
             </Upload>
+          </div>
+        </Modal>
+
+        {/* Delete Group Modal */}
+        <Modal
+            title="Delete Group"
+            open={isDeleteGroupModalVisible}
+            onCancel={() => setIsDeleteGroupModalVisible(false)}
+            footer={[
+              <Button key="cancel" onClick={() => setIsDeleteGroupModalVisible(false)}>
+                Cancel
+              </Button>,
+              <Button
+                  key="delete"
+                  type="primary"
+                  danger
+                  loading={isDeletingGroup}
+                  onClick={async () => {
+                    try {
+                      setIsDeletingGroup(true);
+                      const response = await httpRequest.delete('/room', {
+                        params: { room_id: room_id },
+                      });
+
+                      if (response.code === 0) {
+                        notify.success('Group deleted successfully');
+                        setIsDeleteGroupModalVisible(false);
+                        navigate('/chat');
+                      } else {
+                        const errorMessage = response?.data?.message || 'Failed to delete group';
+                        notify.error('Error', errorMessage);
+                      }
+                    } catch (error: any) {
+                      console.error(error);
+                      notify.error('Failed to delete group', 'Please try again later');
+                    } finally {
+                      setIsDeletingGroup(false);
+                    }
+                  }}
+              >
+                Delete
+              </Button>,
+            ]}
+        >
+          <div style={{ textAlign: 'center', marginBottom: 20 }}>
+            <ExclamationCircleOutlined style={{ fontSize: '48px', color: '#faad14' }} />
+            <p>Are you sure you want to delete this group? This action cannot be undone.</p>
           </div>
         </Modal>
 
