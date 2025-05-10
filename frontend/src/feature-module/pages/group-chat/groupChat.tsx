@@ -16,7 +16,7 @@ import { wsClient } from "@/core/services/websocket";
 import { getRoomById, RoomData, getAllUsersInRoom, getEncryptedGroupKey } from "@/core/services/roomService";
 import { format } from "date-fns";
 import { UploadOutlined, EditOutlined } from '@ant-design/icons';
-import { decryptMessage, decryptSymmetricKey, encryptMessage } from "@/core/utils/encryption";
+import { decryptMessage, decryptSymmetricKey, encryptMessage, encryptSymmetricKey } from "@/core/utils/encryption";
 import { getAvatarUrl } from "@/core/utils/helper";
 import { downloadAndDecryptFile, uploadFile } from "@/core/utils/file";
 import { notify } from "@/core/utils/notification";
@@ -778,39 +778,48 @@ const GroupChat = () => {
                   onScrollFrame={handleScroll}
               >
                 <div className="chat-body chat-page-group ">
-                  <div className="messages">
-                    {messages.map((item) => {
-                      if (item.sender.user_id === me.user_id) {
-                        return (
-                            <OneMessageInRight
-                                key={item.id}
-                                id={item.id}
-                                room_id={item.room_id}
-                                message_type={item.message_type}
-                                content={item.content}
-                                file_url={item.file_url}
-                                created_at={item.created_at}
-                                updated_at={item.updated_at}
-                                sender={item.sender}
-                            ></OneMessageInRight>
-                        );
-                      } else {
-                        return (
-                            <OneMessageInLeft
-                                key={item.id}
-                                id={item.id}
-                                room_id={item.room_id}
-                                message_type={item.message_type}
-                                content={item.content}
-                                file_url={item.file_url}
-                                created_at={item.created_at}
-                                updated_at={item.updated_at}
-                                sender={item.sender}
-                            ></OneMessageInLeft>
-                        );
-                      }
-                    })}
-                  </div>
+                  {messages.map((item) => {
+                    if (item.message_type === 5) {
+                      return (
+                        <div key={item.id} className="d-flex justify-content-center">
+                          <p><i className="fas fa-bullhorn me-2" style={{ color: 'oklch(60.9% 0.126 221.723)' }}></i>{item.content}</p>
+                        </div>
+                      );
+                    }
+                    else if (item.sender.user_id === me.user_id) {
+                      return (
+                        <div className="messages">
+                          <OneMessageInRight
+                              key={item.id}
+                              id={item.id}
+                              room_id={item.room_id}
+                              message_type={item.message_type}
+                              content={item.content}
+                              file_url={item.file_url}
+                              created_at={item.created_at}
+                              updated_at={item.updated_at}
+                              sender={item.sender}
+                          ></OneMessageInRight>
+                        </div>
+                      );
+                    } else {
+                      return (
+                        <div className="messages">
+                          <OneMessageInLeft
+                              key={item.id}
+                              id={item.id}
+                              room_id={item.room_id}
+                              message_type={item.message_type}
+                              content={item.content}
+                              file_url={item.file_url}
+                              created_at={item.created_at}
+                              updated_at={item.updated_at}
+                              sender={item.sender}
+                          ></OneMessageInLeft>
+                        </div>
+                      );
+                    }
+                  })}
                 </div>
               </Scrollbars>
             </div>
@@ -948,17 +957,55 @@ const GroupChat = () => {
                                return;
                              }
 
-                             const encryptedGroupKey = await httpRequest.get('/room/group-key', {params: {room_id: room_id}});
-                             const response = await httpRequest.post('/room/add',
-                                 {
-                                   room_id: room_id,
-                                   list_user_id: Array.from(selectedMembersToAdd),
-                                   list_encrypted_group_key: new Array(selectedMembersToAdd.size).fill(encryptedGroupKey.result),
-                                 }
-                             );
+                              const listUserIdAdded = Array.from(selectedMembersToAdd)
+                              console.log('selectedMembersToAdd', selectedMembersToAdd)
+                              const listPublicKeyAdded = listUserIdAdded.map(userId => {
+                                const friend = availableFriends.find(f => f.user_id === userId);
+                                return friend ? friend.public_key : null;
+                              });
+                              // Encrypted groupKey by publickey of added user
+                              const listEncryptedGroupKeyAdded = await Promise.all(
+                                listPublicKeyAdded.map(item => encryptSymmetricKey(groupKey, item as any))
+                              );
+                              
+                              const encryptedGroupKey = await httpRequest.get('/room/group-key', {params: {room_id: room_id}});
+                              const response = await httpRequest.post('/room/add',
+                                  {
+                                    room_id: room_id,
+                                    list_user_id: listUserIdAdded,
+                                    list_encrypted_group_key: listEncryptedGroupKeyAdded,
+                                  }
+                              );
 
-                             if (response.code === 0) {
-                               notify.success('Success', 'Members added successfully');
+                              if (response.code === 0) {
+                                notify.success('Success', 'Members added successfully');
+
+                                wsClient.send({
+                                  action: "join",
+                                  data: {
+                                    user_ids: Array.from(listUserIdAdded),
+                                    room_id,
+                                  },
+                                });
+
+                                const listEmailAdded = listUserIdAdded.map(userId => {
+                                  const friend = availableFriends.find(f => f.user_id === userId);
+                                  return friend ? '@' + friend.email : null;
+                                });
+                                const encryptedContentAdded = await encryptMessage(`@${me.email} added ${listEmailAdded.join(', ')}`, groupKey);
+                                console.log('encryptedContentAdded', encryptedContentAdded)
+
+                                const messageData: SendMessageData = {
+                                  room_id,
+                                  content: encryptedContentAdded,
+                                  file_url: null,
+                                  message_type: 5,
+                                };
+
+                                wsClient.send({
+                                  action: "chat",
+                                  data: messageData,
+                                });
 
                                await fetchApiGetAllUserInRoom(
                                    room_id as string
