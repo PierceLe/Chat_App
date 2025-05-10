@@ -25,6 +25,7 @@ const TimeTableTab = () => {
   const [isEditMode, setIsEditMode] = useState(false);
   const [deleteConfirmVisible, setDeleteConfirmVisible] = useState(false);
   const [viewModalVisible, setViewModalVisible] = useState(false);
+  const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
 
   const contact: any = useSelector(getContactSelector);
   const me: UserData = useSelector(getMeSelector);
@@ -109,6 +110,10 @@ const TimeTableTab = () => {
                     <Link
                         to={routes.timetable}
                         className="chat-user-list active"
+                        onClick={() => {
+                          setSelectedUserId(null);
+                          setViewModalVisible(false);
+                        }}
                     >
                       <div className="avatar avatar-lg me-2">
                         {me?.avatar_url ? (
@@ -170,6 +175,13 @@ const TimeTableTab = () => {
                                         key={friend.user_id}
                                         to={`${routes.timetable}?userId=${friend.user_id}`}
                                         className="chat-user-list"
+                                        onClick={() => {
+                                          setSelectedUserId(friend.user_id);
+                                          setViewModalVisible(false);
+                                        }}
+                                        style={{
+                                          border: selectedUserId === friend.user_id ? '2px solid #6338f6' : 'transparent',
+                                        }}
                                     >
                                       <div className="avatar avatar-lg me-2">
                                         {friend.avatar_url ? (
