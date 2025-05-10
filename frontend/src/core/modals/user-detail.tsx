@@ -6,7 +6,7 @@ import { notify } from "../utils/notification";
 import { getAvatarUrl } from "../utils/helper";
 import { useSelector } from "react-redux";
 import { getUsersOnlineSelector } from "../redux/selectors";
-import { MessageOutlined, ScheduleOutlined } from '@ant-design/icons';
+import { MessageOutlined, ScheduleOutlined, UserDeleteOutlined } from '@ant-design/icons';
 import { useNavigate } from "react-router-dom";
 import { all_routes } from "@/feature-module/router/all_routes";
 
@@ -14,9 +14,10 @@ interface Props {
   visible: boolean;
   onClose: () => void;
   userId: string | null;
+  onUnfriendSuccess?: () => void;
 }
 
-const ContactUserDetailModal: React.FC<Props> = ({ visible, onClose, userId }) => {
+const ContactUserDetailModal: React.FC<Props> = ({ visible, onClose, userId, onUnfriendSuccess }) => {
   const [userData, setUserData] = useState<UserData | null>(null);
   const [loading, setLoading] = useState(false);
   const usersOnline: Set<String> = useSelector(getUsersOnlineSelector);
@@ -56,6 +57,27 @@ const ContactUserDetailModal: React.FC<Props> = ({ visible, onClose, userId }) =
   const handleTimetable = async () => {
     navigate(`${routes.timetable}/?userId=${userId}`);
     onClose();
+  }
+
+  const handleUnfriend = async () => {
+    try {
+      const res = await httpRequest.post("/friend/unfriend", {
+        friend_id: userId,
+      })
+
+      if (res.code === 0) {
+        notify.success("Unfriend successfully")
+        onUnfriendSuccess();
+      } else {
+        notify.error("Error", "Unfriend faileddd!")
+      }
+    } catch (error) {
+      console.error(error)
+      notify.error("Error", "Unfriend failed !")
+    } finally {
+      onClose();
+    }
+   
   }
 
   return (
@@ -110,6 +132,9 @@ const ContactUserDetailModal: React.FC<Props> = ({ visible, onClose, userId }) =
             </Button>
             <Button icon={<ScheduleOutlined />} onClick={handleTimetable}>
               Timetable
+            </Button>
+            <Button danger icon={<UserDeleteOutlined />} onClick={handleUnfriend}>
+              Unfriend
             </Button>
           </div>
 

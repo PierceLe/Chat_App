@@ -489,6 +489,11 @@ const ContactTab = () => {
         visible={isModalVisible}
         onClose={handleCloseModal}
         userId={selectedUserId}
+        onUnfriendSuccess={() => {
+          fetchApiGetAllContact();
+          fetchApiGetFriendDraft();
+          fetchApiGetFriend();
+        }}
       />
       <AddContactNewModal
         visible={showAddContact}
