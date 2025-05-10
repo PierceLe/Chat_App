@@ -263,15 +263,15 @@ const ChatTab = () => {
               <div className="header-title d-flex align-items-center justify-content-between">
                 <h4 className="mb-3">Chats</h4>
                 <div className="d-flex align-items-center mb-3">
-                  <button
+                  {/* <button
                     onClick={openNewChat}
                     className="add-icon btn btn-primary p-0 d-flex align-items-center justify-content-center fs-16 me-2"
                   >
                     <i className="ti ti-plus" />
                   </button>
-                  <NewChat isModalVisible={isModalVisible} onClose={closeNewChat} />
+                  <NewChat isModalVisible={isModalVisible} onClose={closeNewChat} /> */}
                   
-                  <div className="dropdown">
+                  {/* <div className="dropdown">
                     <Link
                       to="#"
                       data-bs-toggle="dropdown"
@@ -292,7 +292,7 @@ const ChatTab = () => {
                         </Link>
                       </li>
                     </ul>
-                  </div>
+                  </div> */}
                 </div>
               </div>
               {/* Chat Search */}
@@ -320,7 +320,7 @@ const ChatTab = () => {
             <div className="top-online-contacts">
               <div className="d-flex align-items-center justify-content-between">
                 <h5 className="mb-3">Recent Chats</h5>
-                <div className="dropdown mb-3">
+                {/* <div className="dropdown mb-3">
                   <Link
                     to="#"
                     className="text-default"
@@ -343,7 +343,7 @@ const ChatTab = () => {
                       </Link>
                     </li>
                   </ul>
-                </div>
+                </div> */}
               </div>
               <div className="swiper-container">
                 <div className="swiper-wrapper" style={{marginLeft: '15px'}}>
