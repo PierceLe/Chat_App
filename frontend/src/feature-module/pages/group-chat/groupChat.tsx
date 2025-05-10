@@ -3,7 +3,7 @@ import { Link, useParams } from "react-router-dom";
 import ImageWithBasePath from "../../../core/common/imageWithBasePath";
 import Lightbox from "yet-another-react-lightbox";
 import "yet-another-react-lightbox/styles.css";
-import { Avatar, Button, Checkbox, Input, List, Modal, Tooltip } from "antd";
+import { Avatar, Button, Checkbox, Input, List, Modal, Tooltip, Upload } from "antd";
 import CommonGroupModal from "../../../core/modals/common-group-modal";
 import { all_routes } from "../../router/all_routes";
 import ForwardMessage from "../../../core/modals/forward-message";
@@ -1166,6 +1166,139 @@ const GroupChat = () => {
                    value={groupName}
                    onChange={(e) => setGroupName(e.target.value)}
                    prefix={<EditOutlined />} />
+          </div>
+        </Modal>
+
+        {/* Change Avatar Modal */}
+        <Modal title="Change Group Avatar"
+               open={isChangeAvatarModalVisible}
+               onCancel={() => setIsChangeAvatarModalVisible(false)}
+               footer={[
+                 <Button key="cancel" onClick={() => setIsChangeAvatarModalVisible(false)}>
+                   Cancel
+                 </Button>,
+                 <Button key="generate"
+                         style={{ marginRight: 8 }}
+                         onClick={async () => {
+                           // Generate default avatar from members
+                           try {
+                             if (listUserInRoom.length < 2) {
+                               notify.error('Not enough members', 'Need at least 2 members to create a default group avatar');
+                               return;
+                             }
+                             // Update the avatar
+                             const response = await httpRequest.put('/room/meta',
+                                 {
+                                   avatar_url: listUserInRoom[0].avatar_url,
+                                 },
+                                 {
+                                   params: { room_id: room_id },
+                                 }
+                             );
+
+                             if (response.code === 0) {
+                               notify.success('Success', 'Default avatar created successfully');
+
+                               // Refresh room data and close modal
+                               await fetchApiGetRoomById(room_id as string);
+                               setIsChangeAvatarModalVisible(false);
+                             } else {
+                               const errorMessage = response?.data?.message || 'Failed to update avatar';
+                               notify.error('Error', errorMessage);
+                             }
+                           } catch (error: any) {
+                             console.error(error);
+                             notify.error('Failed to update avatar', 'Please try again later');
+                           }
+                         }}
+                 >
+                   Generate Default Avatar
+                 </Button>,
+                 <Button key="update"
+                         type="primary"
+                         onClick={async () => {
+                           try {
+                             if (!avatarUrl) {
+                               notify.error('No avatar selected', 'Please upload an avatar image');
+                               return;
+                             }
+
+                             // Call API to update avatar
+                             const response = await httpRequest.put('/room/meta',
+                                 {
+                                   room_name: roomData?.room_name,
+                                   avatar_url: avatarUrl,
+                                 },
+                                 {
+                                   params: { room_id: room_id },
+                                 }
+                             );
+
+                             if (response.code === 0) {
+                               notify.success('Avatar updated successfully');
+                               setIsChangeAvatarModalVisible(false);
+                               fetchApiGetRoomById(room_id as string);
+                               setAvatarUrl('');
+                             }
+                           } catch (error: any) {
+                             console.error(error);
+                             notify.error('Failed to update avatar', 'Please try again later');
+                           }
+                         }}
+                 >
+                   Update Avatar
+                 </Button>,
+               ]}
+        >
+          <div style={{ textAlign: 'center', marginBottom: 20 }}>
+            <Upload name="file"
+                    listType="picture-card"
+                    showUploadList={false}
+                    accept="image/*"
+                    customRequest={async (options) => {
+                      const { file, onSuccess, onError } = options;
+
+                      const formData = new FormData();
+                      formData.append('file', file as any);
+
+                      try {
+                        const response = await httpRequest.post('/file/upload',
+                            formData,
+                            {
+                              params: { type: 'public' },
+                              headers: {
+                                Accept: 'application/json',
+                              },
+                            }
+                        );
+
+                        if (response.code !== 0) {
+                          notify.error('Upload Failed', 'Failed to upload avatar image');
+                          onError && onError(new Error('Upload failed'));
+                          return;
+                        }
+
+                        const uploadedUrl = response.result;
+                        onSuccess && onSuccess(uploadedUrl);
+                        setAvatarUrl(response.result);
+                      } catch (error: any) {
+                        notify.error('Upload Failed', 'Failed to upload avatar image');
+                        onError && onError(error);
+                      }
+                    }
+                    }
+            >
+              {avatarUrl ? (
+                  <img src={getAvatarUrl(avatarUrl)}
+                       alt="avatar"
+                       style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+              ) : (
+                  <div>
+                    <UploadOutlined />
+                    <div style={{ marginTop: 8 }}>Upload</div>
+                  </div>
+              )}
+            </Upload>
           </div>
         </Modal>
 
