@@ -1022,6 +1022,101 @@ const GroupChat = () => {
           />
         </Modal>
 
+        {/* Remove Member Modal */}
+        <Modal title="Remove Members from Group"
+               open={isRemoveMemberModalVisible}
+               onCancel={() => setIsRemoveMemberModalVisible(false)}
+               footer={[
+                 <Button key="cancel"
+                         onClick={() => setIsRemoveMemberModalVisible(false)}>
+                   Cancel
+                 </Button>,
+                 <Button key="remove"
+                         type="primary"
+                         danger
+                         onClick={async () => {
+                           try {
+                             if (selectedMembersToRemove.size === 0) {
+                               notify.error('No members selected', 'Please select at least one member to remove');
+                               return;
+                             }
+                             // Call API to remove members
+                             const response = await httpRequest.post('/room/remove',
+                                 {
+                                   room_id: room_id,
+                                   list_user_id: Array.from(selectedMembersToRemove),
+                                 }
+                             );
+
+                             if (response.code === 0) {
+                               notify.success('Success', 'Members removed successfully');
+                               // Refresh the member list
+                               await fetchApiGetAllUserInRoom(room_id as string);
+
+                               // Clear selections and close modal
+                               setSelectedMembersToRemove(new Set());
+                               setIsRemoveMemberModalVisible(false);
+                             } else {
+                               const errorMessage = response?.error_message || 'Failed to remove members';
+                               notify.error('Error', errorMessage);
+                             }
+                           } catch (error: any) {
+                             console.error(error);
+                             notify.error('Failed to remove members', 'Please try again later');
+                           }
+                         }}>
+                   Remove Members
+                 </Button>,
+               ]}
+        >
+          <div style={{ marginBottom: 16 }}>
+            <Input.Search placeholder="Search members" style={{ marginBottom: 8 }} />
+          </div>
+          <List itemLayout="horizontal"
+                dataSource={listUserInRoom}
+                renderItem={(member: any) => {
+                  const isCreator = member.user_id === roomData?.creator_id;
+                  const isCurrentUser = member.user_id === me.user_id;
+
+                  return (
+                      <List.Item>
+                        <div style={{ display: 'flex', alignItems: 'center', width: '100%' }}>
+                          <Avatar src={getAvatarUrl(member.avatar_url)} style={{ marginRight: 8 }} />
+                          <div style={{ flex: 1, marginLeft: 8 }}>
+                            <div>
+                              {member.first_name}{' '}
+                              {member.last_name}{' '}
+                              {isCreator && (
+                                  <span style={{ color: 'blue' }}>(Creator)</span>
+                              )}
+                            </div>
+                            <div style={{ fontSize: '12px', color: '#888' }}>
+                              {member.email}
+                            </div>
+                          </div>
+                          {isCreator || isCurrentUser ? (
+                              <span style={{ color: 'gray' }}>
+                          {isCreator ? 'Creator' : 'You'}
+                        </span>
+                          ) : (
+                              <Checkbox checked={selectedMembersToRemove.has(member.user_id)}
+                                        onChange={(e) => {
+                                          const newSelected = new Set(selectedMembersToRemove);
+                                          if (e.target.checked) {
+                                            newSelected.add(member.user_id);
+                                          } else {
+                                            newSelected.delete(member.user_id);
+                                          }
+                                          setSelectedMembersToRemove(newSelected);
+                                        }}/>
+                          )}
+                        </div>
+                      </List.Item>
+                  );
+                }}
+          />
+        </Modal>
+
         <CommonGroupModal />
         <ForwardMessage />
       </>
